@@ -2,9 +2,9 @@ name: Node.js Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "automated_testing" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "automated_testing" ]
 
 jobs:
   test:
