@@ -1,0 +1,24 @@
+{
+  "name": "s26-cpsc4910-team06",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpugmire/S26-CPSC4910-Team06.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jpugmire/S26-CPSC4910-Team06/issues"
+  },
+  "homepage": "https://github.com/jpugmire/S26-CPSC4910-Team06#readme",
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}
