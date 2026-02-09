@@ -20,5 +20,8 @@
   "homepage": "https://github.com/jpugmire/S26-CPSC4910-Team06#readme",
   "devDependencies": {
     "jest": "^30.2.0"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1"
   }
 }
