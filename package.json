@@ -19,6 +19,18 @@
   },
   "homepage": "https://github.com/jpugmire/S26-CPSC4910-Team06#readme",
   "devDependencies": {
-    "jest": "^30.2.0"
+    "@types/node": "^25.2.2",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "jest": "^30.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.3.0",
+    "next": "^16.1.6",
+    "next-auth": "^5.0.0-beta.30",
+    "prisma": "^7.3.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }
