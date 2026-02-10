@@ -23,9 +23,9 @@ con.connect(function(err) {
 
 const server = http.createServer((req, res) => {
   if (req.url == "/about") {
-    con.query("SELECT * FROM Version;", function (err, result) {  // Query the database for version information.
+    con.query("SELECT * FROM Version ORDER BY VersionCreated LIMIT 1;", function (err, result) {  // Query the database for version information (always pulls latest record).
       if (err) throw err;
-      console.log("Result: " + JSON.stringify(result));
+      console.log("Version Number: " + JSON.stringify(result));
       res.writeHead(200, { "Content-Type": "text/plain" });
       res.end("About Page!\n\nVersion: " + result[0].VersionNum + "\nVersion created on: " + result[0].VersionCreated + "\n");
   });
