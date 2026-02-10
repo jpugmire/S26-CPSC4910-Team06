@@ -5,18 +5,18 @@ import bcrypt from "bcryptjs"
 const prisma = new PrismaClient()
 
 async function main() {
-  // Create a test driver
   const hashedPassword = await bcrypt.hash("password123", 10)
 
+  // Create a test driver
   const driver = await prisma.user.create({
     data: {
-      username: "testdriver",
-      password: hashedPassword,
-      email: "driver@test.com",
-      role: "DRIVER",
-      driverProfile: {
+      Username: "testdriver",
+      Password: hashedPassword,
+      Status: "A",
+      User_Type: "D",
+      Driver: {
         create: {
-          pointsBalance: 100,
+          Point_Count: 100,
         },
       },
     },
@@ -25,14 +25,12 @@ async function main() {
   // Create a test sponsor
   const sponsor = await prisma.user.create({
     data: {
-      username: "testsponsor",
-      password: hashedPassword,
-      email: "sponsor@test.com",
-      role: "SPONSOR",
-      sponsorProfile: {
-        create: {
-          companyName: "Test Company",
-        },
+      Username: "testsponsor",
+      Password: hashedPassword,
+      Status: "A",
+      User_Type: "S",
+      Sponsor: {
+        create: {},
       },
     },
   })

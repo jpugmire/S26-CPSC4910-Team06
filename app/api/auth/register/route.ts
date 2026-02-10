@@ -5,19 +5,26 @@ import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password, email, role } = await req.json()
+    const { username, password, userType } = await req.json()
 
     // Validation
-    if (!username || !password) {
+    if (!username || !password || !userType) {
       return NextResponse.json(
-        { error: "Username and password are required" },
+        { error: "Username, password, and userType are required" },
+        { status: 400 }
+      )
+    }
+
+    if (!["D", "S", "A"].includes(userType)) {
+      return NextResponse.json(
+        { error: "userType must be 'D' (Driver), 'S' (Sponsor), or 'A' (Admin)" },
         { status: 400 }
       )
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { username },
+      where: { Username: username },
     })
 
     if (existingUser) {
@@ -33,24 +40,28 @@ export async function POST(req: NextRequest) {
     // Create user with profile
     const user = await prisma.user.create({
       data: {
-        username,
-        password: hashedPassword,
-        email,
-        role: role || "DRIVER",
-        ...(role === "DRIVER"
+        Username: username,
+        Password: hashedPassword,
+        Status: "A",
+        User_Type: userType,
+        ...(userType === "D"
           ? {
-              driverProfile: {
+              Driver: {
                 create: {
-                  pointsBalance: 0,
+                  Point_Count: 0,
                 },
               },
             }
-          : role === "SPONSOR"
+          : userType === "S"
           ? {
-              sponsorProfile: {
-                create: {
-                  companyName: username, // Default, can be updated later
-                },
+              Sponsor: {
+                create: {},
+              },
+            }
+          : userType === "A"
+          ? {
+              Admin: {
+                create: {},
               },
             }
           : {}),
@@ -60,7 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "User created successfully",
-        userId: user.id,
+        userId: user.User_ID,
       },
       { status: 201 }
     )
