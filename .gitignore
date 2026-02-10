@@ -1,2 +1,6 @@
+# Environment
+.env
+
 # Directories
-/node_modules/ 
+/node_modules/
+/.next/
