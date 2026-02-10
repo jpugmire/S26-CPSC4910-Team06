@@ -1,0 +1,41 @@
+name: Deploy to EC2
+on:
+  push:
+    branches: [ "Master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Run CI tests here (example)
+      - name: Run tests
+        run: |
+          npm install
+          npm test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SERVER_SSH}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /S26-CPSC4910-Team06
+            git fetch --all
+            git reset --hard origin/Master
+            # install deps & restart
+            npm install
+            npm run build
+            npm run restart
+          EOF
