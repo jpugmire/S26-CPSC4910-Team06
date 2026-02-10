@@ -4,8 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "dev": "next dev",
     "test": "jest",
-    "start": "node server.js"
+    "build": "next build",
+    "start": "next start"
   },
   "repository": {
     "type": "git",
@@ -19,10 +21,16 @@
   },
   "homepage": "https://github.com/jpugmire/S26-CPSC4910-Team06#readme",
   "devDependencies": {
-    "jest": "^30.2.0"
+    "@types/react": "19.2.13",
+    "jest": "^30.2.0",
+    "typescript": "5.9.3"
   },
   "dependencies": {
-    "dotenv": "^17.2.4",
-    "mysql": "^2.18.1"
+    "express": "^5.2.1",
+    "mysql2": "^3.16.3",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "swr": "^2.4.0"
   }
 }
