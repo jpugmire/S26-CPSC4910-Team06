@@ -27,6 +27,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SERVER_SSH}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+      
+      - name: Create .env file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
 
       - name: Deploy via SSH
         run: |
