@@ -18,6 +18,7 @@ export default async function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl font-bold">Driver Rewards Dashboard</h1>
             <Link href="/about" className="text-sm text-blue-600 hover:underline">About</Link>
+            <Link href="/account" className="text-sm text-blue-600 hover:underline">Account</Link>
             <LogoutButton />
           </div>
         </div>
