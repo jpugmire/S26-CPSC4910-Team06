@@ -10,6 +10,13 @@ export async function POST(req: NextRequest) {
     const session  = await auth();
 
     // Validation
+    if (!session) {
+      return NextResponse.json(
+        { error: "Not logged in." },
+        { status: 400 }
+      )
+    }
+
     if (session?.user?.role !== 'A') {
       return NextResponse.json(
         { error: "Not authorized." },

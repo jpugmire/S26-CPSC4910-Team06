@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 
 export function CreateUserForm() {
   const router = useRouter()
+  const [success, setSuccess] = useState("");
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -35,7 +36,12 @@ export function CreateUserForm() {
       if (!res.ok) {
         setError(data.error || "Failed to create user")
       } else {
-        router.refresh()
+        setSuccess("User created successfully!")
+        setTimeout(() => setSuccess(""), 3000)
+        setUsername("")
+        setPassword("")
+        setConfirmPassword("")
+        setRole("D")
       }
     } catch {
       setError("Something went wrong")
@@ -106,6 +112,7 @@ export function CreateUserForm() {
       >
         {loading ? "Creating..." : "Create User"}
       </button>
+      {success && (<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>)}
     </form>
   )
 }
