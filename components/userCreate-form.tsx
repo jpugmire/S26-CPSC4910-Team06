@@ -8,7 +8,7 @@ export function CreateUserForm() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [role, setRole] = useState("user")
+  const [userType, setRole] = useState("D")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -27,7 +27,7 @@ export function CreateUserForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, role }),
+        body: JSON.stringify({ username, password, userType }),
       })
 
       const data = await res.json()
@@ -83,13 +83,13 @@ export function CreateUserForm() {
       <div>
         <label className="block text-sm font-medium mb-1">Role</label>
         <select
-          value={role}
+          value={userType}
           onChange={(e) => setRole(e.target.value)}
           className="w-full border px-3 py-2 rounded-md"
         >
-          <option value="admin">Admin</option>
-          <option value="sponsor">Sponsor</option>
-          <option value="driver">Driver</option>
+          <option value="A">Admin</option>
+          <option value="S">Sponsor</option>
+          <option value="D">Driver</option>
         </select>
       </div>
 

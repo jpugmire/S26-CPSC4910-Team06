@@ -20,8 +20,7 @@ export default async function DashboardPage() {
             <Link href="/about" className="text-sm text-blue-600 hover:underline">About</Link>
             <Link href="/account" className="text-sm text-blue-600 hover:underline">Account</Link>
             {session?.user?.role === "A" && (
-          <Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin Console</Link>
-        )}
+          <Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin Console</Link>)}
             <LogoutButton />
           </div>
         </div>
