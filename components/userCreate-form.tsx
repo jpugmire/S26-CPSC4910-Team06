@@ -24,7 +24,7 @@ export function CreateUserForm() {
     }
 
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, role }),
@@ -90,7 +90,6 @@ export function CreateUserForm() {
           <option value="admin">Admin</option>
           <option value="sponsor">Sponsor</option>
           <option value="driver">Driver</option>
-          <option value="user">User</option>
         </select>
       </div>
 
