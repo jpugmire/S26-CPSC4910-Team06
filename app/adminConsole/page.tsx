@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { CreateUserForm } from "@/components/userCreate-form"
 import { CreateSponsorForm } from "@/components/sponsorOrgCreate-form"
 import Link from "next/link"
+import AdminPanel from "@/components/admin-panel"
 
 export default async function AdminPage() {
   const session = await auth()
@@ -12,7 +13,7 @@ export default async function AdminPage() {
 
   // not admin
   if (session.user?.role !== "A") redirect("/dashboard")
-
+  
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center py-12 px-8">
   <div className="w-full max-w-6xl flex gap-12">
@@ -44,16 +45,11 @@ export default async function AdminPage() {
 
     {/* RIGHT SIDE — Admin Tools */}
     <div className="w-1/2 bg-white shadow-md rounded-lg p-8 h-fit">
-      <h2 className="text-xl font-bold mb-6">Admin Tools</h2>
-
+      <h2 className="text-xl font-bold mb-6">Admin Data</h2>
       <div className="flex flex-col gap-4">
-        <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-          Fetch All Users
-        </button>
-
-        <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-green-700">
-          Fetch All Organizations
-        </button>
+        <div className="bg-white shadow-md rounded-lg p-8">
+        <AdminPanel/>
+      </div>
       </div>
     </div>
 
