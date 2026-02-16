@@ -11,36 +11,99 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Run CI tests here (example)
-      - name: Run tests
+      - name: Install Dependencies / Run tests
         run: |
           npm install
           npm test
+
+      - name: Generate prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        env: 
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Seed test users
+        run:
+            npx tsx scripts/create-test-user.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3000
+      
+      - name: Copy static assets into standalone
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public || true
+
+      - name: Create deployment archive
+        run: tar -czf deploy.tar.gz -C .next/standalone .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-archive
+          path: deploy.tar.gz
 
   deploy:
     needs: build
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-archive
+
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SERVER_SSH}}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SERVER_SSH }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-      
-      - name: Create .env file
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+
+      - name: Copy archive to EC2
+        run: scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/deploy.tar.gz
 
       - name: Deploy via SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/S26-CPSC4910-Team06
-            git fetch --all
-            git reset --hard origin/Master
-            # install deps & restart
-            npm install
-            npm run build
-            npm run restart
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            set -e
+
+            # Install Node.js if not present
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Install PM2 if not present
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+
+            # Create app directory if needed
+            mkdir -p ~/app
+
+            # Extract new build, replacing old one
+            tar -xzf ~/deploy.tar.gz -C ~/app
+            rm ~/deploy.tar.gz
+
+            # Write .env on the EC2 instance
+            cat > ~/app/.env << ENVFILE
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3000
+          AUTH_TRUST_HOST=true
+          ENVFILE
+
+            # Restart or start the app with PM2
+            cd ~/app
+            pm2 restart nextjs --update-env 2>/dev/null || pm2 start server.js --name "nextjs"
+            pm2 save
+
           EOF
