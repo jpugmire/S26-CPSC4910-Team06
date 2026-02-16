@@ -60,7 +60,7 @@ jobs:
 
             # Pull latest code
             git fetch --all
-            git reset --hard origin/{{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
 
             # Install dependencies and generate Prisma client
             npm install
