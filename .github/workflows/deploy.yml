@@ -23,6 +23,12 @@ jobs:
         run: npx prisma migrate deploy
         env: 
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Seed test users
+        run:
+            npx ts-node scripts/create-test-user.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       
       - name: Build
         run: npm run build
@@ -99,6 +105,4 @@ jobs:
             pm2 restart nextjs --update-env 2>/dev/null || pm2 start server.js --name "nextjs"
             pm2 save
 
-            # Use test user script
-            npx ts-node scripts/create-test-user.ts
           EOF

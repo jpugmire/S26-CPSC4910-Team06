@@ -8,8 +8,10 @@ async function main() {
   const hashedPassword = await bcrypt.hash("password123", 10)
 
   // Create a test driver
-  const driver = await prisma.user.create({
-    data: {
+  const driver = await prisma.user.upsert({
+    where: { Username: "testdriver" },
+    update: {}, //already exists, do nothing
+    create: {
       Username: "testdriver",
       Password: hashedPassword,
       Status: "A",
@@ -23,8 +25,10 @@ async function main() {
   })
 
   // Create a test sponsor
-  const sponsor = await prisma.user.create({
-    data: {
+  const sponsor = await prisma.user.upsert({
+    where: { Username: "testsponsor" },
+    update: {},
+    create: {
       Username: "testsponsor",
       Password: hashedPassword,
       Status: "A",
