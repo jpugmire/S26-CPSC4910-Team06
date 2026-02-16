@@ -98,6 +98,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3000
+          AUTH_TRUST_HOST=true
           ENVFILE
 
             # Restart or start the app with PM2
