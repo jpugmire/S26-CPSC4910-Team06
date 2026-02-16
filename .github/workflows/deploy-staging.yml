@@ -1,0 +1,108 @@
+name: Deploy Staging (Testing)
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Dependencies / Run tests
+        run: |
+          npm install
+          npm test
+
+      - name: Generate prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        env: 
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Seed test users
+        run:
+            npx tsx scripts/create-test-user.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3001
+      
+      - name: Copy static assets into standalone
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public || true
+
+      - name: Create deployment archive
+        run: tar -czf deploy-staging.tar.gz -C .next/standalone .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-archive
+          path: deploy-staging.tar.gz
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-archive
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SERVER_SSH }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Copy archive to EC2
+        run: scp -o StrictHostKeyChecking=no deploy-staging.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/deploy-staging.tar.gz
+
+      - name: Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            set -e
+
+            # Install Node.js if not present
+            if ! command -v node &> /dev/null; then
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Install PM2 if not present
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+
+            # Create app directory if needed
+            mkdir -p ~/app-staging
+
+            # Extract new build, replacing old one
+            tar -xzf ~/deploy-staging.tar.gz -C ~/app-staging
+            rm ~/deploy-staging.tar.gz
+
+            # Write .env on the EC2 instance
+            cat > ~/app-staging/.env << ENVFILE
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3001
+          AUTH_TRUST_HOST=true
+          PORT=3001
+          ENVFILE
+
+            # Restart or start the app with PM2
+            cd ~/app-staging
+            pm2 restart nextjs-staging --update-env 2>/dev/null || pm2 start server.js --name "nextjs-staging" -- -p 3001
+            pm2 save
+
+          EOF
