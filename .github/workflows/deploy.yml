@@ -26,7 +26,7 @@ jobs:
 
       - name: Seed test users
         run:
-            npx ts-node scripts/create-test-user.ts
+            npx tsx scripts/create-test-user.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
       
