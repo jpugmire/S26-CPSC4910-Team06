@@ -98,4 +98,7 @@ jobs:
             cd ~/app
             pm2 restart nextjs --update-env 2>/dev/null || pm2 start server.js --name "nextjs"
             pm2 save
+
+            # Use test user script
+            npx ts-node scripts/create-test-user.ts
           EOF
