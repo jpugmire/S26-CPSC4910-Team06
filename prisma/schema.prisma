@@ -11,6 +11,8 @@ model User {
   User_ID           Int                 @id @default(autoincrement())
   Username          String              @db.VarChar(30) @unique
   Password          String              @db.VarChar(255)
+  Email             String?             @unique
+  Phone             String?
   Status            String              @db.VarChar(1)
   Date_Added        DateTime            @default(now()) @db.DateTime(0)
   Date_Inactive     DateTime?           @db.DateTime(0)
