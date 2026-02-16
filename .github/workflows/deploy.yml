@@ -34,7 +34,7 @@ jobs:
       - name: Copy static assets into standalone
         run: |
           cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
+          cp -r public .next/standalone/public || true
 
       - name: Create deployment archive
         run: tar -czf deploy.tar.gz -C .next/standalone .
