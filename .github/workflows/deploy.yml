@@ -11,22 +11,58 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Run tests
+      - name: Install Dependencies / Run tests
         run: |
           npm install
           npm test
+
+      - name: Generate prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        env: 
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3000
+      
+      - name: Copy static assets into standalone
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Create deployment archive
+        run: tar -czf deploy.tar.gz -C .next/standalone .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-archive
+          path: deploy.tar.gz
 
   deploy:
     needs: build
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-archive
+
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SERVER_SSH }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+
+      - name: Copy archive to EC2
+        run: scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/deploy.tar.gz
 
       - name: Deploy via SSH
         run: |
@@ -44,33 +80,22 @@ jobs:
               sudo npm install -g pm2
             fi
 
-            # Clone repo if not present
-            if [ ! -d ~/S26-CPSC4910-Team06 ]; then
-              git clone https://github.com/jpugmire/S26-CPSC4910-Team06.git ~/S26-CPSC4910-Team06
-            fi
+            # Create app directory if needed
+            mkdir -p ~/app
 
-            cd ~/S26-CPSC4910-Team06
+            # Extract new build, replacing old one
+            tar -xzf ~/deploy.tar.gz -C ~/app
+            rm ~/deploy.tar.gz
 
             # Write .env on the EC2 instance
-            cat > .env << ENVFILE
+            cat > ~/app/.env << ENVFILE
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3000
           ENVFILE
 
-            # Pull latest code
-            git fetch --all
-            git reset --hard origin/${{ github.ref_name }}
-
-            # Install dependencies and generate Prisma client
-            npm install
-            npx prisma generate
-            npx prisma migrate deploy
-
-            # Build the application
-            npm run build
-
             # Restart or start the app with PM2
-            pm2 restart nextjs --update-env 2>/dev/null || pm2 start npm --name "nextjs" -- start
+            cd ~/app
+            pm2 restart nextjs --update-env 2>/dev/null || pm2 start server.js --name "nextjs"
             pm2 save
           EOF
