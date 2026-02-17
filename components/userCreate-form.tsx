@@ -1,16 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 export function CreateUserForm() {
   const router = useRouter()
+  const [success, setSuccess] = useState("");
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [userType, setRole] = useState("D")
+  const [sponsorOrgId, setSponsorOrgId] = useState("")
+  const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([])
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchSponsorOrgs = async () => {
+      const res = await fetch("/api/admin/sponsors")
+      const data = await res.json()
+      setSponsorOrgs(data)
+    }
+    fetchSponsorOrgs()
+  }, [])
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,7 +40,7 @@ export function CreateUserForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, userType }),
+        body: JSON.stringify({ username, password, userType, sponsorOrgId }),
       })
 
       const data = await res.json()
@@ -35,7 +48,12 @@ export function CreateUserForm() {
       if (!res.ok) {
         setError(data.error || "Failed to create user")
       } else {
-        router.refresh()
+        setSuccess("User created successfully!")
+        setTimeout(() => setSuccess(""), 3000)
+        setUsername("")
+        setPassword("")
+        setConfirmPassword("")
+        setRole("D")
       }
     } catch {
       setError("Something went wrong")
@@ -93,6 +111,24 @@ export function CreateUserForm() {
         </select>
       </div>
 
+      {(userType === "S" || userType === "D") && (
+        <div>
+          <label className="block text-sm font-medium mb-1">Organization</label>
+          <select
+            value={sponsorOrgId}
+            onChange={(e) => setSponsorOrgId(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+          >
+            <option value="">Select Sponsor Organization</option>
+            {sponsorOrgs.map((org) => (
+              <option key={org.Org_ID} value={org.Org_ID}>
+                {org.Org_Name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {error}
@@ -106,6 +142,7 @@ export function CreateUserForm() {
       >
         {loading ? "Creating..." : "Create User"}
       </button>
+      {success && (<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>)}
     </form>
   )
 }

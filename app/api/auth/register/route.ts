@@ -2,12 +2,28 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password, userType } = await req.json()
+    const { username, password, userType, sponsorOrgId } = await req.json()
+    const session  = await auth();
 
     // Validation
+    if (!session) {
+      return NextResponse.json(
+        { error: "Not logged in." },
+        { status: 400 }
+      )
+    }
+
+    if (session?.user?.role !== 'A') {
+      return NextResponse.json(
+        { error: "Not authorized." },
+        { status: 400 }
+      )
+    }
+
     if (!username || !password || !userType) {
       return NextResponse.json(
         { error: "Username, password, and userType are required" },
@@ -34,6 +50,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if ((userType === "S" || userType === "D") && !sponsorOrgId) {
+      return NextResponse.json(
+        { error: "Sponsor organization required" },
+        { status: 400 }
+    )}
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -49,13 +71,16 @@ export async function POST(req: NextRequest) {
               Driver: {
                 create: {
                   Point_Count: 0,
+                  Org_ID: sponsorOrgId,
                 },
               },
             }
           : userType === "S"
           ? {
               Sponsor: {
-                create: {},
+                create: {
+                  Org_ID: sponsorOrgId,
+                },
               },
             }
           : userType === "A"
