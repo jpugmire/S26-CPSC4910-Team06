@@ -19,7 +19,7 @@ export function CreateUserForm() {
     const fetchSponsorOrgs = async () => {
       const res = await fetch("/api/admin/sponsors")
       const data = await res.json()
-      setSponsorOrgs(data)
+      setSponsorOrgs(data.users ?? [])
     }
     fetchSponsorOrgs()
   }, [])
