@@ -1,26 +1,26 @@
+"use client"
+
 import Link from "next/link";
+import { useSession } from "next-auth/react"
+import { LogoutButton } from "@/components/logout-button"
 
 export default function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="nav-container">
-        <Link href="/" className="logo">
-          MyApp
-        </Link>
+  const { data: session, status } = useSession();
 
-        <ul className="nav-links">
-          <li>
-            <Link href="/">Home</Link>
-          </li>
-          <li>
-            <Link href="/about">About</Link>
-          </li>
-          <li>
-            <Link href="/login">Sign in</Link>
-          </li>
-        </ul>
+  return (
+    <nav className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <h1 className="text-xl font-bold">Driver Rewards Dashboard</h1>
+          <h3 className="text-md">Welcome, {status === "loading" ? "..." : session?.user?.username}</h3>
+          <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">Dashboard</Link>
+          <Link href="/about" className="text-sm text-blue-600 hover:underline">About</Link>
+          <Link href="/account" className="text-sm text-blue-600 hover:underline">Account</Link>
+          {session?.user?.role === "A" && (<Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin Console</Link>)}
+          <LogoutButton />
+        </div>
       </div>
     </nav>
-  );
+  )
 }
 

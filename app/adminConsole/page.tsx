@@ -4,6 +4,7 @@ import { CreateUserForm } from "@/components/userCreate-form"
 import { CreateSponsorForm } from "@/components/sponsorOrgCreate-form"
 import Link from "next/link"
 import AdminPanel from "@/components/admin-panel"
+import Navbar from "@/components/navbar"
 
 export default async function AdminPage() {
   const session = await auth()
@@ -56,5 +57,18 @@ export default async function AdminPage() {
   </div>
 </div>
 
+    <>
+      <Navbar />
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+        <div className="w-full max-w-md">
+          <div className="bg-white shadow-md rounded-lg p-8">
+            <h1 className="text-2xl font-bold text-center mb-6">
+              Create New User
+            </h1>
+            <CreateUserForm />
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
