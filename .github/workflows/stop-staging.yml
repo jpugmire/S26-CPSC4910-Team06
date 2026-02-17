@@ -1,0 +1,19 @@
+name: Stop Staging Server
+on:
+  workflow_dispatch:
+
+jobs:
+  stop:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SERVER_SSH }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+      - name: Stop staging via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+              pm2 stop nextjs-staging
+              pm2 save
+          EOF
