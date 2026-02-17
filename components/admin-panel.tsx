@@ -35,7 +35,7 @@ export default function AdminPanel() {
         const data = await res.json()
 
         if (!res.ok) setError(data.error || "Failed to fetch sponsors")
-        else setSponsors(data.users ?? [])
+        else setSponsors(data.sponsorOrgs ?? [])
       } catch {
         setError("Something went wrong")
       } finally {
