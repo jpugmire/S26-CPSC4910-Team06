@@ -1,7 +1,15 @@
 // app/page.tsx
 import Link from "next/link"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
+  if(session){
+    redirect("/dashboard")
+  }
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="text-center">
