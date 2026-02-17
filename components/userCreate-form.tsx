@@ -10,7 +10,7 @@ export function CreateUserForm() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [userType, setRole] = useState("D")
-  const [sponsorOrgId, setSponsorOrgId] = useState("")
+  const [sponsorOrgId, setSponsorOrgId] = useState<number | null>(null)
   const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([])
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -19,7 +19,7 @@ export function CreateUserForm() {
     const fetchSponsorOrgs = async () => {
       const res = await fetch("/api/admin/sponsors")
       const data = await res.json()
-      setSponsorOrgs(data.users ?? [])
+      setSponsorOrgs(data.sponsorOrgs)
     }
     fetchSponsorOrgs()
   }, [])
@@ -115,8 +115,8 @@ export function CreateUserForm() {
         <div>
           <label className="block text-sm font-medium mb-1">Organization</label>
           <select
-            value={sponsorOrgId}
-            onChange={(e) => setSponsorOrgId(e.target.value)}
+            value={sponsorOrgId ?? ""}
+            onChange={(e) => setSponsorOrgId(e.target.value === "" ? null : Number(e.target.value))}
             className="w-full border px-3 py-2 rounded-md"
           >
             <option value="">Select Sponsor Organization</option>

@@ -23,7 +23,7 @@ export async function GET() {
     }
 
     // Find all sponsors.
-    const users = await prisma.sponsor_Org.findMany({
+    const sponsorOrgs = await prisma.sponsor_Org.findMany({
       select: {
         Org_ID: true,
         Org_Name: true,
@@ -33,7 +33,7 @@ export async function GET() {
     return NextResponse.json(
       {
         message: "Successfully fetched all sponsors.",
-        users: users,
+        sponsorOrgs: sponsorOrgs,
       },
       { status: 201 }
     )
