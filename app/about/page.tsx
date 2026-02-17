@@ -4,7 +4,7 @@ import Navbar from "@/components/navbar"
 
 export default async function AboutPage() {
   const version = await prisma.version.findFirst({
-    orderBy: { VersionCreated: "asc" },
+    orderBy: { VersionCreated: "desc" },
   })
 
   return (
