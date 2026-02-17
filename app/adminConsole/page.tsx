@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { CreateUserForm } from "@/components/userCreate-form";
 import { CreateSponsorForm } from "@/components/sponsorOrgCreate-form";
+import { DeactivateUserForm } from "@/components/deactivate-form"
 import Link from "next/link";
 import AdminPanel from "@/components/admin-panel";
 import Navbar from "@/components/navbar";
@@ -51,6 +52,12 @@ export default async function AdminPage() {
               <div className="bg-white shadow-md rounded-lg p-8">
                 <AdminPanel />
               </div>
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Deactivate Users
+              </h1>
+              <DeactivateUserForm />
             </div>
           </div>
         </div>
