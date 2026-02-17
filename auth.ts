@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
@@ -19,7 +19,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("authorize called with username:", credentials?.username)
         if (!credentials?.username || !credentials?.password) {
+          console.log("Missing credentials")
           return null
         }
 
@@ -33,7 +35,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         })
 
+        console.log("User found:", user?.Username)
+
         if (!user) {
+          console.log("User not found")
           return null
         }
 
@@ -42,7 +47,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           (user as any).Password
         )
 
+        console.log("Password match:", passwordMatch)
+
         if (!passwordMatch) {
+          console.log("Password does not match")
           return null
         }
 
@@ -56,6 +64,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    authorized({ auth }) {
+      return !!auth
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role
@@ -71,5 +82,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session
     },
+    async signIn({user}){
+      console.log("User signed in:", user);
+      try {
+        await prisma.audit.create({
+          data: {
+            User_ID: parseInt(user.id!),
+            Message_Type_ID: 4,
+            Message: `User signed in`
+          }
+        });
+        console.log("Audit log created successfully");
+      } catch (error) {
+        console.error("Error creating audit log:", error);
+      }
+      return true;
+    }
   },
 })

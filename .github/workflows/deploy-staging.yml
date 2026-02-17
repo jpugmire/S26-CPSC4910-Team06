@@ -1,7 +1,5 @@
-name: Deploy to EC2
+name: Deploy Staging (Testing)
 on:
-  push:
-    branches: [ "Master" ]
   workflow_dispatch:
 
 jobs:
@@ -35,7 +33,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3000
+          NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3001
       
       - name: Copy static assets into standalone
         run: |
@@ -43,13 +41,13 @@ jobs:
           cp -r public .next/standalone/public || true
 
       - name: Create deployment archive
-        run: tar -czf deploy.tar.gz -C .next/standalone .
+        run: tar -czf deploy-staging.tar.gz -C .next/standalone .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: deploy-archive
-          path: deploy.tar.gz
+          path: deploy-staging.tar.gz
 
   deploy:
     needs: build
@@ -68,7 +66,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Copy archive to EC2
-        run: scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/deploy.tar.gz
+        run: scp -o StrictHostKeyChecking=no deploy-staging.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/deploy-staging.tar.gz
 
       - name: Deploy via SSH
         run: |
@@ -87,23 +85,24 @@ jobs:
             fi
 
             # Create app directory if needed
-            mkdir -p ~/app
+            mkdir -p ~/app-staging
 
             # Extract new build, replacing old one
-            tar -xzf ~/deploy.tar.gz -C ~/app
-            rm ~/deploy.tar.gz
+            tar -xzf ~/deploy-staging.tar.gz -C ~/app-staging
+            rm ~/deploy-staging.tar.gz
 
             # Write .env on the EC2 instance
-            cat > ~/app/.env << ENVFILE
+            cat > ~/app-staging/.env << ENVFILE
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
-          NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3000
+          NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3001
           AUTH_TRUST_HOST=true
+          PORT=3001
           ENVFILE
 
             # Restart or start the app with PM2
-            cd ~/app
-            pm2 restart nextjs --update-env 2>/dev/null || pm2 start server.js --name "nextjs"
+            cd ~/app-staging
+            pm2 restart nextjs-staging --update-env 2>/dev/null || pm2 start server.js --name "nextjs-staging" -- -p 3001
             pm2 save
 
           EOF

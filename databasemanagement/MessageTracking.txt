@@ -1,0 +1,4 @@
+1: User created
+2: User deactivated
+3: User updated
+4: User signed in

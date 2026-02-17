@@ -11,6 +11,8 @@ model User {
   User_ID           Int                 @id @default(autoincrement())
   Username          String              @db.VarChar(30) @unique
   Password          String              @db.VarChar(255)
+  Email             String?             @unique
+  Phone             String?
   Status            String              @db.VarChar(1)
   Date_Added        DateTime            @default(now()) @db.DateTime(0)
   Date_Inactive     DateTime?           @db.DateTime(0)
@@ -47,10 +49,12 @@ model Admin {
 }
 
 model Audit {
-  Audit_ID     Int      @id @default(autoincrement())
-  User_ID      Int
-  Date_Created DateTime @default(now()) @db.DateTime(0)
-  User         User     @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Audit_ibfk_1")
+  Audit_ID        Int      @id @default(autoincrement())
+  User_ID         Int
+  Date_Created    DateTime @default(now()) @db.DateTime(0)
+  Message_Type_ID Int
+  Message         String   @db.VarChar(255)
+  User            User     @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Audit_ibfk_1")
 
   @@index([User_ID], map: "User_ID")
 }
