@@ -110,7 +110,7 @@ describe('POST /api/admin/deactivate', () => {
 
     //update user success
     it('updates valid user ID for admin', async () => {
-        mockAuth.mockRejectedValue({ user: { role: 'A' } });
+        mockAuth.mockResolvedValue({ user: { role: 'A' } });
 
         const req = new Request('http://localhost/api/admin/deactivate', {
             method: 'POST',

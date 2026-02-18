@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import AdminPanel from '@/components/admin-panel'
 
@@ -21,9 +21,12 @@ describe('AdminPanel', () => {
                 ok: true,
                 json: async () => ({ sponsorOrgs: [] })
             })
-        render (<AdminPanel />)
 
-        expect(screen.getByText('ID')).toBeInTheDocument()
+        await act(async () => {
+            render (<AdminPanel />)
+        })
+
+        expect(screen.getAllByText('ID')).toHaveLength(2)
         expect(screen.getByText('Username')).toBeInTheDocument()
         expect(screen.getByText('Status')).toBeInTheDocument()
         expect(screen.getByText('Type')).toBeInTheDocument()
@@ -40,7 +43,10 @@ describe('AdminPanel', () => {
                 ok: true,
                 json: async () => ({ sponsorOrgs: [] })
             })
-        render(<AdminPanel />)
+        
+        await act(async () => {
+            render(<AdminPanel />)
+        })
 
         // findByText waits for the element to appear (async)
         expect(await screen.findByText('Failed to fetch users' )).toBeInTheDocument()
@@ -56,7 +62,10 @@ describe('AdminPanel', () => {
                 ok: false,
                 json: async () => ({ error: 'Failed to fetch sponsors' })
             })
-        render(<AdminPanel />)
+        
+        await act(async () => {
+            render(<AdminPanel />)
+        })
 
         expect(await screen.findByText('Failed to fetch sponsors')).toBeInTheDocument()
     })

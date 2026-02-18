@@ -21,7 +21,12 @@ const config: Config = {
             testMatch: ['**/__tests__/components/**/*.test.tsx'],
             moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
             transform: {
-                '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.json', jsx: 'react-jsx' }]
+                '^.+\\.tsx?$': ['ts-jest', { 
+                    tsconfig: {
+                        jsx: 'react-jsx',
+                        esModuleInterop: true
+                    }  
+                }]
             }
         }
     ]
