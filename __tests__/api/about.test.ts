@@ -1,6 +1,6 @@
 import { GET } from '@/app/api/about/route'
 
-jest.mock('a/lib/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
     prisma: {
         version: {
             findFirst: jest.fn().mockResolvedValue({

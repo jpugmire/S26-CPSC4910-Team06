@@ -23,18 +23,17 @@ jest.mock('@/auth', () => ({
 }))
 
 //mock request
-const req = new Request('http://localhost/api/admin/deactivate', {
-    method: 'POST',
-    body: JSON.stringify({ User_ID: 1 })
-}) as any
-
-const response = await POST(req)
 
 //tests
 describe('POST /api/admin/deactivate', () => {
     //error if no session
     it('rejects if not logged in', async () => {
         mockAuth.mockResolvedValue(null)
+
+        const req = new Request('http://localhost/api/admin/deactivate', {
+            method: 'POST',
+            body: JSON.stringify({ User_ID: 1 })
+        }) as any
 
         const response = await POST(req)
         const data = await response.json()
@@ -47,6 +46,11 @@ describe('POST /api/admin/deactivate', () => {
     //error if user not admin
     it('rejects non-admin users', async () => {
         mockAuth.mockResolvedValue({ user: { role: 'D' } })
+
+        const req = new Request('http://localhost/api/admin/deactivate', {
+            method: 'POST',
+            body: JSON.stringify({ User_ID: 1 })
+        }) as any
 
         const response = await POST(req)
         const data = await response.json()
@@ -107,6 +111,11 @@ describe('POST /api/admin/deactivate', () => {
     //update user success
     it('updates valid user ID for admin', async () => {
         mockAuth.mockRejectedValue({ user: { role: 'A' } });
+
+        const req = new Request('http://localhost/api/admin/deactivate', {
+            method: 'POST',
+            body: JSON.stringify({ User_ID: 1 })
+        }) as any
 
         const response = await POST(req)
         const data = await response.json()

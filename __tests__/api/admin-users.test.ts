@@ -44,7 +44,7 @@ describe('GET /api/admin/users', () => {
         const data = await response.json()
 
         expect(response.status).toBe(201)
-        expect(data.users.toHaveLength(1))
+        expect(data.users).toHaveLength(1)
         expect(data.users[0].Username).toBe('testuser')
     })
 })
