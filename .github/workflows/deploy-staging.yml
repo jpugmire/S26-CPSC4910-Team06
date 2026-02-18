@@ -102,7 +102,7 @@ jobs:
 
             # Restart or start the app with PM2
             cd ~/app-staging
-            pm2 restart nextjs-staging --update-env 2>/dev/null || PORT = 3001 pm2 start server.js --name "nextjs-staging"
+            pm2 restart nextjs-staging --update-env 2>/dev/null || PORT=3001 pm2 start server.js --name "nextjs-staging"
             pm2 save
 
           EOF
