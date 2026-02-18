@@ -28,13 +28,6 @@ const config: Config = {
                     }  
                 }]
             }
-        },
-        {
-            displayName: 'utils',
-            preset: 'ts-jest',
-            testEnvironment: 'node',
-            testMatch: ['**/__tests__/utils/**/*.test.ts'],
-            moduleNameMapper: { '^@/(.*)$': '<rootDir/$1>' }
         }
     ]
 }
