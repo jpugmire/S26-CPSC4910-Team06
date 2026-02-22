@@ -4,8 +4,13 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
   try {
-    // Replace this later with real logged-in user ID
-    const userId = 1
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const userId = Number(session.user.id)
 
     const user = await prisma.user.findUnique({
       where: { User_ID: userId },
@@ -13,6 +18,15 @@ export async function GET(req: NextRequest) {
         Username: true,
         Email: true,
         Phone: true,
+        Sponsor: {
+          select: {
+            Sponsor_Org: {
+              select: {
+                Org_Name: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -20,7 +34,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json(user)
+    return NextResponse.json({
+      Username: user.Username,
+      Email: user.Email,
+      Phone: user.Phone,
+      Org_Name: user.Sponsor?.Sponsor_Org?.Org_Name ?? null,
+    })
   } catch (error) {
     return NextResponse.json(
       { error: "Error fetching user info" },
@@ -31,7 +50,13 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const userId = 1 // Replace later with real logged-in user ID
+    const session = await auth()
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const userId = Number(session.user.id)
     const { email, phone } = await req.json()
 
     const updatedUser = await prisma.user.update({
