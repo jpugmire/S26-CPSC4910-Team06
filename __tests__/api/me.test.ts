@@ -29,7 +29,7 @@ jest.mock('@/auth', () => ({
 //tests
 describe('GET /api/me', () => {
     it('reports user not found for bad ID', async () => {
-        mockAuth.mockResolvedValue({ user: { id: '001', role: 'D' } })
+        mockAuth.mockResolvedValue({ user: { id: '001', role: 'D' } });
         (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null)
 
         const response = await GET(new NextRequest('http://localhost/api/me'))
