@@ -56,6 +56,12 @@ export default function AccountPage() {
           <strong>Username:</strong> {user.Username}
         </p>
 
+        {user.Org_Name && (
+          <p>
+            <strong>Organization:</strong> {user.Org_Name}
+          </p>
+        )}
+
         <div>
           <label>Email:</label>
           <input value={email} onChange={(e) => setEmail(e.target.value)} />
