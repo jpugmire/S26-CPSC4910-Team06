@@ -70,8 +70,13 @@ model Catalog {
 }
 
 model Catalog_Item {
-  Item_ID           Int                 @id @default(autoincrement())
-  Item_Name         String              @db.VarChar(30)
+  Item_ID            Int                 @id @default(autoincrement())
+  Item_Name          String              @db.VarChar(255)
+  Item_Description  String?             @db.Text
+  Item_Image_URL    String?             @db.VarChar(500)
+  Image_Cached_At   DateTime?           @db.DateTime(0)
+  Ebay_Item_ID      String?             @unique
+  Point_Price       Int?
   Catalog_Listing   Catalog_Listing[]
   Point_Transaction Point_Transaction[]
 }
