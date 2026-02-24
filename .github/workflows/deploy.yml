@@ -53,6 +53,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL: http://${{ secrets.EC2_HOST }}:3000
+          EBAY_APP_TOKEN: ${{ secrets.EBAY_APP_TOKEN }}
+          EBAY_USE_SANDBOX: ${{ secrets.EBAY_USE_SANDBOX }}
       
       - name: Copy static assets into standalone
         run: |
