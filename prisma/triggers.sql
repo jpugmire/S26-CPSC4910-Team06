@@ -21,3 +21,38 @@ BEGIN
         VALUES (NEW.User_ID, NOW(), 3, 'User updated');
     END IF;
 END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_user_after_insert;
+-- Trigger: User AFTER INSERT
+CREATE TRIGGER trg_user_after_insert
+AFTER INSERT ON User
+FOR EACH ROW
+BEGIN
+    INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+    VALUES (NEW.User_ID, NOW(), 1, 'User created');
+END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_driver_points_update;
+-- Trigger: Driver AFTER UPDATE
+CREATE TRIGGER trg_driver_points_update
+AFTER UPDATE ON Driver
+FOR EACH ROW
+BEGIN
+    -- Only log if Point_Count actually changed
+    IF OLD.Point_Count <> NEW.Point_Count THEN
+        INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+        VALUES (
+            NEW.User_ID,
+            NOW(),
+            5,
+            CONCAT(
+                'User points changed from ',
+                OLD.Point_Count,
+                ' to ',
+                NEW.Point_Count
+            )
+        );
+    END IF;
+END;
