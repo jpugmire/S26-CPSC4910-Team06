@@ -1,0 +1,5 @@
+1: User created
+2: User deactivated
+3: User updated
+4: User signed in
+5: User points changed from <Old.Point_Count> to <New.Point_Count>
