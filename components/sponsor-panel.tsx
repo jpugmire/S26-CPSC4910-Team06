@@ -32,6 +32,14 @@ export default function SponsorPanel() {
     <div className="mt-6 overflow-x-auto">
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 border">ID</th>
+            <th className="px-4 py-2 border">Username</th>
+            <th className="px-4 py-2 border">Status</th>
+            <th className="px-4 py-2 border">Points</th>
+          </tr>
+        </thead>
         <table>
             <tbody>
             {drivers.map((driver) => (
