@@ -1,5 +1,9 @@
 const EBAY_API_BASE = "https://api.ebay.com/buy/browse/v1"
 const EBAY_API_BASE_SANDBOX = "https://api.sandbox.ebay.com/buy/browse/v1"
+const EBAY_AUTH_BASE = "https://api.ebay.com/identity/v1/oauth2"
+const EBAY_AUTH_BASE_SANDBOX = "https://api.sandbox.ebay.com/identity/v1/oauth2"
+
+let cachedToken: { token: string; expiresAt: number } | null = null
 
 export interface EbaySearchResult {
   itemId: string
@@ -79,12 +83,70 @@ function getEbayBaseUrl(): string {
   return EBAY_API_BASE
 }
 
-function getEbayToken(): string {
-  const token = process.env.EBAY_APP_TOKEN
-  if (!token) {
+function getEbayAuthUrl(): string {
+  if (process.env.EBAY_USE_SANDBOX === "true") {
+    return EBAY_AUTH_BASE_SANDBOX
+  }
+  return EBAY_AUTH_BASE
+}
+
+async function refreshAccessToken(): Promise<string> {
+  const clientId = process.env.EBAY_CLIENT_ID
+  const clientSecret = process.env.EBAY_CLIENT_SECRET
+  const refreshToken = process.env.EBAY_REFRESH_TOKEN
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("Missing eBay OAuth credentials. Set EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, and EBAY_REFRESH_TOKEN in .env")
+  }
+
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+
+  const response = await fetch(`${getEbayAuthUrl()}/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${credentials}`,
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      scope: "https://api.ebay.com/oauth/api_scope",
+    }),
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Failed to refresh eBay token: ${response.status} - ${error}`)
+  }
+
+  const data = await response.json()
+  
+  const expiresIn = data.expires_in || 3600
+  const bufferTime = 300
+  const expiresAt = Date.now() + (expiresIn - bufferTime) * 1000
+
+  cachedToken = {
+    token: data.access_token,
+    expiresAt,
+  }
+
+  return cachedToken.token
+}
+
+async function getEbayToken(): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.token
+  }
+
+  const envToken = process.env.EBAY_APP_TOKEN
+  if (process.env.EBAY_REFRESH_TOKEN) {
+    return refreshAccessToken()
+  }
+
+  if (!envToken) {
     throw new Error("EBAY_APP_TOKEN environment variable is not set. Get an OAuth access token from eBay Developer Portal.")
   }
-  return token
+  return envToken
 }
 
 export async function searchEbayItems(
@@ -93,7 +155,7 @@ export async function searchEbayItems(
   offset: number = 0
 ): Promise<EbaySearchResponse> {
   const baseUrl = getEbayBaseUrl()
-  const token = getEbayToken()
+  const token = await getEbayToken()
 
   const params = new URLSearchParams({
     q: keyword,
@@ -145,7 +207,7 @@ export async function searchEbayItems(
 
 export async function getEbayItemDetails(itemId: string): Promise<EbayItemDetail> {
   const baseUrl = getEbayBaseUrl()
-  const token = getEbayToken()
+  const token = await getEbayToken()
 
   const response = await fetch(`${baseUrl}/item/${itemId}`, {
     headers: {
