@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 // import SponsorPanel from "@/components/sponsor-panel";
 import Navbar from "@/components/navbar";
+import SponsorPanel from "@/components/sponsor-panel";
+import { PointForm } from "@/components/point-form";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -16,6 +18,8 @@ export default async function SponsorPage() {
   return (
     <>
       <Navbar />
+      <SponsorPanel/>
+      <PointForm/>
     </>
   );
 }

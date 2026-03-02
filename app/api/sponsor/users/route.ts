@@ -1,4 +1,4 @@
-// app/api/admin/users/route.ts
+// app/api/sponsor/users/route.ts
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
@@ -15,7 +15,7 @@ export async function GET() {
       )
     }
 
-    if (session?.user?.role !== 'S' &&  session?.user?.role !== 'A' ) {
+    if (session?.user?.role !== 'S') {
       return NextResponse.json(
         { error: "Not authorized." },
         { status: 400 }
