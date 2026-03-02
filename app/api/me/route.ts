@@ -59,6 +59,28 @@ export async function PUT(req: NextRequest) {
     const userId = Number(session.user.id)
     const { email, phone } = await req.json()
 
+    // Check if another ACTIVE user already has this email or phone
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        Status: "A",            // Only active users
+        User_ID: {
+          not: userId,          // Exclude current user
+        },
+        OR: [
+          { Email: email },
+          { Phone: phone },
+        ],
+      },
+    })
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Email or phone already in use by another active user" },
+        { status: 400 }
+      )
+    }
+
+    // If no conflict, update user
     const updatedUser = await prisma.user.update({
       where: { User_ID: userId },
       data: {
