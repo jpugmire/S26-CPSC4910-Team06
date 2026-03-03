@@ -94,7 +94,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-
+    const conv = await prisma.sponsor_Org.update({
+        where:
+        {
+            Org_ID: orgId,
+        },
+        data:
+        {
+            Point_Dollar_Value: conversion,
+        },
+    })
 
     return NextResponse.json(
       {
