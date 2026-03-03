@@ -105,12 +105,12 @@ model Point_Transaction {
 }
 
 model Sponsor_Org {
-  Org_ID   Int       @id @default(autoincrement())
-  Org_Name String    @db.VarChar(30)
-  Point_Dollar_Value Decimal    @default(1.00) @db.Decimal(8, 2)
-  Catalog  Catalog[]
-  Driver   Driver[]
-  Sponsor  Sponsor[]
+  Org_ID             Int       @id @default(autoincrement())
+  Org_Name           String    @db.VarChar(30)
+  Point_Dollar_Value Decimal?  @default(1.00) @db.Decimal(10, 2)
+  Catalog            Catalog[]
+  Driver             Driver[]
+  Sponsor            Sponsor[]
 }
 
 model Version {

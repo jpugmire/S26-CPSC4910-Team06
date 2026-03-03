@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/navbar";
 import SponsorPanel from "@/components/sponsor-panel";
 import { PointForm } from "@/components/point-form";
+import { PointConversionForm } from "@/components/point-conversion-form";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -28,6 +29,12 @@ export default async function SponsorPage() {
                 Update Driver Points
               </h1>
               <PointForm />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Update Conversion Rate
+              </h1>
+              <PointConversionForm />
             </div>
 
             <Link

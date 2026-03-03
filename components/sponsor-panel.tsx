@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 export default function SponsorPanel() {
     const [drivers, setDrivers] = useState<any[]>([])
+    const [pointDollarValue, setPointDollarValue] = useState<number | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
@@ -25,13 +26,40 @@ export default function SponsorPanel() {
       }
     }
 
+    const fetchConversion = async () => {
+      setLoading(true)
+      setError("")
+
+      try {
+        const res = await fetch("/api/sponsor/conversion")
+        const data = await res.json()
+
+        if (!res.ok) {
+          setError(data.error || "Failed to fetch conversion")
+        } else {
+          // data might be { Point_Dollar_Value: "1" }
+          const raw = data?.conversion?.Point_Dollar_Value
+          setPointDollarValue(raw ? Number(raw) : null)
+        }
+      } catch {
+        setError("Something went wrong")
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchDrivers();
+    fetchConversion();
   }, [])
 
   return (
     <div className="mt-6 overflow-x-auto">
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
+        <h2>
+          Point Dollar Value:{" "}
+          {pointDollarValue !== null ? pointDollarValue : "N/A"}
+        </h2>
         <thead className="bg-gray-100">
           <tr>
             <th className="px-4 py-2 border">ID</th>
