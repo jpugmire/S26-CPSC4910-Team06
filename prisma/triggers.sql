@@ -56,3 +56,26 @@ BEGIN
         );
     END IF;
 END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_sponsor_point_value_update;
+-- Trigger: Sponsor_Org AFTER UPDATE (for point value changes)
+CREATE TRIGGER trg_sponsor_point_value_update
+AFTER UPDATE ON Sponsor_Org
+FOR EACH ROW
+BEGIN
+    IF OLD.Point_Dollar_Value <> NEW.Point_Dollar_Value THEN
+        INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+        VALUES (
+            @current_user_id,
+            NOW(),
+            6,
+            CONCAT(
+                'Conversion rate changed from ',
+                OLD.Point_Dollar_Value,
+                ' to ',
+                NEW.Point_Dollar_Value
+            )
+        );
+    END IF;
+END;
