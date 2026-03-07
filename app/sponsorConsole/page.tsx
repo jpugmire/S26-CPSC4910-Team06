@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import SponsorPanel from "@/components/sponsor-panel";
 import { PointForm } from "@/components/point-form";
 import { PointConversionForm } from "@/components/point-conversion-form";
+import { AuditReportPanel } from "@/components/audit-report-panel";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -53,6 +54,11 @@ export default async function SponsorPage() {
                 <SponsorPanel />
               </div>
             </div>
+          </div>
+          {/* BOTTOM ROW — Audit Reports */}
+          <div className="bg-white shadow-md rounded-lg p-8">
+            <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
+            <AuditReportPanel />
           </div>
         </div>
       </div>
