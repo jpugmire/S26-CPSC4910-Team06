@@ -120,6 +120,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
                     <th className="px-4 py-3 border-b">Audit ID</th>
                     <th className="px-4 py-3 border-b">User ID</th>
                     <th className="px-4 py-3 border-b">Message</th>
+                    <th className="px-4 py-3 border-b">Note</th>
                     <th className="px-4 py-3 border-b">Type ID</th>
                     <th className="px-4 py-3 border-b">Date</th>
                   </tr>
