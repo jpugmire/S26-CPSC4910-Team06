@@ -6,6 +6,7 @@ import { DeactivateUserForm } from "@/components/deactivate-form"
 import Link from "next/link";
 import AdminPanel from "@/components/admin-panel";
 import Navbar from "@/components/navbar";
+import { AuditReportPanel } from "@/components/audit-report-panel";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -60,6 +61,11 @@ export default async function AdminPage() {
               <DeactivateUserForm />
             </div>
           </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
+              {/* pass orgId so the API scopes results to this sponsor's org */}
+              <AuditReportPanel orgId={null} />
+            </div>
         </div>
       </div>
     </>
