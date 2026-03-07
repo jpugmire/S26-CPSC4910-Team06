@@ -47,19 +47,17 @@ export default async function SponsorPage() {
           </div>
 
           {/* RIGHT SIDE — Sponsor Tools */}
-          <div className="w-1/2 bg-white shadow-md rounded-lg p-8 h-fit">
-            <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
-            <div className="flex flex-col gap-4">
-              <div className="bg-white shadow-md rounded-lg p-8">
-                <SponsorPanel />
-              </div>
+          <div className="w-1/2 flex flex-col gap-10">
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
+              <SponsorPanel />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
+              <AuditReportPanel />
             </div>
           </div>
-          {/* BOTTOM ROW — Audit Reports */}
-          <div className="bg-white shadow-md rounded-lg p-8">
-            <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
-            <AuditReportPanel />
-          </div>
+
         </div>
       </div>
     </>
