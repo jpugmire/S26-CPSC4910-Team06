@@ -19,7 +19,11 @@ type AuditRow = {
   Message_Type_ID: number;
 };
 
-export function AuditReportPanel() {
+interface AuditReportPanelProps {
+  orgId?: number | null; // null/undefined = admin (sees all)
+}
+
+export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,6 +47,8 @@ export function AuditReportPanel() {
     try {
       const params = new URLSearchParams();
       selectedTypes.forEach((t) => params.append("type", String(t)));
+
+      if (orgId != null) params.append("orgId", String(orgId));
 
       const res = await fetch(`/api/audit-report?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch audit report.");
