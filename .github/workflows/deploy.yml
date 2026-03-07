@@ -119,10 +119,10 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           AUTH_SECRET=${{ secrets.AUTH_SECRET }}
           NEXTAUTH_URL=http://${{ secrets.EC2_HOST }}:3000
-          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
-          EBAY_REFRESH_TOKEN: ${{ secrets.EBAY_REFRESH_TOKEN }}
-          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
-          EBAY_USE_SANDBOX: ${{ secrets.EBAY_USE_SANDBOX }}
+          EBAY_CLIENT_ID=${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_REFRESH_TOKEN=${{ secrets.EBAY_REFRESH_TOKEN }}
+          EBAY_CLIENT_SECRET=${{ secrets.EBAY_CLIENT_SECRET }}
+          EBAY_USE_SANDBOX=${{ secrets.EBAY_USE_SANDBOX }}
           AUTH_TRUST_HOST=true
           ENVFILE
 
