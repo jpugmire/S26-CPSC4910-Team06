@@ -18,7 +18,17 @@ export async function GET(req: NextRequest) {
         Username: true,
         Email: true,
         Phone: true,
+        User_Type: true,
         Sponsor: {
+          select: {
+            Sponsor_Org: {
+              select: {
+                Org_Name: true,
+              },
+            },
+          },
+        },
+        Driver: {
           select: {
             Sponsor_Org: {
               select: {
@@ -34,11 +44,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
+    let orgName = null
+    if (user.User_Type === "S") {
+      orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
+    } else if (user.User_Type === "D") {
+      orgName = user.Driver?.Sponsor_Org?.Org_Name ?? null
+    }
+
     return NextResponse.json({
       Username: user.Username,
       Email: user.Email,
       Phone: user.Phone,
-      Org_Name: user.Sponsor?.Sponsor_Org?.Org_Name ?? null,
+      User_Type: user.User_Type,
+      Org_Name: orgName,
     })
   } catch (error) {
     return NextResponse.json(

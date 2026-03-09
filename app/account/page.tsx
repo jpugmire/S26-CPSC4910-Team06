@@ -9,6 +9,7 @@ export default function AccountPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(true);
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -36,6 +37,31 @@ export default function AccountPage() {
     });
 
     alert("Updated successfully");
+  }
+
+  async function handleLeave() {
+    if (!confirm("Are you sure you want to leave this organization? You will need to apply again to rejoin.")) {
+      return
+    }
+
+    setLeaving(true)
+    try {
+      const res = await fetch("/api/driver/leave", {
+        method: "POST",
+      })
+      const data = await res.json()
+      
+      if (res.ok) {
+        alert("You have left the organization.")
+        window.location.reload()
+      } else {
+        alert(data.error || "Failed to leave organization")
+      }
+    } catch {
+      alert("Failed to leave organization")
+    } finally {
+      setLeaving(false)
+    }
   }
 
   if (loading)
@@ -73,6 +99,18 @@ export default function AccountPage() {
         </div>
 
         <button onClick={handleSave}>Save Changes</button>
+
+        {user.Org_Name && (
+          <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>
+            <button 
+              onClick={handleLeave} 
+              disabled={leaving}
+              style={{ backgroundColor: "#dc2626", color: "white", padding: "0.5rem 1rem", borderRadius: "0.25rem", border: "none", cursor: "pointer" }}
+            >
+              {leaving ? "Leaving..." : "Leave Organization"}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
