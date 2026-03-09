@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link";
 
 export default function AdminPanel() {
   const [users, setUsers] = useState<any[]>([])
@@ -64,7 +65,11 @@ export default function AdminPanel() {
         <tbody>
           {users.map((user) => (
             <tr key={user.User_ID} className="text-center">
-              <td className="px-4 py-2 border">{user.User_ID}</td>
+              <td className="px-4 py-2 border text-blue-600 hover:underline">
+        <Link href={`/account/${user.User_ID}`}>
+          {user.User_ID}
+        </Link>
+      </td>
               <td className="px-4 py-2 border">{user.Username}</td>
               <td className="px-4 py-2 border">{user.Status}</td>
               <td className="px-4 py-2 border">{user.User_Type}</td>

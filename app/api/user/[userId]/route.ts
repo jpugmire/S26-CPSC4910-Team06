@@ -79,7 +79,7 @@ export async function GET(req: NextRequest, context: RouteContext<"/api/user/[us
     }
 
     const user = await prisma.user.findUnique({
-      where: { User_ID: Number(session.user.id) },
+      where: { User_ID: Number(userId) },
       select: {
         Username: true,
         Email: true,
