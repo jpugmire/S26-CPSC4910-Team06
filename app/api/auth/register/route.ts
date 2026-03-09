@@ -6,7 +6,7 @@ import { auth } from "@/auth"
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password, userType, sponsorOrgId } = await req.json()
+    const { username, email, password, userType, sponsorOrgId } = await req.json()
     const session  = await auth();
 
     // Validation
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!username || !password || !userType) {
+    if (!username || !email ||!password || !userType) {
       return NextResponse.json(
         { error: "Username, password, and userType are required" },
         { status: 400 }
@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.create({
       data: {
         Username: username,
+        Email: email,
         Password: hashedPassword,
         Status: "A",
         User_Type: userType,
