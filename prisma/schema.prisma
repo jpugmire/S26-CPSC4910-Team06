@@ -8,20 +8,21 @@ datasource db {
 }
 
 model User {
-  User_ID           Int                 @id @default(autoincrement())
-  Username          String              @unique @db.VarChar(30)
-  Password          String              @db.VarChar(255)
-  Status            String              @db.VarChar(1)
-  Date_Added        DateTime            @default(now()) @db.DateTime(0)
-  Date_Inactive     DateTime?           @db.DateTime(0)
-  User_Type         String              @db.VarChar(1)
-  Email             String?             @unique
-  Phone             String?
-  Admin             Admin?
-  Audit             Audit[]
-  Driver            Driver?
+  User_ID             Int                 @id @default(autoincrement())
+  Username            String              @unique @db.VarChar(30)
+  Password            String              @db.VarChar(255)
+  Status              String              @db.VarChar(1)
+  Date_Added         DateTime            @default(now()) @db.DateTime(0)
+  Date_Inactive      DateTime?           @db.DateTime(0)
+  User_Type          String              @db.VarChar(1)
+  Email              String?             @unique
+  Phone              String?
+  Admin              Admin?
+  Audit              Audit[]
+  Driver             Driver?
   Point_Transaction Point_Transaction[]
-  Sponsor           Sponsor?
+  Sponsor            Sponsor?
+  Driver_Application Driver_Application[]
 }
 
 model Driver {
@@ -105,12 +106,27 @@ model Point_Transaction {
 }
 
 model Sponsor_Org {
-  Org_ID             Int       @id @default(autoincrement())
-  Org_Name           String    @db.VarChar(30)
-  Point_Dollar_Value Decimal?  @default(1.00) @db.Decimal(10, 2)
+  Org_ID             Int                 @id @default(autoincrement())
+  Org_Name           String              @db.VarChar(30)
+  Point_Dollar_Value Decimal?            @default(1.00) @db.Decimal(10, 2)
   Catalog            Catalog[]
   Driver             Driver[]
   Sponsor            Sponsor[]
+  Driver_Application Driver_Application[]
+}
+
+model Driver_Application {
+  Application_ID   Int        @id @default(autoincrement())
+  User_ID          Int
+  Org_ID           Int
+  Status           String     @default("P") @db.VarChar(1)
+  Application_Date DateTime   @default(now()) @db.DateTime(0)
+  Review_Date      DateTime?  @db.DateTime(0)
+  User             User       @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction)
+  Sponsor_Org      Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([User_ID])
+  @@index([Org_ID])
 }
 
 model Version {
