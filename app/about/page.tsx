@@ -9,6 +9,7 @@ export default async function AboutPage() {
 
   return (
     <>
+      <Navbar />
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="bg-white shadow-md rounded-lg p-8">
           <h1 className="text-2xl font-bold mb-4">About Page</h1>
