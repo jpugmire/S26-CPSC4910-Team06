@@ -142,7 +142,7 @@ export async function PUT(req: NextRequest, context: RouteContext<"/api/user/[us
     const { email, phone } = await req.json()
 
     const updatedUser = await prisma.user.update({
-      where: { User_ID: Number(session.user.id) },
+      where: { User_ID: Number(userId) },
       data: {
         Email: email,
         Phone: phone,
