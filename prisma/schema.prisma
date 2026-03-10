@@ -15,7 +15,7 @@ model User {
   Date_Added         DateTime             @default(now()) @db.DateTime(0)
   Date_Inactive      DateTime?            @db.DateTime(0)
   User_Type          String               @db.VarChar(1)
-  Email              String?              @unique
+  Email              String               @unique
   Phone              String?
   Admin              Admin?
   Audit              Audit[]
