@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link";
 
 export default function SponsorPanel() {
     const [drivers, setDrivers] = useState<any[]>([])
@@ -72,10 +73,14 @@ export default function SponsorPanel() {
             <tbody>
             {drivers.map((driver) => (
                 <tr key={driver.User_ID} className="text-center">
-                <td className="px-4 py-2 border">{driver.User_ID}</td>
+                <td className="px-4 py-2 border text-blue-600 hover:underline">
+                  <Link href={`/account/${driver.User_ID}`}>
+                      {driver.User_ID}
+                  </Link>
+                </td>
                 <td className="px-4 py-2 border">{driver.Username}</td>
                 <td className="px-4 py-2 border">{driver.Status}</td>
-                <td className="px-4 py-2 border">{driver.Driver?.Point_Count}</td>
+                <td className="px-4 py-2 border">{driver.Driver?.driverSponsorOrgs?.[0]?.Point_Count ?? 0}</td>
                 </tr>
             ))}
             </tbody>
