@@ -34,24 +34,39 @@ export async function GET() {
 
     // Find all drivers in my org.
     const drivers = await prisma.user.findMany({
-    where: {
-      Driver: {
-        Org_ID: orgId,
-      },
-    },
-    select: {
-      User_ID: true,
-      Username: true,
-      Status: true,
-      Driver: {
-        select: {
-          Point_Count: true,
-          Org_ID: true,
+  where: {
+    Driver: {
+      driverSponsorOrgs: {
+        some: {
+          Org_ID: orgId,
         },
       },
     },
-    orderBy: { Username: "asc" },
-  })
+  },
+  select: {
+    User_ID: true,
+    Username: true,
+    Status: true,
+    Driver: {
+      select: {
+        driverSponsorOrgs: {
+          where: {
+            Org_ID: orgId,
+          },
+          select: {
+            Org_ID: true,
+            Point_Count: true,
+          },
+        },
+      },
+    },
+  },
+  orderBy: {
+    Username: "asc",
+  },
+})
+
+console.log(drivers);
 
     return NextResponse.json(
       {

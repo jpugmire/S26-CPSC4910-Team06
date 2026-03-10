@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import Navbar from "@/components/navbar"
 
 type UserData = {
+  User_ID: number
   Username: string
   Email: string | null
   Phone: string | null
