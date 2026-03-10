@@ -6,6 +6,8 @@ import Navbar from "@/components/navbar";
 import SponsorPanel from "@/components/sponsor-panel";
 import { PointForm } from "@/components/point-form";
 import { PointConversionForm } from "@/components/point-conversion-form";
+import { AuditReportPanel } from "@/components/audit-report-panel";
+import { prisma } from "@/lib/prisma";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -13,8 +15,14 @@ export default async function SponsorPage() {
   // not logged in
   if (!session) redirect("/login");
 
-  // not admin
+  // not a sponsor
   if (session.user?.role !== "S") redirect("/dashboard");
+
+  // look up the sponsor's org — sponsors always have a role of "S", never "A"
+  const sponsorRecord = await prisma.sponsor.findFirst({
+    where: { User_ID: Number(session.user?.id) },
+    select: { Org_ID: true },
+  });
 
   return (
     <>
@@ -46,14 +54,18 @@ export default async function SponsorPage() {
           </div>
 
           {/* RIGHT SIDE — Sponsor Tools */}
-          <div className="w-1/2 bg-white shadow-md rounded-lg p-8 h-fit">
-            <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
-            <div className="flex flex-col gap-4">
-              <div className="bg-white shadow-md rounded-lg p-8">
-                <SponsorPanel />
-              </div>
+          <div className="w-1/2 flex flex-col gap-10">
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
+              <SponsorPanel />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
+              {/* pass orgId so the API scopes results to this sponsor's org */}
+              <AuditReportPanel orgId={sponsorRecord?.Org_ID ?? null} />
             </div>
           </div>
+
         </div>
       </div>
     </>

@@ -94,16 +94,23 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const conv = await prisma.sponsor_Org.update({
-        where:
-        {
-            Org_ID: orgId,
+    await prisma.$transaction(async (tx) => {
+      //Set the MySQL session variable for this connection to current user for audit logging to use
+      await tx.$executeRaw
+      `
+        SET @current_user_id = ${Number(session.user.id)}
+      `;
+
+      //Perform the update (to make the trigger fire)
+      await tx.sponsor_Org.update({
+        where: {
+          Org_ID: orgId,
         },
-        data:
-        {
-            Point_Dollar_Value: conversion,
+        data: {
+          Point_Dollar_Value: conversion,
         },
-    })
+      });
+    });
 
     return NextResponse.json(
       {
