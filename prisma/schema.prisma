@@ -31,6 +31,7 @@ model Driver {
   Org_ID      Int?
   User        User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
   Sponsor_Org Sponsor_Org? @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "fk_Org_Id")
+  driverSponsorOrgs Driver_Sponsor_Org[]
 
   @@index([Org_ID], map: "fk_Org_Id")
 }
@@ -113,6 +114,7 @@ model Sponsor_Org {
   Driver             Driver[]
   Sponsor            Sponsor[]
   Driver_Application Driver_Application[]
+  driverSponsorOrgs  Driver_Sponsor_Org[]
 }
 
 model Driver_Application {
@@ -133,4 +135,16 @@ model Version {
   VersionID      Int      @id @default(autoincrement())
   VersionCreated DateTime @default(now()) @db.DateTime(0)
   VersionNum     Int
+}
+
+model Driver_Sponsor_Org {
+  User_ID     Int
+  Org_ID      Int
+  Point_Count Int @default(0)
+
+  Driver      Driver      @relation(fields: [User_ID], references: [User_ID], onDelete: Cascade, onUpdate: NoAction)
+  Sponsor_Org Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([User_ID, Org_ID])
+  @@index([Org_ID])
 }
