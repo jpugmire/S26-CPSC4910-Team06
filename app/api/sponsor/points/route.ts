@@ -31,11 +31,24 @@ export async function POST(req: NextRequest) {
       )
     }
 
+     // Get sponsor user's org ID.
+    const sponsor = await prisma.sponsor.findUnique({
+        where: { User_ID: Number(session.user.id) },
+        select: { Org_ID: true },
+    })
+    const orgId = sponsor?.Org_ID
+    if (!orgId) {
+        return NextResponse.json({ error: "Sponsor has no Org_ID" }, { status: 400 })
+    }
+
     // Update driver's points
-    const driver = await prisma.driver.update({
+    const driver = await prisma.driver_Sponsor_Org.update({
         where:
         {
-            User_ID: driverId,
+            User_ID_Org_ID: {
+              User_ID: driverId,
+              Org_ID: orgId
+            }
         },
         data:
         {
