@@ -3,6 +3,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { LogoutButton } from "@/components/logout-button"
+import { LoginToast } from "@/components/login-toast"
+import { Suspense } from "react"
 import Navbar from "@/components/navbar"
 
 export default async function DashboardPage() {
@@ -14,6 +16,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <Suspense fallback={null}>
+        <LoginToast />
+      </Suspense>
       <Navbar />
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-lg p-6">

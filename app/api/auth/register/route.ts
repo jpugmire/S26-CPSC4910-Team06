@@ -70,10 +70,15 @@ export async function POST(req: NextRequest) {
         ...(userType === "D"
           ? {
               Driver: {
-                create: {
-                  Point_Count: 0,
-                  Org_ID: sponsorOrgId,
-                },
+                  create: {
+                    Point_Count: 0,
+                    driverSponsorOrgs: {
+                      create: {
+                        Org_ID: sponsorOrgId,
+                        Point_Count: 0,
+                      },
+                    },
+                  },
               },
             }
           : userType === "S"
