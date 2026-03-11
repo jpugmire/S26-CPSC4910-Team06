@@ -7,6 +7,7 @@ export function CreateUserForm() {
   const router = useRouter()
   const [success, setSuccess] = useState("");
   const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [userType, setRole] = useState("D")
@@ -40,7 +41,7 @@ export function CreateUserForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, userType, sponsorOrgId }),
+        body: JSON.stringify({ username, email, password, userType, sponsorOrgId }),
       })
 
       const data = await res.json()
@@ -51,6 +52,7 @@ export function CreateUserForm() {
         setSuccess("User created successfully!")
         setTimeout(() => setSuccess(""), 3000)
         setUsername("")
+        setEmail("")
         setPassword("")
         setConfirmPassword("")
         setRole("D")
@@ -71,6 +73,17 @@ export function CreateUserForm() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
+          className="w-full border px-3 py-2 rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full border px-3 py-2 rounded-md"
         />

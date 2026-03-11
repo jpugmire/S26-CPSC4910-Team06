@@ -17,6 +17,7 @@ type AuditRow = {
   Date_Created: string;
   Message: string;
   Message_Type_ID: number;
+  Note: string | null;
 };
 
 interface AuditReportPanelProps {
@@ -131,6 +132,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
                       <td className="px-4 py-3 text-gray-700">{row.User_ID}</td>
                       <td className="px-4 py-3 text-gray-700">{row.Message}</td>
+                      <td className="px-4 py-3 text-gray-700">{row.Note ?? "-"}</td>
                       <td className="px-4 py-3">
                         <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
                           {row.Message_Type_ID}
