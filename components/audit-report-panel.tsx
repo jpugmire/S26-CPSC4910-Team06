@@ -30,7 +30,8 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [minDate, setMinDate] = useState<string>("");
   const [maxDate, setMaxDate] = useState<string>("");
-  const [userIdFilter, setUserIdFilter] = useState<string>("");
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [userIdInput, setUserIdInput] = useState<string>("");
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
 			if (orgId != null) params.append("orgId", String(orgId));
 			if (minDate) params.append("minDate", minDate);
 			if (maxDate) params.append("maxDate", maxDate);
-			if (userIdFilter) params.append("userId", userIdFilter);
+			selectedUserIds.forEach((u) => params.append("userId", String(u)));
 			if (sortColumn) params.append("sortColumn", sortColumn);
 			if (sortColumn) params.append("sortOrder", sortOrder);
 
@@ -86,10 +87,22 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
     );
   }
 
-    function toggleAll() {
+  function toggleAll() {
     setSelectedTypes((prev) =>
       prev.length === AUDIT_TYPES.length ? [] : AUDIT_TYPES.map((t) => t.value)
     );
+  }
+
+  function addUserId() {
+    const userId = Number(userIdInput);
+    if (userIdInput && !isNaN(userId) && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds((prev) => [...prev, userId]);
+      setUserIdInput("");
+    }
+  }
+
+  function removeUserId(userId: number) {
+    setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
   }
 
   async function handleRunReport() {
@@ -108,7 +121,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       if (orgId != null) params.append("orgId", String(orgId));
       if (minDate) params.append("minDate", minDate);
       if (maxDate) params.append("maxDate", maxDate);
-      if (userIdFilter) params.append("userId", userIdFilter);
+      selectedUserIds.forEach((u) => params.append("userId", String(u)));
       if (sortColumn) params.append("sortColumn", sortColumn);
       if (sortColumn) params.append("sortOrder", sortOrder);
 
@@ -219,17 +232,46 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       {/* Filters */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="userIdFilter" className="text-sm font-medium text-gray-700">
-            User ID (optional)
+          <label htmlFor="userIdInput" className="text-sm font-medium text-gray-700">
+            Filter by User ID(s) (optional)
           </label>
-          <input
-            id="userIdFilter"
-            type="number"
-            placeholder="Enter User ID"
-            value={userIdFilter}
-            onChange={(e) => setUserIdFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="flex gap-2">
+            <input
+              id="userIdInput"
+              type="number"
+              placeholder="Enter User ID"
+              value={userIdInput}
+              onChange={(e) => setUserIdInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") addUserId();
+              }}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={addUserId}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {selectedUserIds.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedUserIds.map((userId) => (
+                <div
+                  key={userId}
+                  className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                >
+                  <span>User {userId}</span>
+                  <button
+                    onClick={() => removeUserId(userId)}
+                    className="text-blue-700 hover:text-blue-900 font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="minDate" className="text-sm font-medium text-gray-700">

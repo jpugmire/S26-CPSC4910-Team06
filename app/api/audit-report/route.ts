@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
 
   const minDateParam = req.nextUrl.searchParams.get("minDate");
   const maxDateParam = req.nextUrl.searchParams.get("maxDate");
-  const userIdParam = req.nextUrl.searchParams.get("userId");
-  const userId = userIdParam ? Number(userIdParam) : null;
+  const userIdParams = req.nextUrl.searchParams.getAll("userId");
+  const userIds = userIdParams.map(Number).filter((n) => !isNaN(n));
   
   // Parse dates explicitly to handle YYYY-MM-DD format consistently
   let minDate: Date | null = null;
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
   const rows = await prisma.audit.findMany({
     where: {
       Message_Type_ID: { in: typeIds },
-      ...(userId != null ? { User_ID: userId } : userIdsInOrg != null ? { User_ID: { in: userIdsInOrg } } : {}),
+      ...(userIds.length > 0 ? { User_ID: { in: userIds } } : userIdsInOrg != null ? { User_ID: { in: userIdsInOrg } } : {}),
       ...(minDate || maxDate ? {
         Date_Created: {
           ...(minDate ? { gte: minDate } : {}),
