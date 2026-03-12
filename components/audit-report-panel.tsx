@@ -23,15 +23,18 @@ type AuditRow = {
 
 interface AuditReportPanelProps {
   orgId?: number | null; // null/undefined = admin (sees all)
+  isAdmin?: boolean; // true if user is admin
 }
 
-export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
+export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [minDate, setMinDate] = useState<string>("");
   const [maxDate, setMaxDate] = useState<string>("");
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [userIdInput, setUserIdInput] = useState<string>("");
+  const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
+  const [orgIdInput, setOrgIdInput] = useState<string>("");
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +62,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
 			selectedTypes.forEach((t) => params.append("type", String(t)));
 
 			if (orgId != null) params.append("orgId", String(orgId));
+			selectedOrgIds.forEach((o) => params.append("filterOrgId", String(o)));
 			if (minDate) params.append("minDate", minDate);
 			if (maxDate) params.append("maxDate", maxDate);
 			selectedUserIds.forEach((u) => params.append("userId", String(u)));
@@ -105,6 +109,18 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
     setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
   }
 
+  function addOrgId() {
+    const orgIdNum = Number(orgIdInput);
+    if (orgIdInput && !isNaN(orgIdNum) && !selectedOrgIds.includes(orgIdNum)) {
+      setSelectedOrgIds((prev) => [...prev, orgIdNum]);
+      setOrgIdInput("");
+    }
+  }
+
+  function removeOrgId(orgIdNum: number) {
+    setSelectedOrgIds((prev) => prev.filter((id) => id !== orgIdNum));
+  }
+
   async function handleRunReport() {
     if (selectedTypes.length === 0) {
       setError("Please select at least one audit type.");
@@ -119,6 +135,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       selectedTypes.forEach((t) => params.append("type", String(t)));
 
       if (orgId != null) params.append("orgId", String(orgId));
+      selectedOrgIds.forEach((o) => params.append("filterOrgId", String(o)));
       if (minDate) params.append("minDate", minDate);
       if (maxDate) params.append("maxDate", maxDate);
       selectedUserIds.forEach((u) => params.append("userId", String(u)));
@@ -231,6 +248,50 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
 
       {/* Filters */}
       <div className="flex flex-col gap-4">
+        {isAdmin && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="orgIdInput" className="text-sm font-medium text-gray-700">
+              Filter by Organization(s) (optional)
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="orgIdInput"
+                type="number"
+                placeholder="Enter Org ID"
+                value={orgIdInput}
+                onChange={(e) => setOrgIdInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") addOrgId();
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={addOrgId}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                Add
+              </button>
+            </div>
+            {selectedOrgIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedOrgIds.map((orgIdNum) => (
+                  <div
+                    key={orgIdNum}
+                    className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
+                  >
+                    <span>Org {orgIdNum}</span>
+                    <button
+                      onClick={() => removeOrgId(orgIdNum)}
+                      className="text-green-700 hover:text-green-900 font-bold"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <label htmlFor="userIdInput" className="text-sm font-medium text-gray-700">
             Filter by User ID(s) (optional)

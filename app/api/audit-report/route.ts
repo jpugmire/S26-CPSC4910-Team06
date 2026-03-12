@@ -29,6 +29,8 @@ export async function GET(req: NextRequest) {
   const maxDateParam = req.nextUrl.searchParams.get("maxDate");
   const userIdParams = req.nextUrl.searchParams.getAll("userId");
   const userIds = userIdParams.map(Number).filter((n) => !isNaN(n));
+  const filterOrgIdParams = req.nextUrl.searchParams.getAll("filterOrgId");
+  const filterOrgIds = filterOrgIdParams.map(Number).filter((n) => !isNaN(n));
   
   // Parse dates explicitly to handle YYYY-MM-DD format consistently
   let minDate: Date | null = null;
@@ -46,7 +48,17 @@ export async function GET(req: NextRequest) {
 
   let userIdsInOrg: number[] | null = null;
 
-  if (orgId != null) {
+  // If admin is filtering by specific orgs, get users from those orgs
+  if (filterOrgIds.length > 0) {
+    const [sponsors, drivers] = await Promise.all([
+      prisma.sponsor.findMany({ where: { Org_ID: { in: filterOrgIds } }, select: { User_ID: true } }),
+      prisma.driver.findMany({ where: { Org_ID: { in: filterOrgIds } }, select: { User_ID: true } }),
+    ]);
+    userIdsInOrg = [
+      ...sponsors.map((s) => s.User_ID),
+      ...drivers.map((d) => d.User_ID),
+    ];
+  } else if (orgId != null) {
     // Get all User_IDs belonging to this org (sponsors + drivers)
     const [sponsors, drivers] = await Promise.all([
       prisma.sponsor.findMany({ where: { Org_ID: orgId }, select: { User_ID: true } }),
