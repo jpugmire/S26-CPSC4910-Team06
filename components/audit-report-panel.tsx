@@ -30,6 +30,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [minDate, setMinDate] = useState<string>("");
   const [maxDate, setMaxDate] = useState<string>("");
+  const [userIdFilter, setUserIdFilter] = useState<string>("");
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +60,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
 			if (orgId != null) params.append("orgId", String(orgId));
 			if (minDate) params.append("minDate", minDate);
 			if (maxDate) params.append("maxDate", maxDate);
+			if (userIdFilter) params.append("userId", userIdFilter);
 			if (sortColumn) params.append("sortColumn", sortColumn);
 			if (sortColumn) params.append("sortOrder", sortOrder);
 
@@ -106,6 +108,7 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       if (orgId != null) params.append("orgId", String(orgId));
       if (minDate) params.append("minDate", minDate);
       if (maxDate) params.append("maxDate", maxDate);
+      if (userIdFilter) params.append("userId", userIdFilter);
       if (sortColumn) params.append("sortColumn", sortColumn);
       if (sortColumn) params.append("sortOrder", sortOrder);
 
@@ -213,8 +216,21 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
         </div>
       </div>
 
-      {/* Date filters */}
+      {/* Filters */}
       <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="userIdFilter" className="text-sm font-medium text-gray-700">
+            User ID (optional)
+          </label>
+          <input
+            id="userIdFilter"
+            type="number"
+            placeholder="Enter User ID"
+            value={userIdFilter}
+            onChange={(e) => setUserIdFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="minDate" className="text-sm font-medium text-gray-700">
             Min Date (optional)
