@@ -144,12 +144,14 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   }
 
   function SortIndicator({ column }: { column: SortableColumn }) {
-    if (sortColumn !== column) return null;
-    return (
-      <span className="ml-1">
-        {sortOrder === "asc" ? "▲" : "▼"}
-      </span>
-    );
+    if (sortColumn === column) {
+      return (
+        <span className="ml-1">
+          {sortOrder === "asc" ? "▲" : "▼"}
+        </span>
+      );
+    }
+    return <span className="ml-1 text-gray-400">▽△</span>;
   }
 
   return (
