@@ -20,6 +20,11 @@ export async function GET(req: NextRequest) {
   const orgIdParam = req.nextUrl.searchParams.get("orgId");
   const orgId = orgIdParam ? Number(orgIdParam) : null;
 
+  const sortColumnParam = req.nextUrl.searchParams.get("sortColumn");
+  const sortOrderParam = req.nextUrl.searchParams.get("sortOrder");
+  const sortColumn = ["Audit_ID", "User_ID", "Message_Type_ID", "Date_Created"].includes(sortColumnParam || "") ? sortColumnParam : null;
+  const sortOrder = sortOrderParam === "desc" ? "desc" : "asc";
+
   const minDateParam = req.nextUrl.searchParams.get("minDate");
   const maxDateParam = req.nextUrl.searchParams.get("maxDate");
   
@@ -51,6 +56,10 @@ export async function GET(req: NextRequest) {
     ];
   }
 
+  const orderBy: Record<string, "asc" | "desc"> = sortColumn 
+    ? { [sortColumn]: sortOrder }
+    : { Date_Created: "desc" };
+
   const rows = await prisma.audit.findMany({
     where: {
       Message_Type_ID: { in: typeIds },
@@ -62,7 +71,7 @@ export async function GET(req: NextRequest) {
         },
       } : {}),
     },
-    orderBy: { Date_Created: "desc" },
+    orderBy,
   });
 
   return NextResponse.json(rows);

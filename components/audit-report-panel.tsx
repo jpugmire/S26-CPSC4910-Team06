@@ -33,6 +33,8 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 	// Close dropdown when clicking outside
@@ -45,6 +47,36 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
+
+	// Re-fetch when sort parameters change (if results are already loaded)
+	useEffect(() => {
+		if (results !== null && selectedTypes.length > 0) {
+			setLoading(true);
+
+			const params = new URLSearchParams();
+			selectedTypes.forEach((t) => params.append("type", String(t)));
+
+			if (orgId != null) params.append("orgId", String(orgId));
+			if (minDate) params.append("minDate", minDate);
+			if (maxDate) params.append("maxDate", maxDate);
+			if (sortColumn) params.append("sortColumn", sortColumn);
+			if (sortColumn) params.append("sortOrder", sortOrder);
+
+			fetch(`/api/audit-report?${params.toString()}`)
+				.then((res) => {
+					if (!res.ok) throw new Error("Failed to fetch audit report.");
+					return res.json();
+				})
+				.then((data: AuditRow[]) => {
+					setResults(data);
+					setLoading(false);
+				})
+				.catch((err) => {
+					setError("An error occurred while fetching the report.");
+					setLoading(false);
+				});
+		}
+	}, [sortColumn, sortOrder]);
 
   function toggleType(value: number) {
     setSelectedTypes((prev) =>
@@ -74,6 +106,8 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       if (orgId != null) params.append("orgId", String(orgId));
       if (minDate) params.append("minDate", minDate);
       if (maxDate) params.append("maxDate", maxDate);
+      if (sortColumn) params.append("sortColumn", sortColumn);
+      if (sortColumn) params.append("sortOrder", sortOrder);
 
       const res = await fetch(`/api/audit-report?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch audit report.");
@@ -95,6 +129,28 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       : selectedTypes.length === 1
       ? AUDIT_TYPES.find((t) => t.value === selectedTypes[0])?.label ?? "1 selected"
       : `${selectedTypes.length} types selected`;
+
+  type SortableColumn = "Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created";
+
+  function handleSort(column: SortableColumn) {
+    if (sortColumn === column) {
+      // Toggle sort order
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // Set new sort column
+      setSortColumn(column);
+      setSortOrder("asc");
+    }
+  }
+
+  function SortIndicator({ column }: { column: SortableColumn }) {
+    if (sortColumn !== column) return null;
+    return (
+      <span className="ml-1">
+        {sortOrder === "asc" ? "▲" : "▼"}
+      </span>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -207,12 +263,20 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-gray-50 text-left text-gray-600 uppercase text-xs tracking-wide">
-                    <th className="px-4 py-3 border-b">Audit ID</th>
-                    <th className="px-4 py-3 border-b">User ID</th>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Audit_ID")}>
+                      Audit ID <SortIndicator column="Audit_ID" />
+                    </th>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
+                      User ID <SortIndicator column="User_ID" />
+                    </th>
                     <th className="px-4 py-3 border-b">Message</th>
                     <th className="px-4 py-3 border-b">Note</th>
-                    <th className="px-4 py-3 border-b">Type ID</th>
-                    <th className="px-4 py-3 border-b">Date</th>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Message_Type_ID")}>
+                      Type ID <SortIndicator column="Message_Type_ID" />
+                    </th>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Date_Created")}>
+                      Date <SortIndicator column="Date_Created" />
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
