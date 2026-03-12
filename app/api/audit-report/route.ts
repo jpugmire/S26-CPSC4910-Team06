@@ -20,6 +20,23 @@ export async function GET(req: NextRequest) {
   const orgIdParam = req.nextUrl.searchParams.get("orgId");
   const orgId = orgIdParam ? Number(orgIdParam) : null;
 
+  const minDateParam = req.nextUrl.searchParams.get("minDate");
+  const maxDateParam = req.nextUrl.searchParams.get("maxDate");
+  
+  // Parse dates explicitly to handle YYYY-MM-DD format consistently
+  let minDate: Date | null = null;
+  let maxDate: Date | null = null;
+  
+  if (minDateParam) {
+    const [year, month, day] = minDateParam.split('-').map(Number);
+    minDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+  }
+  
+  if (maxDateParam) {
+    const [year, month, day] = maxDateParam.split('-').map(Number);
+    maxDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+  }
+
   let userIdsInOrg: number[] | null = null;
 
   if (orgId != null) {
@@ -38,6 +55,12 @@ export async function GET(req: NextRequest) {
     where: {
       Message_Type_ID: { in: typeIds },
       ...(userIdsInOrg != null ? { User_ID: { in: userIdsInOrg } } : {}),
+      ...(minDate || maxDate ? {
+        Date_Created: {
+          ...(minDate ? { gte: minDate } : {}),
+          ...(maxDate ? { lte: maxDate } : {}),
+        },
+      } : {}),
     },
     orderBy: { Date_Created: "desc" },
   });

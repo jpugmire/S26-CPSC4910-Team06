@@ -28,6 +28,8 @@ interface AuditReportPanelProps {
 export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [minDate, setMinDate] = useState<string>("");
+  const [maxDate, setMaxDate] = useState<string>("");
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +72,8 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
       selectedTypes.forEach((t) => params.append("type", String(t)));
 
       if (orgId != null) params.append("orgId", String(orgId));
+      if (minDate) params.append("minDate", minDate);
+      if (maxDate) params.append("maxDate", maxDate);
 
       const res = await fetch(`/api/audit-report?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch audit report.");
@@ -148,6 +152,34 @@ export function AuditReportPanel({ orgId }: AuditReportPanelProps) {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Date filters */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="minDate" className="text-sm font-medium text-gray-700">
+            Min Date (optional)
+          </label>
+          <input
+            id="minDate"
+            type="date"
+            value={minDate}
+            onChange={(e) => setMinDate(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="maxDate" className="text-sm font-medium text-gray-700">
+            Max Date (optional)
+          </label>
+          <input
+            id="maxDate"
+            type="date"
+            value={maxDate}
+            onChange={(e) => setMaxDate(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
       </div>
 
