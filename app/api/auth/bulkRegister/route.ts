@@ -6,6 +6,7 @@ import { registerUser } from "@/lib/registerUser";
 type CsvRow = {
   Username: string;
   Password: string;
+  UserType: "D" | "S" | "A";
   SponsorOrgId: string;
 };
 
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
         await registerUser({
           username: row.Username,
           password: row.Password,
-          userType: "D",
+          userType: row.UserType,
           sponsorOrgId: Number(row.SponsorOrgId),
         });
 

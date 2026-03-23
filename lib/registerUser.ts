@@ -16,6 +16,9 @@ export async function registerUser({
   sponsorOrgId,
 }: RegisterUserInput) {
   if (!username || !password || !userType) {
+    console.log(username);
+    console.log(password);
+    console.log(userType);
     throw new Error("Username, password, and userType are required");
   }
 
