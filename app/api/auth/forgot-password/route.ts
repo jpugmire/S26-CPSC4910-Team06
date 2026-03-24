@@ -3,9 +3,9 @@ import crypto from "crypto"
 import { Resend } from "resend"
 import { prisma } from "@/lib/prisma"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const { email } = await req.json()
 
     if (!email) {
