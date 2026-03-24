@@ -36,7 +36,7 @@ export async function GET() {
     const drivers = await prisma.user.findMany({
   where: {
     Driver: {
-      Driver_Sponsor_Org: {
+      driverSponsorOrgs: {
         some: {
           Org_ID: orgId,
         },
@@ -49,7 +49,7 @@ export async function GET() {
     Status: true,
     Driver: {
       select: {
-        Driver_Sponsor_Org: {
+        driverSponsorOrgs: {
           where: {
             Org_ID: orgId,
           },

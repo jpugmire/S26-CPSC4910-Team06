@@ -64,7 +64,7 @@ export default async function AdminPage() {
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
               {/* pass orgId so the API scopes results to this sponsor's org */}
-              <AuditReportPanel orgId={null} />
+              <AuditReportPanel orgId={null} isAdmin={true} />
             </div>
         </div>
       </div>

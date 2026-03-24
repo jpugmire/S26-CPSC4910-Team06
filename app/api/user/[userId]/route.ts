@@ -4,22 +4,23 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
+type RouteContext = {
+  params: Promise<{ userId: string }>
+}
+
 async function canAccessUser(
   sessionUserId: number,
   sessionUserRole: string,
   targetUserId: number
 ) {
-  // Admin can access anyone
   if (sessionUserRole === "A") {
     return true
   }
 
-  // User can access themself
   if (sessionUserId === targetUserId) {
     return true
   }
 
-  // Sponsor can access users in the same org
   if (sessionUserRole === "S") {
     const sponsor = await prisma.sponsor.findUnique({
       where: { User_ID: sessionUserId },
@@ -30,13 +31,11 @@ async function canAccessUser(
       return false
     }
 
-    // Check target user's org as a driver
     const targetDriver = await prisma.driver.findUnique({
       where: { User_ID: targetUserId },
       select: { Org_ID: true },
     })
 
-    // Check target user's org as a sponsor
     const targetSponsor = await prisma.sponsor.findUnique({
       where: { User_ID: targetUserId },
       select: { Org_ID: true },
@@ -54,7 +53,7 @@ async function canAccessUser(
   return false
 }
 
-export async function GET(req: NextRequest, context: RouteContext<"/api/user/[userId]">) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
     const session = await auth()
 
@@ -62,9 +61,9 @@ export async function GET(req: NextRequest, context: RouteContext<"/api/user/[us
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const { userId } = await context.params
+    const { userId } = await params
 
-    if (Number.isNaN(userId)) {
+    if (Number.isNaN(Number(userId))) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
     }
 
@@ -81,14 +80,32 @@ export async function GET(req: NextRequest, context: RouteContext<"/api/user/[us
     const user = await prisma.user.findUnique({
       where: { User_ID: Number(userId) },
       select: {
+        User_ID: true,
         Username: true,
         Email: true,
         Phone: true,
+        User_Type: true,
         Sponsor: {
           select: {
             Sponsor_Org: {
               select: {
+                Org_ID: true,
                 Org_Name: true,
+              },
+            },
+          },
+        },
+        Driver: {
+          select: {
+            driverSponsorOrgs: {
+              select: {
+                Org_ID: true,
+                Sponsor_Org: {
+                  select: {
+                    Org_ID: true,
+                    Org_Name: true,
+                  },
+                },
               },
             },
           },
@@ -100,12 +117,30 @@ export async function GET(req: NextRequest, context: RouteContext<"/api/user/[us
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json({
+    const response: Record<string, unknown> = {
+      User_ID: user.User_ID,
       Username: user.Username,
       Email: user.Email,
       Phone: user.Phone,
-      Org_Name: user.Sponsor?.Sponsor_Org?.Org_Name ?? null,
-    })
+      User_Type: user.User_Type,
+    }
+
+    if (user.User_Type === "S") {
+      if (user.Sponsor?.Sponsor_Org) {
+        response.Org_ID = user.Sponsor.Sponsor_Org.Org_ID
+        response.Org_Name = user.Sponsor.Sponsor_Org.Org_Name
+      }
+    } else if (user.User_Type === "D") {
+      const joinedOrganizations = user.Driver?.driverSponsorOrgs?.map(
+        (dso: { Org_ID: number; Sponsor_Org: { Org_ID: number; Org_Name: string } }) => ({
+          Org_ID: dso.Sponsor_Org.Org_ID,
+          Org_Name: dso.Sponsor_Org.Org_Name,
+        })
+      ) ?? []
+      response.joinedOrganizations = joinedOrganizations
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error("GET /api/user/[userId] error:", error)
     return NextResponse.json(
@@ -115,7 +150,7 @@ export async function GET(req: NextRequest, context: RouteContext<"/api/user/[us
   }
 }
 
-export async function PUT(req: NextRequest, context: RouteContext<"/api/user/[userId]">) {
+export async function PUT(req: NextRequest, { params }: RouteContext) {
   try {
     const session = await auth()
 
@@ -123,9 +158,9 @@ export async function PUT(req: NextRequest, context: RouteContext<"/api/user/[us
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const { userId } = await context.params
+    const { userId } = await params
 
-    if (Number.isNaN(userId)) {
+    if (Number.isNaN(Number(userId))) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
     }
 

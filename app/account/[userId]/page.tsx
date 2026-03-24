@@ -4,12 +4,20 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Navbar from "@/components/navbar"
 
+type JoinedOrganization = {
+  Org_ID: number
+  Org_Name: string
+}
+
 type UserData = {
   User_ID: number
   Username: string
   Email: string | null
   Phone: string | null
   Org_Name: string | null
+  Org_ID: number | null
+  User_Type: string
+  joinedOrganizations?: JoinedOrganization[]
 }
 
 export default function AccountPage() {
@@ -21,6 +29,7 @@ export default function AccountPage() {
   const [phone, setPhone] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
@@ -85,6 +94,35 @@ export default function AccountPage() {
     }
   }
 
+  async function handleLeave(orgId: number, orgName: string) {
+    if (!confirm(`Are you sure you want to leave ${orgName}? You will need to apply again to rejoin.`)) {
+      return
+    }
+
+    setLeaving(true)
+    try {
+      const res = await fetch("/api/driver/leave", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orgId }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        alert(`You have left ${orgName}.`)
+        window.location.reload()
+      } else {
+        setError(data.error || "Failed to leave organization")
+      }
+    } catch {
+      setError("Failed to leave organization")
+    } finally {
+      setLeaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -122,7 +160,7 @@ export default function AccountPage() {
           <strong>Username:</strong> {user.Username}
         </p>
 
-        {user.Org_Name && (
+        {user.User_Type !== "D" && user.Org_Name && (
           <p>
             <strong>Organization:</strong> {user.Org_Name}
           </p>
@@ -141,6 +179,26 @@ export default function AccountPage() {
         <button onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Save Changes"}
         </button>
+
+        {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (
+          <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>
+            <h3>Your Organizations</h3>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {user.joinedOrganizations.map((org) => (
+                <li key={org.Org_ID} style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <span><strong>{org.Org_Name}</strong></span>
+                  <button
+                    onClick={() => handleLeave(org.Org_ID, org.Org_Name)}
+                    disabled={leaving}
+                    style={{ backgroundColor: "#dc2626", color: "white", padding: "0.25rem 0.75rem", borderRadius: "0.25rem", border: "none", cursor: "pointer" }}
+                  >
+                    {leaving ? "Leaving..." : "Leave"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </>
   )
