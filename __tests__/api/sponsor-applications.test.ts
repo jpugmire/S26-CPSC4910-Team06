@@ -20,6 +20,10 @@ jest.mock("@/lib/prisma", () => ({
         },
         driver: {
             update: jest.fn()
+        },
+        driver_Sponsor_Org: {
+            findUnique: jest.fn(),
+            create: jest.fn()
         }
     }
 }))
@@ -255,7 +259,7 @@ describe("PATCH /api/sponsor/applications/[id]", () => {
         expect(data.error).toBe("Application already reviewed")
     })
 
-    it("approves application and updates driver org", async () => {
+    it("approves application and creates driver_sponsor_org", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
         ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(mockSponsor)
         ;(prisma.driver_Application.findUnique as jest.Mock).mockResolvedValue({
@@ -269,7 +273,8 @@ describe("PATCH /api/sponsor/applications/[id]", () => {
             Status: "A",
             Review_Date: new Date()
         })
-        ;(prisma.driver.update as jest.Mock).mockResolvedValue({})
+        ;(prisma.driver_Sponsor_Org.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.create as jest.Mock).mockResolvedValue({})
 
         const response = await PATCH(new NextRequest(appUrl, {
             method: "PATCH",
@@ -280,13 +285,16 @@ describe("PATCH /api/sponsor/applications/[id]", () => {
 
         expect(response.status).toBe(200)
         expect(data.message).toBe("Application approved")
-        expect(prisma.driver.update).toHaveBeenCalledWith({
-            where: { User_ID: 100 },
-            data: { Org_ID: 10 }
+        expect(prisma.driver_Sponsor_Org.create).toHaveBeenCalledWith({
+            data: {
+                User_ID: 100,
+                Org_ID: 10,
+                Point_Count: 0
+            }
         })
     })
 
-    it("rejects application without updating driver", async () => {
+    it("rejects application without creating driver_sponsor_org", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
         ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(mockSponsor)
         ;(prisma.driver_Application.findUnique as jest.Mock).mockResolvedValue({
@@ -310,7 +318,7 @@ describe("PATCH /api/sponsor/applications/[id]", () => {
 
         expect(response.status).toBe(200)
         expect(data.message).toBe("Application rejected")
-        expect(prisma.driver.update).not.toHaveBeenCalled()
+        expect(prisma.driver_Sponsor_Org.create).not.toHaveBeenCalled()
     })
 
     it("handles database errors", async () => {
