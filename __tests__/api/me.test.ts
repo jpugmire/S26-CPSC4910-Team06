@@ -18,6 +18,7 @@ jest.mock('@/lib/prisma', () => ({
                     }
                 }
             }),
+            findFirst: jest.fn().mockResolvedValue(null),
             update: jest.fn().mockResolvedValue({
                 Username: 'testuser',
                 Email: 'testuserupdated@email.com',

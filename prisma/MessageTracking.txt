@@ -3,3 +3,4 @@
 3: User updated
 4: User signed in
 5: User points changed from <Old.Point_Count> to <New.Point_Count>
+6: Conversion rate changed from <Old.Point_Dollar_Value> to <New.Point_Dollar_Value>
