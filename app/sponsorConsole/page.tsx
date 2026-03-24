@@ -8,6 +8,7 @@ import { PointForm } from "@/components/point-form";
 import { PointConversionForm } from "@/components/point-conversion-form";
 import { AuditReportPanel } from "@/components/audit-report-panel";
 import { prisma } from "@/lib/prisma";
+import BulkUpdatePoints from "@/components/sponsor-nulk-update-points";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -43,6 +44,13 @@ export default async function SponsorPage() {
                 Update Conversion Rate
               </h1>
               <PointConversionForm />
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Bulk Add Points
+              </h1>
+              <BulkUpdatePoints />
             </div>
 
             <Link
