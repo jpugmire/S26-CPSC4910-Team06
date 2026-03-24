@@ -11,12 +11,14 @@ jest.mock('@/lib/prisma', () => ({
                 Username: 'testuser',
                 Email: 'testuseremail@email.com',
                 Phone: '1234567890',
+                User_Type: 'S',
                 Sponsor: {
                     Sponsor_Org: {
                         Org_Name: 'testOrganization'
                     }
                 }
             }),
+            findFirst: jest.fn().mockResolvedValue(null),
             update: jest.fn().mockResolvedValue({
                 Username: 'testuser',
                 Email: 'testuserupdated@email.com',

@@ -74,7 +74,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "test", password: "pass", userType: "X" }),
+            body: JSON.stringify({ username: "test", password: "pass", email: "test@test.com", userType: "X" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -89,7 +89,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "testuser", password: "pass", userType: "A" }),
+            body: JSON.stringify({ username: "testuser", password: "pass", email: "test@test.com", userType: "A" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -104,7 +104,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newuser", password: "pass", userType: "D" }),
+            body: JSON.stringify({ username: "newuser", password: "pass", email: "new@test.com", userType: "D" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -120,7 +120,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newdriver", password: "pass", userType: "D", sponsorOrgId: 1 }),
+            body: JSON.stringify({ username: "newdriver", password: "pass", email: "driver@test.com", userType: "D", sponsorOrgId: 1 }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -137,7 +137,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newadmin", password: "pass", userType: "A" }),
+            body: JSON.stringify({ username: "newadmin", password: "pass", email: "admin@test.com", userType: "A" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -152,7 +152,7 @@ describe("POST /api/auth/register", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "test", password: "pass", userType: "A" }),
+            body: JSON.stringify({ username: "test", password: "pass", email: "test@test.com", userType: "A" }),
             headers: { "Content-Type": "application/json" }
         }))
 

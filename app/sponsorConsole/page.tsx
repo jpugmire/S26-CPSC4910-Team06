@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-// import SponsorPanel from "@/components/sponsor-panel";
 import Navbar from "@/components/navbar";
 import SponsorPanel from "@/components/sponsor-panel";
 import { PointForm } from "@/components/point-form";
 import { PointConversionForm } from "@/components/point-conversion-form";
+import { DriverApplicationsList } from "@/components/sponsor/driver-applications-list";
 import { AuditReportPanel } from "@/components/audit-report-panel";
 import { prisma } from "@/lib/prisma";
 
@@ -44,6 +44,9 @@ export default async function SponsorPage() {
               </h1>
               <PointConversionForm />
             </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <DriverApplicationsList />
+            </div>
 
             <Link
               href="/dashboard"
@@ -62,7 +65,7 @@ export default async function SponsorPage() {
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
               {/* pass orgId so the API scopes results to this sponsor's org */}
-              <AuditReportPanel orgId={sponsorRecord?.Org_ID ?? null} />
+              <AuditReportPanel orgId={sponsorRecord?.Org_ID ?? null} isAdmin={false} />
             </div>
           </div>
 
