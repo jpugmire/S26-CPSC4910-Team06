@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-// import SponsorPanel from "@/components/sponsor-panel";
 import Navbar from "@/components/navbar";
 import SponsorPanel from "@/components/sponsor-panel";
 import { PointForm } from "@/components/point-form";
 import { PointConversionForm } from "@/components/point-conversion-form";
+import { DriverApplicationsList } from "@/components/sponsor/driver-applications-list";
 import { AuditReportPanel } from "@/components/audit-report-panel";
 import { prisma } from "@/lib/prisma";
 
@@ -43,6 +43,9 @@ export default async function SponsorPage() {
                 Update Conversion Rate
               </h1>
               <PointConversionForm />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <DriverApplicationsList />
             </div>
 
             <Link
