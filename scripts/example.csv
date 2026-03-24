@@ -1,0 +1,4 @@
+Username,Password,UserType,SponsorOrgId
+bulkUser1,password,D,2
+bulkUser2,password,D,2
+bulkSponsor2,password,S,2
