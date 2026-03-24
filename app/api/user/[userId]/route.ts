@@ -80,6 +80,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const user = await prisma.user.findUnique({
       where: { User_ID: Number(userId) },
       select: {
+        User_ID: true,
         Username: true,
         Email: true,
         Phone: true,
@@ -88,6 +89,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
           select: {
             Sponsor_Org: {
               select: {
+                Org_ID: true,
                 Org_Name: true,
               },
             },
@@ -95,9 +97,15 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         },
         Driver: {
           select: {
-            Sponsor_Org: {
+            driverSponsorOrgs: {
               select: {
-                Org_Name: true,
+                Org_ID: true,
+                Sponsor_Org: {
+                  select: {
+                    Org_ID: true,
+                    Org_Name: true,
+                  },
+                },
               },
             },
           },
@@ -109,19 +117,30 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    let orgName = null
-    if (user.User_Type === "S") {
-      orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
-    } else if (user.User_Type === "D") {
-      orgName = user.Driver?.Sponsor_Org?.Org_Name ?? null
-    }
-
-    return NextResponse.json({
+    const response: Record<string, unknown> = {
+      User_ID: user.User_ID,
       Username: user.Username,
       Email: user.Email,
       Phone: user.Phone,
-      Org_Name: orgName,
-    })
+      User_Type: user.User_Type,
+    }
+
+    if (user.User_Type === "S") {
+      if (user.Sponsor?.Sponsor_Org) {
+        response.Org_ID = user.Sponsor.Sponsor_Org.Org_ID
+        response.Org_Name = user.Sponsor.Sponsor_Org.Org_Name
+      }
+    } else if (user.User_Type === "D") {
+      const joinedOrganizations = user.Driver?.driverSponsorOrgs?.map(
+        (dso: { Org_ID: number; Sponsor_Org: { Org_ID: number; Org_Name: string } }) => ({
+          Org_ID: dso.Sponsor_Org.Org_ID,
+          Org_Name: dso.Sponsor_Org.Org_Name,
+        })
+      ) ?? []
+      response.joinedOrganizations = joinedOrganizations
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error("GET /api/user/[userId] error:", error)
     return NextResponse.json(

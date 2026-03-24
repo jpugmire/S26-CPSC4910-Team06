@@ -19,32 +19,35 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Driver not found" }, { status: 400 })
     }
 
-    if (driver.Org_ID) {
-      return NextResponse.json({ 
-        message: "You are already part of an organization",
-        status: "joined",
-        orgId: driver.Org_ID
-      }, { status: 200 })
-    }
-
     const applications = await prisma.driver_Application.findMany({
       where: { User_ID: parseInt(session.user.id) },
+      include: {
+        Sponsor_Org: {
+          select: {
+            Org_ID: true,
+            Org_Name: true,
+          },
+        },
+      },
       orderBy: { Application_Date: "desc" },
     })
 
-    const pendingApplication = applications.find(a => a.Status === "P")
-    
-    if (pendingApplication) {
-      return NextResponse.json({
-        status: "pending",
-        application: pendingApplication,
-        message: "You have a pending application"
-      }, { status: 200 })
-    }
+    const joinedOrgs = await prisma.driver_Sponsor_Org.findMany({
+      where: { User_ID: parseInt(session.user.id) },
+      include: {
+        Sponsor_Org: {
+          select: {
+            Org_ID: true,
+            Org_Name: true,
+          },
+        },
+      },
+    })
 
     return NextResponse.json({
-      status: "can_apply",
-      message: "You can apply to an organization"
+      pendingApplications: applications.filter((a) => a.Status === "P"),
+      pastApplications: applications.filter((a) => a.Status !== "P"),
+      joinedOrganizations: joinedOrgs.map((j) => j.Sponsor_Org),
     }, { status: 200 })
   } catch (error) {
     console.error("Error checking driver application status:", error)
@@ -74,10 +77,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Driver not found" }, { status: 400 })
     }
 
-    if (driver.Org_ID) {
-      return NextResponse.json({ error: "You are already part of an organization" }, { status: 400 })
-    }
-
     const existingApplication = await prisma.driver_Application.findFirst({
       where: {
         User_ID: parseInt(session.user.id),
@@ -88,6 +87,17 @@ export async function POST(req: NextRequest) {
 
     if (existingApplication) {
       return NextResponse.json({ error: "You already have a pending application to this organization" }, { status: 400 })
+    }
+
+    const alreadyJoined = await prisma.driver_Sponsor_Org.findFirst({
+      where: {
+        User_ID: parseInt(session.user.id),
+        Org_ID: orgId,
+      },
+    })
+
+    if (alreadyJoined) {
+      return NextResponse.json({ error: "You are already part of this organization" }, { status: 400 })
     }
 
     const org = await prisma.sponsor_Org.findUnique({

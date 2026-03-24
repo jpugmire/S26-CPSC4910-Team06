@@ -11,21 +11,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authorized" }, { status: 400 })
     }
 
-    const driver = await prisma.driver.findUnique({
-      where: { User_ID: parseInt(session.user.id) },
+    const { orgId } = await req.json()
+
+    if (!orgId) {
+      return NextResponse.json({ error: "Organization ID is required" }, { status: 400 })
+    }
+
+    const membership = await prisma.driver_Sponsor_Org.findUnique({
+      where: {
+        User_ID_Org_ID: {
+          User_ID: parseInt(session.user.id),
+          Org_ID: orgId,
+        },
+      },
     })
 
-    if (!driver) {
-      return NextResponse.json({ error: "Driver not found" }, { status: 400 })
+    if (!membership) {
+      return NextResponse.json({ error: "You are not part of this organization" }, { status: 400 })
     }
 
-    if (!driver.Org_ID) {
-      return NextResponse.json({ error: "You are not part of an organization" }, { status: 400 })
-    }
-
-    const updatedDriver = await prisma.driver.update({
-      where: { User_ID: parseInt(session.user.id) },
-      data: { Org_ID: null },
+    await prisma.driver_Sponsor_Org.delete({
+      where: {
+        User_ID_Org_ID: {
+          User_ID: parseInt(session.user.id),
+          Org_ID: orgId,
+        },
+      },
     })
 
     return NextResponse.json({
