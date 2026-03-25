@@ -193,6 +193,42 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     return <span className="ml-1 text-gray-400">▽△</span>;
   }
 
+  function downloadAsCSV() {
+    if (!results || results.length === 0) return;
+
+    // Create CSV headers
+    const headers = ["Audit_ID", "User_ID", "Message", "Note", "Message_Type_ID", "Date_Created"];
+    
+    // Create CSV rows
+    const rows = results.map((row) => [
+      row.Audit_ID,
+      row.User_ID,
+      `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
+      `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
+      row.Message_Type_ID,
+      new Date(row.Date_Created).toLocaleString(),
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `audit-report-${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Dropdown type selector */}
@@ -388,7 +424,24 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
           {results.length === 0 ? (
             <p className="text-sm text-gray-500">No records found for the selected types.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+              <div className="mb-4 flex justify-end">
+                <button
+                  onClick={downloadAsCSV}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download CSV
+                </button>
+              </div>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-gray-50 text-left text-gray-600 uppercase text-xs tracking-wide">
@@ -428,6 +481,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       )}
