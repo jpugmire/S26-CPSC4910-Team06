@@ -33,50 +33,57 @@ export async function GET() {
     }
 
     // Find all drivers in my org.
-    const drivers = await prisma.user.findMany({
-  where: {
-    Driver: {
-      driverSponsorOrgs: {
-        some: {
-          Org_ID: orgId,
-        },
-      },
-    },
-  },
-  select: {
-    User_ID: true,
-    Username: true,
-    Status: true,
-    Driver: {
-      select: {
-        driverSponsorOrgs: {
-          where: {
-            Org_ID: orgId,
-          },
-          select: {
-            Org_ID: true,
-            Point_Count: true,
-          },
-        },
-      },
-    },
-  },
-  orderBy: {
-    Username: "asc",
-  },
-})
+    console.log("Fetching drivers for orgId:", orgId);
+    
+    // First, get all driver-org associations for this org
+    const driverOrgAssociations = await prisma.driver_Sponsor_Org.findMany({
+      where: { Org_ID: orgId },
+      select: { User_ID: true, Point_Count: true, Org_ID: true },
+    });
 
-console.log(drivers);
+    console.log("Driver-org associations:", driverOrgAssociations);
+
+    // Get the User_IDs from those associations
+    const userIds = driverOrgAssociations.map(a => a.User_ID);
+
+    // Now fetch the user details for those drivers
+    const drivers = await prisma.user.findMany({
+      where: {
+        User_ID: { in: userIds },
+      },
+      select: {
+        User_ID: true,
+        Username: true,
+        Status: true,
+      },
+      orderBy: {
+        Username: "asc",
+      },
+    });
+
+    // Enrich the drivers with their points for this org
+    const driversWithPoints = drivers.map(driver => ({
+      ...driver,
+      Driver: {
+        driverSponsorOrgs: driverOrgAssociations.filter(a => a.User_ID === driver.User_ID),
+      },
+    }));
+
+    console.log("Drivers fetched successfully:", driversWithPoints);
 
     return NextResponse.json(
       {
         message: "Successfully fetched all drivers in this sponsor org.",
-        drivers: drivers,
+        drivers: driversWithPoints,
       },
       { status: 201 }
     )
   } catch (error) {
-    console.error("Driver fetch error:", error)
+    console.error("Driver fetch error details:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return NextResponse.json(
       { error: "An error occurred." },
       { status: 500 }

@@ -18,7 +18,6 @@ async function main() {
       User_Type: "D",
       Driver: {
         create: {
-          Point_Count: 100,
         },
       },
     },

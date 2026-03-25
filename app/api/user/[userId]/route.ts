@@ -31,23 +31,25 @@ async function canAccessUser(
       return false
     }
 
-    const targetDriver = await prisma.driver.findUnique({
-      where: { User_ID: targetUserId },
-      select: { Org_ID: true },
-    })
-
     const targetSponsor = await prisma.sponsor.findUnique({
       where: { User_ID: targetUserId },
       select: { Org_ID: true },
     })
 
-    const targetOrgId = targetDriver?.Org_ID ?? targetSponsor?.Org_ID ?? null
-
-    if (!targetOrgId) {
-      return false
+    // Check if target is a sponsor in the same org
+    if (targetSponsor?.Org_ID === sponsor.Org_ID) {
+      return true
     }
 
-    return sponsor.Org_ID === targetOrgId
+    // Check if target is a driver in any of the same orgs
+    const driverOrgAssociation = await prisma.driver_Sponsor_Org.findFirst({
+      where: {
+        User_ID: targetUserId,
+        Org_ID: sponsor.Org_ID,
+      },
+    })
+
+    return !!driverOrgAssociation
   }
 
   return false

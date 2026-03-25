@@ -123,6 +123,7 @@ jobs:
           EBAY_REFRESH_TOKEN=${{ secrets.EBAY_REFRESH_TOKEN }}
           EBAY_CLIENT_SECRET=${{ secrets.EBAY_CLIENT_SECRET }}
           EBAY_USE_SANDBOX=${{ secrets.EBAY_USE_SANDBOX }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
           AUTH_TRUST_HOST=true
           ENVFILE
 

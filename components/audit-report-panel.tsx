@@ -34,13 +34,30 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [userIdInput, setUserIdInput] = useState<string>("");
   const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
-  const [orgIdInput, setOrgIdInput] = useState<string>("");
+  const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([]);
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [pageInput, setPageInput] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+	// Fetch sponsor organizations
+	useEffect(() => {
+		const fetchSponsorOrgs = async () => {
+			try {
+				const res = await fetch("/api/admin/sponsors");
+				const data = await res.json();
+				setSponsorOrgs(data.sponsorOrgs || []);
+			} catch (err) {
+				console.error("Failed to fetch sponsor organizations:", err);
+			}
+		};
+		fetchSponsorOrgs();
+	}, []);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -107,14 +124,6 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 
   function removeUserId(userId: number) {
     setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
-  }
-
-  function addOrgId() {
-    const orgIdNum = Number(orgIdInput);
-    if (orgIdInput && !isNaN(orgIdNum) && !selectedOrgIds.includes(orgIdNum)) {
-      setSelectedOrgIds((prev) => [...prev, orgIdNum]);
-      setOrgIdInput("");
-    }
   }
 
   function removeOrgId(orgIdNum: number) {
@@ -187,6 +196,74 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     return <span className="ml-1 text-gray-400">▽△</span>;
   }
 
+  function downloadAsCSV() {
+    if (!results || results.length === 0) return;
+
+    // Create CSV headers
+    const headers = ["Audit_ID", "User_ID", "Message", "Note", "Message_Type_ID", "Date_Created"];
+    
+    // Create CSV rows
+    const rows = results.map((row) => [
+      row.Audit_ID,
+      row.User_ID,
+      `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
+      `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
+      row.Message_Type_ID,
+      new Date(row.Date_Created).toLocaleString(),
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `audit-report-${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // Pagination helpers
+  const totalPages = results ? Math.ceil(results.length / itemsPerPage) : 1;
+  const validPage = Math.max(1, Math.min(currentPage, totalPages));
+  
+  function goToPage(page: number) {
+    const newPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(newPage);
+    setPageInput(String(newPage));
+  }
+
+  function handlePageInputChange(value: string) {
+    setPageInput(value);
+  }
+
+  function handlePageInputSubmit() {
+    const page = parseInt(pageInput, 10);
+    if (!isNaN(page)) {
+      goToPage(page);
+    }
+  }
+
+  function handleItemsPerPageChange(value: string) {
+    const newItemsPerPage = Math.max(1, parseInt(value, 10) || 10);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  }
+
+  const paginatedResults = results ? results.slice(
+    (validPage - 1) * itemsPerPage,
+    validPage * itemsPerPage
+  ) : [];
+
   return (
     <div className="flex flex-col gap-6">
       {/* Dropdown type selector */}
@@ -250,44 +327,46 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
       <div className="flex flex-col gap-4">
         {isAdmin && (
           <div className="flex flex-col gap-2">
-            <label htmlFor="orgIdInput" className="text-sm font-medium text-gray-700">
+            <label htmlFor="orgSelect" className="text-sm font-medium text-gray-700">
               Filter by Organization(s) (optional)
             </label>
-            <div className="flex gap-2">
-              <input
-                id="orgIdInput"
-                type="number"
-                placeholder="Enter Org ID"
-                value={orgIdInput}
-                onChange={(e) => setOrgIdInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") addOrgId();
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={addOrgId}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-              >
-                Add
-              </button>
-            </div>
+            <select
+              id="orgSelect"
+              value=""
+              onChange={(e) => {
+                const orgIdNum = Number(e.target.value);
+                if (orgIdNum && !selectedOrgIds.includes(orgIdNum)) {
+                  setSelectedOrgIds((prev) => [...prev, orgIdNum]);
+                }
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Sponsor Organization</option>
+              {sponsorOrgs.map((org) => (
+                <option key={org.Org_ID} value={org.Org_ID}>
+                  {org.Org_Name}
+                </option>
+              ))}
+            </select>
             {selectedOrgIds.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {selectedOrgIds.map((orgIdNum) => (
-                  <div
-                    key={orgIdNum}
-                    className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-                  >
-                    <span>Org {orgIdNum}</span>
-                    <button
-                      onClick={() => removeOrgId(orgIdNum)}
-                      className="text-green-700 hover:text-green-900 font-bold"
+                {selectedOrgIds.map((orgIdNum) => {
+                  const org = sponsorOrgs.find((o) => o.Org_ID === orgIdNum);
+                  return (
+                    <div
+                      key={orgIdNum}
+                      className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                      <span>{org?.Org_Name || `Org ${orgIdNum}`}</span>
+                      <button
+                        onClick={() => removeOrgId(orgIdNum)}
+                        className="text-green-700 hover:text-green-900 font-bold"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -380,7 +459,110 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
           {results.length === 0 ? (
             <p className="text-sm text-gray-500">No records found for the selected types.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+              {/* Pagination Controls */}
+              <div className="mb-4 flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="itemsPerPage" className="text-sm font-medium text-gray-700">
+                      Items per page:
+                    </label>
+                    <input
+                      id="itemsPerPage"
+                      type="number"
+                      min="1"
+                      value={itemsPerPage}
+                      onChange={(e) => handleItemsPerPageChange(e.target.value)}
+                      className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Showing <span className="font-semibold">{(validPage - 1) * itemsPerPage + 1}</span> to{" "}
+                    <span className="font-semibold">
+                      {Math.min(validPage * itemsPerPage, results.length)}
+                    </span> of <span className="font-semibold">{results.length}</span> records
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => goToPage(1)}
+                      disabled={validPage === 1}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => goToPage(validPage - 1)}
+                      disabled={validPage === 1}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => goToPage(validPage + 1)}
+                      disabled={validPage === totalPages}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Next
+                    </button>
+                    <button
+                      onClick={() => goToPage(totalPages)}
+                      disabled={validPage === totalPages}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Last
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="pageInput" className="text-sm font-medium text-gray-700">
+                      Go to page:
+                    </label>
+                    <input
+                      id="pageInput"
+                      type="number"
+                      min="1"
+                      max={totalPages}
+                      value={pageInput || validPage}
+                      onChange={(e) => handlePageInputChange(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") handlePageInputSubmit();
+                      }}
+                      className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handlePageInputSubmit}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Go
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-600 font-medium">
+                    Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-4 flex justify-end">
+                <button
+                  onClick={downloadAsCSV}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download CSV
+                </button>
+              </div>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-gray-50 text-left text-gray-600 uppercase text-xs tracking-wide">
@@ -401,7 +583,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((row) => (
+                  {paginatedResults.map((row) => (
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
                       <td className="px-4 py-3 text-gray-700">{row.User_ID}</td>
@@ -420,6 +602,45 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                 </tbody>
               </table>
             </div>
+
+            {/* Bottom Pagination Controls */}
+            <div className="mt-4 flex items-center justify-between gap-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => goToPage(1)}
+                  disabled={validPage === 1}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => goToPage(validPage - 1)}
+                  disabled={validPage === 1}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => goToPage(validPage + 1)}
+                  disabled={validPage === totalPages}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => goToPage(totalPages)}
+                  disabled={validPage === totalPages}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Last
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 font-medium">
+                Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
+              </p>
+            </div>
+            </>
           )}
         </div>
       )}
