@@ -34,10 +34,10 @@ BEGIN
 END;
 
 -- Delete the old trigger
-DROP TRIGGER IF EXISTS trg_driver_points_update;
--- Trigger: Driver AFTER UPDATE
-CREATE TRIGGER trg_driver_points_update
-AFTER UPDATE ON Driver
+DROP TRIGGER IF EXISTS trg_driver_sponsor_org_points_update;
+-- Trigger: Driver_Sponsor_Org AFTER UPDATE (for driver org-specific points)
+CREATE TRIGGER trg_driver_sponsor_org_points_update
+AFTER UPDATE ON Driver_Sponsor_Org
 FOR EACH ROW
 BEGIN
     -- Only log if Point_Count actually changed
