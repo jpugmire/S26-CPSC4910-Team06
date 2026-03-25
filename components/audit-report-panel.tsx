@@ -34,13 +34,27 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [userIdInput, setUserIdInput] = useState<string>("");
   const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
-  const [orgIdInput, setOrgIdInput] = useState<string>("");
+  const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([]);
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+	// Fetch sponsor organizations
+	useEffect(() => {
+		const fetchSponsorOrgs = async () => {
+			try {
+				const res = await fetch("/api/admin/sponsors");
+				const data = await res.json();
+				setSponsorOrgs(data.sponsorOrgs || []);
+			} catch (err) {
+				console.error("Failed to fetch sponsor organizations:", err);
+			}
+		};
+		fetchSponsorOrgs();
+	}, []);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -107,14 +121,6 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 
   function removeUserId(userId: number) {
     setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
-  }
-
-  function addOrgId() {
-    const orgIdNum = Number(orgIdInput);
-    if (orgIdInput && !isNaN(orgIdNum) && !selectedOrgIds.includes(orgIdNum)) {
-      setSelectedOrgIds((prev) => [...prev, orgIdNum]);
-      setOrgIdInput("");
-    }
   }
 
   function removeOrgId(orgIdNum: number) {
@@ -250,44 +256,46 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
       <div className="flex flex-col gap-4">
         {isAdmin && (
           <div className="flex flex-col gap-2">
-            <label htmlFor="orgIdInput" className="text-sm font-medium text-gray-700">
+            <label htmlFor="orgSelect" className="text-sm font-medium text-gray-700">
               Filter by Organization(s) (optional)
             </label>
-            <div className="flex gap-2">
-              <input
-                id="orgIdInput"
-                type="number"
-                placeholder="Enter Org ID"
-                value={orgIdInput}
-                onChange={(e) => setOrgIdInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") addOrgId();
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={addOrgId}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-              >
-                Add
-              </button>
-            </div>
+            <select
+              id="orgSelect"
+              value=""
+              onChange={(e) => {
+                const orgIdNum = Number(e.target.value);
+                if (orgIdNum && !selectedOrgIds.includes(orgIdNum)) {
+                  setSelectedOrgIds((prev) => [...prev, orgIdNum]);
+                }
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Sponsor Organization</option>
+              {sponsorOrgs.map((org) => (
+                <option key={org.Org_ID} value={org.Org_ID}>
+                  {org.Org_Name}
+                </option>
+              ))}
+            </select>
             {selectedOrgIds.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {selectedOrgIds.map((orgIdNum) => (
-                  <div
-                    key={orgIdNum}
-                    className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-                  >
-                    <span>Org {orgIdNum}</span>
-                    <button
-                      onClick={() => removeOrgId(orgIdNum)}
-                      className="text-green-700 hover:text-green-900 font-bold"
+                {selectedOrgIds.map((orgIdNum) => {
+                  const org = sponsorOrgs.find((o) => o.Org_ID === orgIdNum);
+                  return (
+                    <div
+                      key={orgIdNum}
+                      className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                      <span>{org?.Org_Name || `Org ${orgIdNum}`}</span>
+                      <button
+                        onClick={() => removeOrgId(orgIdNum)}
+                        className="text-green-700 hover:text-green-900 font-bold"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
