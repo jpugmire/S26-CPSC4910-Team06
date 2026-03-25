@@ -40,6 +40,9 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [pageInput, setPageInput] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
 	// Fetch sponsor organizations
@@ -228,6 +231,38 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     link.click();
     document.body.removeChild(link);
   }
+
+  // Pagination helpers
+  const totalPages = results ? Math.ceil(results.length / itemsPerPage) : 1;
+  const validPage = Math.max(1, Math.min(currentPage, totalPages));
+  
+  function goToPage(page: number) {
+    const newPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(newPage);
+    setPageInput(String(newPage));
+  }
+
+  function handlePageInputChange(value: string) {
+    setPageInput(value);
+  }
+
+  function handlePageInputSubmit() {
+    const page = parseInt(pageInput, 10);
+    if (!isNaN(page)) {
+      goToPage(page);
+    }
+  }
+
+  function handleItemsPerPageChange(value: string) {
+    const newItemsPerPage = Math.max(1, parseInt(value, 10) || 10);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  }
+
+  const paginatedResults = results ? results.slice(
+    (validPage - 1) * itemsPerPage,
+    validPage * itemsPerPage
+  ) : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -425,6 +460,92 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
             <p className="text-sm text-gray-500">No records found for the selected types.</p>
           ) : (
             <>
+              {/* Pagination Controls */}
+              <div className="mb-4 flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="itemsPerPage" className="text-sm font-medium text-gray-700">
+                      Items per page:
+                    </label>
+                    <input
+                      id="itemsPerPage"
+                      type="number"
+                      min="1"
+                      value={itemsPerPage}
+                      onChange={(e) => handleItemsPerPageChange(e.target.value)}
+                      className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Showing <span className="font-semibold">{(validPage - 1) * itemsPerPage + 1}</span> to{" "}
+                    <span className="font-semibold">
+                      {Math.min(validPage * itemsPerPage, results.length)}
+                    </span> of <span className="font-semibold">{results.length}</span> records
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => goToPage(1)}
+                      disabled={validPage === 1}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => goToPage(validPage - 1)}
+                      disabled={validPage === 1}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => goToPage(validPage + 1)}
+                      disabled={validPage === totalPages}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Next
+                    </button>
+                    <button
+                      onClick={() => goToPage(totalPages)}
+                      disabled={validPage === totalPages}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Last
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="pageInput" className="text-sm font-medium text-gray-700">
+                      Go to page:
+                    </label>
+                    <input
+                      id="pageInput"
+                      type="number"
+                      min="1"
+                      max={totalPages}
+                      value={pageInput || validPage}
+                      onChange={(e) => handlePageInputChange(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") handlePageInputSubmit();
+                      }}
+                      className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handlePageInputSubmit}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Go
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-600 font-medium">
+                    Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
+                  </p>
+                </div>
+              </div>
+
               <div className="mb-4 flex justify-end">
                 <button
                   onClick={downloadAsCSV}
@@ -462,7 +583,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((row) => (
+                  {paginatedResults.map((row) => (
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
                       <td className="px-4 py-3 text-gray-700">{row.User_ID}</td>
@@ -480,6 +601,44 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Bottom Pagination Controls */}
+            <div className="mt-4 flex items-center justify-between gap-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => goToPage(1)}
+                  disabled={validPage === 1}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => goToPage(validPage - 1)}
+                  disabled={validPage === 1}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => goToPage(validPage + 1)}
+                  disabled={validPage === totalPages}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => goToPage(totalPages)}
+                  disabled={validPage === totalPages}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Last
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 font-medium">
+                Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
+              </p>
             </div>
             </>
           )}
