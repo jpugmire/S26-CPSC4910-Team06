@@ -50,6 +50,27 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
                   ? "1 point"
                   : `${item.Point_Price ?? "No"} points`}
               </p>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch("/api/driver/purchase", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({ itemId: item.Item_ID }),
+                    })
+
+                    const data = await res.json()
+                    console.log("Response:", data)
+                  } catch (err) {
+                    console.error("Error:", err)
+                  }
+                }}
+                className="mt-2 bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Redeem
+              </button>
             </div>
           ))}
         </div>

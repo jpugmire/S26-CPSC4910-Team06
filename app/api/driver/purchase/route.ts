@@ -1,0 +1,96 @@
+import { NextRequest, NextResponse } from "next/server"
+import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth()
+
+    if (!session || session.user.role !== "D") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 401 })
+    }
+
+    const userId = Number(session.user.id)
+
+    // Get driver + org
+    const driver = await prisma.driver.findUnique({
+      where: {
+        User_ID: userId,
+      },
+      include: {
+        driverSponsorOrgs: true,
+      },
+    })
+
+    const driverOrg = driver?.driverSponsorOrgs[0]
+
+    if (!driverOrg) {
+      return NextResponse.json(
+        { error: "Driver not associated with an organization." },
+        { status: 400 }
+      )
+    }
+
+    const { itemId } = await req.json()
+
+    // Get item
+    const item = await prisma.catalog_Item.findUnique({
+      where: {
+        Item_ID: itemId,
+      },
+    })
+
+    if (!item || item.Point_Price == null) {
+      return NextResponse.json(
+        { error: "Invalid item." },
+        { status: 400 }
+      )
+    }
+
+    // Check points
+    if (driverOrg.Point_Count < item.Point_Price) {
+      return NextResponse.json(
+        { error: "Not enough points." },
+        { status: 400 }
+      )
+    }
+
+    console.log("Purchase request received for item:", itemId)
+
+    // Transaction
+    await prisma.$transaction(async (tx) => {
+      // 1. Deduct points
+      await tx.driver_Sponsor_Org.update({
+        where: {
+          User_ID_Org_ID: {
+            User_ID: userId,
+            Org_ID: driverOrg.Org_ID,
+          },
+        },
+        data: {
+          Point_Count: {
+            decrement: item.Point_Price!,
+          },
+        },
+      })
+
+      // 2. Create transaction record
+      await tx.point_Transaction.create({
+        data: {
+          User_ID: userId,
+          Item_ID: item.Item_ID,
+          Price: item.Point_Price!,
+        },
+      })
+    })
+
+    // ✅ Response should be OUTSIDE transaction
+    return NextResponse.json({
+      message: "Purchase successful!",
+    })
+
+  } catch (error) {
+    console.error("Purchase error:", error)
+    return NextResponse.json({ error: "Server error" }, { status: 500 })
+  }
+}
