@@ -30,9 +30,12 @@ export async function GET(req: NextRequest) {
         },
         Driver: {
           select: {
-            Sponsor_Org: {
+            driverSponsorOrgs: {
+              take: 1,
               select: {
-                Org_Name: true,
+                Sponsor_Org: {
+                  select: { Org_Name: true}
+                }
               },
             },
           },
@@ -48,7 +51,7 @@ export async function GET(req: NextRequest) {
     if (user.User_Type === "S") {
       orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
     } else if (user.User_Type === "D") {
-      orgName = user.Driver?.Sponsor_Org?.Org_Name ?? null
+      orgName = user.Driver?.driverSponsorOrgs?.[0]?.Sponsor_Org?.Org_Name ?? null
     }
 
     return NextResponse.json({
