@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
         Email: true,
         Phone: true,
         User_Type: true,
+
         Sponsor: {
           select: {
             Sponsor_Org: {
@@ -28,11 +29,18 @@ export async function GET(req: NextRequest) {
             },
           },
         },
+
         Driver: {
           select: {
-            Sponsor_Org: {
+            driverSponsorOrgs: {
               select: {
-                Org_Name: true,
+                Org_ID: true,
+                Point_Count: true,
+                Sponsor_Org: {
+                  select: {
+                    Org_Name: true,
+                  },
+                },
               },
             },
           },
@@ -45,10 +53,11 @@ export async function GET(req: NextRequest) {
     }
 
     let orgName = null
+
     if (user.User_Type === "S") {
       orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
     } else if (user.User_Type === "D") {
-      orgName = user.Driver?.Sponsor_Org?.Org_Name ?? null
+      orgName = user.Driver?.driverSponsorOrgs?.[0]?.Sponsor_Org?.Org_Name ?? null
     }
 
     return NextResponse.json({
@@ -77,12 +86,11 @@ export async function PUT(req: NextRequest) {
     const userId = Number(session.user.id)
     const { email, phone } = await req.json()
 
-    // Check if another ACTIVE user already has this email or phone
     const existingUser = await prisma.user.findFirst({
       where: {
-        Status: "A",            // Only active users
+        Status: "A",
         User_ID: {
-          not: userId,          // Exclude current user
+          not: userId,
         },
         OR: [
           { Email: email },
@@ -98,7 +106,6 @@ export async function PUT(req: NextRequest) {
       )
     }
 
-    // If no conflict, update user
     const updatedUser = await prisma.user.update({
       where: { User_ID: userId },
       data: {

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { registerUser } from "@/lib/registerUser";
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,22 +47,23 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const user = await prisma.user.create({
+    let userType: "D" | "S" | "A"  = "D";
+    const user = await registerUser({
+          username,
+          password,
+          userType,
+          sponsorOrgId: sponsorOrgId ? Number(sponsorOrgId) : undefined,
+        });
+    
+    const createdUser = await prisma.user.update({
+      where: {
+        User_ID: user.User_ID,
+      },
       data: {
-        Username: username,
-        Password: hashedPassword,
-        Status: "A",
-        User_Type: "D",
         Email: email,
         Phone: phone,
-        Driver: {
-          create: {
-            Point_Count: 0,
-            Org_ID: null,
-          },
-        },
       },
-    })
+    });
 
     let applicationCreated = false
     if (sponsorOrgId) {

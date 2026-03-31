@@ -50,10 +50,23 @@ export async function GET(req: NextRequest) {
 
   // If admin is filtering by specific orgs, get users from those orgs
   if (filterOrgIds.length > 0) {
-    const [sponsors, drivers] = await Promise.all([
-      prisma.sponsor.findMany({ where: { Org_ID: { in: filterOrgIds } }, select: { User_ID: true } }),
-      prisma.driver.findMany({ where: { Org_ID: { in: filterOrgIds } }, select: { User_ID: true } }),
-    ]);
+  const [sponsors, drivers] = await Promise.all([
+    prisma.sponsor.findMany({
+      where: { Org_ID: { in: filterOrgIds } },
+      select: { User_ID: true },
+    }),
+
+    prisma.driver.findMany({
+      where: {
+        driverSponsorOrgs: {
+          some: {
+            Org_ID: { in: filterOrgIds },
+          },
+        },
+      },
+      select: { User_ID: true },
+    }),
+  ]);
     userIdsInOrg = [
       ...sponsors.map((s) => s.User_ID),
       ...drivers.map((d) => d.User_ID),
@@ -62,7 +75,13 @@ export async function GET(req: NextRequest) {
     // Get all User_IDs belonging to this org (sponsors + drivers)
     const [sponsors, drivers] = await Promise.all([
       prisma.sponsor.findMany({ where: { Org_ID: orgId }, select: { User_ID: true } }),
-      prisma.driver.findMany({ where: { Org_ID: orgId }, select: { User_ID: true } }),
+      prisma.driver.findMany({ where: {
+        driverSponsorOrgs: {
+          some: {
+            Org_ID: { in: filterOrgIds },
+          },
+        },
+      }, select: { User_ID: true } }),
     ]);
     userIdsInOrg = [
       ...sponsors.map((s) => s.User_ID),

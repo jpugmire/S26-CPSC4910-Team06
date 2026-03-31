@@ -1,25 +1,14 @@
-// app/api/user/[userId]/route.ts
-
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
-
-type RouteContext = {
-  params: Promise<{ userId: string }>
-}
 
 async function canAccessUser(
   sessionUserId: number,
   sessionUserRole: string,
   targetUserId: number
 ) {
-  if (sessionUserRole === "A") {
-    return true
-  }
-
-  if (sessionUserId === targetUserId) {
-    return true
-  }
+  if (sessionUserRole === "A") return true
+  if (sessionUserId === targetUserId) return true
 
   if (sessionUserRole === "S") {
     const sponsor = await prisma.sponsor.findUnique({
@@ -27,33 +16,42 @@ async function canAccessUser(
       select: { Org_ID: true },
     })
 
-    if (!sponsor?.Org_ID) {
-      return false
+    if (!sponsor?.Org_ID) return false
+
+    const [targetDriver, targetSponsor] = await Promise.all([
+      prisma.driver.findUnique({
+        where: { User_ID: targetUserId },
+        select: {
+          driverSponsorOrgs: {
+            select: { Org_ID: true },
+          },
+        },
+      }),
+      prisma.sponsor.findUnique({
+        where: { User_ID: targetUserId },
+        select: { Org_ID: true },
+      }),
+    ])
+
+    const targetDriverOrgIds =
+      targetDriver?.driverSponsorOrgs.map((dso) => dso.Org_ID) ?? []
+
+    const targetSponsorOrgId = targetSponsor?.Org_ID ?? null
+
+    if (targetSponsorOrgId !== null) {
+      return sponsor.Org_ID === targetSponsorOrgId
     }
 
-    const targetDriver = await prisma.driver.findUnique({
-      where: { User_ID: targetUserId },
-      select: { Org_ID: true },
-    })
-
-    const targetSponsor = await prisma.sponsor.findUnique({
-      where: { User_ID: targetUserId },
-      select: { Org_ID: true },
-    })
-
-    const targetOrgId = targetDriver?.Org_ID ?? targetSponsor?.Org_ID ?? null
-
-    if (!targetOrgId) {
-      return false
-    }
-
-    return sponsor.Org_ID === targetOrgId
+    return targetDriverOrgIds.includes(sponsor.Org_ID)
   }
 
   return false
 }
 
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { userId: string } }
+) {
   try {
     const session = await auth()
 
@@ -61,16 +59,16 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const { userId } = await params
+    const userId = Number(params.userId)
 
-    if (Number.isNaN(Number(userId))) {
+    if (Number.isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
     }
 
     const authorized = await canAccessUser(
       Number(session.user.id),
       session.user.role,
-      Number(userId)
+      userId
     )
 
     if (!authorized) {
@@ -78,7 +76,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { User_ID: Number(userId) },
+      where: { User_ID: userId },
       select: {
         User_ID: true,
         Username: true,
@@ -100,6 +98,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
             driverSponsorOrgs: {
               select: {
                 Org_ID: true,
+                Point_Count: true,
                 Sponsor_Org: {
                   select: {
                     Org_ID: true,
@@ -125,19 +124,18 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       User_Type: user.User_Type,
     }
 
-    if (user.User_Type === "S") {
-      if (user.Sponsor?.Sponsor_Org) {
-        response.Org_ID = user.Sponsor.Sponsor_Org.Org_ID
-        response.Org_Name = user.Sponsor.Sponsor_Org.Org_Name
-      }
-    } else if (user.User_Type === "D") {
-      const joinedOrganizations = user.Driver?.driverSponsorOrgs?.map(
-        (dso: { Org_ID: number; Sponsor_Org: { Org_ID: number; Org_Name: string } }) => ({
+    if (user.User_Type === "S" && user.Sponsor?.Sponsor_Org) {
+      response.Org_ID = user.Sponsor.Sponsor_Org.Org_ID
+      response.Org_Name = user.Sponsor.Sponsor_Org.Org_Name
+    }
+
+    if (user.User_Type === "D") {
+      response.joinedOrganizations =
+        user.Driver?.driverSponsorOrgs.map((dso) => ({
           Org_ID: dso.Sponsor_Org.Org_ID,
           Org_Name: dso.Sponsor_Org.Org_Name,
-        })
-      ) ?? []
-      response.joinedOrganizations = joinedOrganizations
+          Point_Count: dso.Point_Count,
+        })) ?? []
     }
 
     return NextResponse.json(response)
@@ -150,7 +148,10 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   }
 }
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { userId: string } }
+) {
   try {
     const session = await auth()
 
@@ -158,16 +159,16 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const { userId } = await params
+    const userId = Number(params.userId)
 
-    if (Number.isNaN(Number(userId))) {
+    if (Number.isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
     }
 
     const authorized = await canAccessUser(
       Number(session.user.id),
       session.user.role,
-      Number(userId)
+      userId
     )
 
     if (!authorized) {
@@ -176,8 +177,23 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
     const { email, phone } = await req.json()
 
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        Status: "A",
+        User_ID: { not: userId },
+        OR: [{ Email: email }, { Phone: phone }],
+      },
+    })
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Email or phone already in use by another active user" },
+        { status: 400 }
+      )
+    }
+
     const updatedUser = await prisma.user.update({
-      where: { User_ID: Number(userId) },
+      where: { User_ID: userId },
       data: {
         Email: email,
         Phone: phone,
