@@ -44,10 +44,31 @@ export async function GET(req: NextRequest) {
       },
     })
 
+    const approvedApplications = await prisma.driver_Application.findMany({
+      where: {
+        User_ID: parseInt(session.user.id),
+        Status: "A",
+      },
+      select: {
+        Org_ID: true,
+        Review_Date: true,
+      },
+    })
+
+    const joinedOrganizations = joinedOrgs.map((j) => {
+      const approvedApp = approvedApplications.find((a) => a.Org_ID === j.Org_ID)
+      return {
+        Org_ID: j.Org_ID,
+        Org_Name: j.Sponsor_Org.Org_Name,
+        Point_Count: j.Point_Count,
+        joinedDate: approvedApp?.Review_Date ?? null,
+      }
+    })
+
     return NextResponse.json({
       pendingApplications: applications.filter((a) => a.Status === "P"),
       pastApplications: applications.filter((a) => a.Status !== "P"),
-      joinedOrganizations: joinedOrgs.map((j) => j.Sponsor_Org),
+      joinedOrganizations,
     }, { status: 200 })
   } catch (error) {
     console.error("Error checking driver application status:", error)

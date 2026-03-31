@@ -57,12 +57,24 @@ export async function PATCH(req: NextRequest) {
         })
 
         if (status === "A") {
-          await prisma.driver.update({
-            where: { User_ID: application.User_ID },
-            data: {
-              Org_ID: sponsor.Org_ID,
+          const existingMembership = await prisma.driver_Sponsor_Org.findUnique({
+            where: {
+              User_ID_Org_ID: {
+                User_ID: application.User_ID,
+                Org_ID: sponsor.Org_ID!,
+              },
             },
           })
+
+          if (!existingMembership) {
+            await prisma.driver_Sponsor_Org.create({
+              data: {
+                User_ID: application.User_ID,
+                Org_ID: sponsor.Org_ID!,
+                Point_Count: 0,
+              },
+            })
+          }
         }
 
         processed++
