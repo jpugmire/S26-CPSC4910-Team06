@@ -30,9 +30,13 @@ export async function GET(req: NextRequest) {
         },
         Driver: {
           select: {
-            Sponsor_Org: {
+            driverSponsorOrgs: {
               select: {
-                Org_Name: true,
+                Sponsor_Org: {
+                  select: {
+                    Org_Name: true,
+                  },
+                },
               },
             },
           },
@@ -45,10 +49,12 @@ export async function GET(req: NextRequest) {
     }
 
     let orgName = null
+    let joinedOrganizations: string[] = []
     if (user.User_Type === "S") {
       orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
     } else if (user.User_Type === "D") {
-      orgName = user.Driver?.Sponsor_Org?.Org_Name ?? null
+      joinedOrganizations = user.Driver?.driverSponsorOrgs?.map((d: { Sponsor_Org: { Org_Name: string } }) => d.Sponsor_Org?.Org_Name).filter(Boolean) as string[] ?? []
+      orgName = joinedOrganizations[0] ?? null
     }
 
     return NextResponse.json({

@@ -12,6 +12,9 @@ jest.mock("@/lib/prisma", () => ({
         user: {
             findUnique: jest.fn(),
             create: jest.fn()
+        },
+        sponsor: {
+            findUnique: jest.fn()
         }
     }
 }))
@@ -157,5 +160,92 @@ describe("POST /api/auth/register", () => {
         }))
 
         expect(response.status).toBe(500)
+    })
+})
+
+describe("POST /api/auth/register (Sponsor)", () => {
+    const mockSponsor = { User_ID: 1, Org_ID: 10 }
+
+    beforeEach(() => {
+        jest.clearAllMocks()
+    })
+
+    it("rejects driver users", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "D" } })
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "test", password: "pass", userType: "D" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(400)
+        expect(data.error).toBe("Not authorized.")
+    })
+
+    it("allows sponsor to create driver in their org", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(mockSponsor)
+        ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 200, Username: "newdriver" })
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "newdriver", password: "pass", userType: "D" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(201)
+        expect(data.message).toBe("User created successfully")
+        expect(data.userId).toBe(200)
+    })
+
+    it("allows sponsor to create sponsor user in their org", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(mockSponsor)
+        ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 201, Username: "newsponsor" })
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "newsponsor", password: "pass", userType: "S" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(201)
+        expect(data.message).toBe("User created successfully")
+        expect(data.userId).toBe(201)
+    })
+
+    it("rejects sponsor creating admin user", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "newadmin", password: "pass", userType: "A" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(400)
+        expect(data.error).toBe("Sponsors cannot create admin users.")
+    })
+
+    it("rejects sponsor if org not found", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "newuser", password: "pass", userType: "D" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(400)
+        expect(data.error).toBe("Sponsor organization not found.")
     })
 })
