@@ -55,10 +55,7 @@ export async function POST(req: NextRequest) {
         Email: email,
         Phone: phone,
         Driver: {
-          create: {
-            Point_Count: 0,
-            Org_ID: null,
-          },
+          create: {},
         },
       },
     })

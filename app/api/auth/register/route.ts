@@ -32,15 +32,14 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Registration error:", error);
+    const message = error instanceof Error ? error.message : "An error ocurred during registration"
+    const validationErrors = [
+      "Username, password, and userType are required",
+      "Sponsor organization required",
+      "Username already exists",
+    ]
+    const isValidation = validationErrors.includes(message) || message.startsWith("userType must be")
 
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "An error occurred during registration",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: isValidation ? 400 : 500 })
   }
 }
