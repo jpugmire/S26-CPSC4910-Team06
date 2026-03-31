@@ -6,6 +6,8 @@ import { DeactivateUserForm } from "@/components/deactivate-form"
 import Link from "next/link";
 import AdminPanel from "@/components/admin-panel";
 import Navbar from "@/components/navbar";
+import BulkUploadDrivers from "@/components/admin-bulk-upload";
+import BulkUploadSponsorOrgs from "@/components/admin-bulk-upload-sponsorOrg";
 import { AuditReportPanel } from "@/components/audit-report-panel";
 
 export default async function AdminPage() {
@@ -36,6 +38,20 @@ export default async function AdminPage() {
                 Create New Sponsor Organization
               </h1>
               <CreateSponsorForm />
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Bulk Upload Users
+              </h1>
+              <BulkUploadDrivers />
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Bulk Upload Sponsor Orgs
+              </h1>
+              <BulkUploadSponsorOrgs />
             </div>
 
             <Link
