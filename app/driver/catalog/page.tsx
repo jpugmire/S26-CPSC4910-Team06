@@ -74,22 +74,12 @@ export default async function DriverCatalogPage() {
     <main className="max-w-7xl mx-auto py-6 px-4">
       <div className="bg-white shadow rounded-lg p-6">
         <p>
-          <strong>Org ID:</strong> {driverOrg?.Org_ID}
-        </p>
-
-        <p>
           <strong>Organization:</strong> {driverOrg?.Sponsor_Org?.Org_Name}
         </p>
 
-        <hr className="my-4" />
-
-        {catalog ? (
-          <p>
-            Catalog found! Catalog ID: <strong>{catalog.Catalog_ID}</strong>
-          </p>
-        ) : (
-          <p>No catalog exists for this organization.</p>
-        )}
+        <p>
+          <strong>Your Points:</strong> {driverOrg?.Point_Count ?? 0}
+        </p>
 
         <hr className="my-4" />
 
