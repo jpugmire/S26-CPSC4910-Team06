@@ -11,6 +11,8 @@ interface CatalogItem {
 
 export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
   const [search, setSearch] = useState("")
+  const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const filteredItems = items.filter((item) =>
     item.Item_Name.toLowerCase().includes(search.toLowerCase())
@@ -25,6 +27,18 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
         onChange={(e) => setSearch(e.target.value)}
         className="w-full border rounded-lg p-2 mb-6"
       />
+
+      {message && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+          {message}
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
 
       {filteredItems.length === 0 ? (
         <p>No items match your search.</p>
@@ -52,6 +66,9 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
               </p>
               <button
                 onClick={async () => {
+                  setMessage(null)
+                  setError(null)
+
                   try {
                     const res = await fetch("/api/driver/purchase", {
                       method: "POST",
@@ -62,12 +79,16 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
                     })
 
                     const data = await res.json()
-                    console.log("Response:", data)
-                  } catch (err) {
-                    console.error("Error:", err)
+
+                    if (!res.ok) {
+                      setError(data.error || "Purchase failed")
+                    } else {
+                      setMessage("Purchase successful!")
+                    }
+                  } catch {
+                    setError("Something went wrong")
                   }
                 }}
-                className="mt-2 bg-blue-600 text-white px-3 py-1 rounded"
               >
                 Redeem
               </button>
