@@ -4,6 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { Resend } from "resend"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as any,
@@ -17,6 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        otp: { label: "OTP", type: "text" }
       },
       async authorize(credentials) {
         console.log("authorize called with username:", credentials?.username)
@@ -54,6 +56,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        //check if 2fa enabled
+        if (user.twoFactorEnabled) {
+          // generate code, store in Otp_Token, send via Resend
+          await prisma.otp_Token.deleteMany({ where: { userId: user.User_ID } })
+
+          const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+          const expiresAt = new Date(Date.now() + 1000 * 60 * 10) //10 min
+
+          await prisma.otp_Token.create({
+            data: { token: otpCode, userId: user.User_ID, expiresAt }
+          })
+
+          const resend = new Resend(process.env.RESEND_API_KEY)
+
+          if (!user.Email) {
+            return null
+          }
+
+          await resend.emails.send({
+            from: "noreply@team06.cpsc4911.com",
+            to: user.Email!,
+            subject: "Your Driver Rewards login code",
+            html: `<p> Your verification code is: <strong>${otpCode}</strong></p><p>This code expires in 10 minutes.</p>`
+          })
+
+          return { id: String(user.User_ID), username: user.Username, email: user.Email, role: user.User_Type, twoFactorPending: true }
+        }
+
         return {
           id: String(user.User_ID),
           username: user.Username,
@@ -67,10 +97,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized({ auth }) {
       return !!auth
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session?.twoFactorPending === false) {
+        token.twoFactorPending = false
+      }
       if (user) {
         token.role = user.role
         token.username = user.username
+        token.twoFactorPending = user.twoFactorPending ?? false
       }
       return token
     },
@@ -79,6 +113,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as string
         session.user.username = token.username as string
         session.user.id = token.sub as string
+        session.user.twoFactorPending = token.twoFactorPending as boolean
       }
       return session
     },

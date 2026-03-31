@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
 
     await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "noreply@team06.cpsc4911.com",
         to: email,
         subject: "Reset your password",
         html: `
