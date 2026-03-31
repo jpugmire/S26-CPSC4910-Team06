@@ -15,12 +15,20 @@ export default function SponsorPanel() {
       setError("")
 
       try {
+        console.log("Fetching drivers...");
         const res = await fetch("/api/sponsor/users")
+        console.log("Drivers response status:", res.status);
         const data = await res.json()
+        console.log("Drivers response data:", data);
 
-        if (!res.ok) setError(data.error || "Failed to fetch drivers")
-        else setDrivers(data.drivers ?? [])
-      } catch {
+        if (!res.ok) {
+          setError(data.error || "Failed to fetch drivers")
+        } else {
+          console.log("Setting drivers:", data.drivers);
+          setDrivers(data.drivers ?? [])
+        }
+      } catch (error) {
+        console.error("Drivers fetch error:", error);
         setError("Something went wrong")
       } finally {
         setLoading(false)
