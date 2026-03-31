@@ -17,6 +17,7 @@ export default function Navbar() {
           <h3 className="text-md">Welcome, {status === "loading" ? "..." : session?.user?.username}</h3>
           <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">Dashboard</Link>
           {session?.user?.role === "D" && (<Link href="/driver/apply" className="text-sm text-blue-600 hover:underline">Apply to Sponsor</Link>)}
+          {session?.user?.role === "D" && (<Link href="/driver/catalog" className="text-sm text-blue-600 hover:underline">Catalog</Link>)}
           <Link href="/about" className="text-sm text-blue-600 hover:underline">About</Link>
           <Link href={`/account/${userId}`} className="text-sm text-blue-600 hover:underline">Account</Link>
           {session?.user?.role === "A" && (<Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin Console</Link>)}

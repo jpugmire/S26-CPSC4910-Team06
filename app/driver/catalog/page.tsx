@@ -20,13 +20,19 @@ export default async function DriverCatalogPage() {
       User_ID: parseInt(session.user.id || "0"),
     },
     include: {
-      Sponsor_Org: true,
+      driverSponsorOrgs: {
+        include: {
+          Sponsor_Org: true,
+        },
+      },
     },
   })
 
+  const driverOrg = driver?.driverSponsorOrgs[0]
+
   const catalog = await prisma.catalog.findFirst({
     where: {
-      Org_ID: driver!.Org_ID!,
+      Org_ID: driverOrg?.Org_ID,
     },
   })
 
@@ -39,7 +45,7 @@ export default async function DriverCatalogPage() {
     },
   })
 
-  if (!driver || !driver.Org_ID) {
+  if (!driver || !driverOrg) {
     return (
       <div className="min-h-screen bg-gray-100">
         <Navbar />
@@ -54,7 +60,7 @@ export default async function DriverCatalogPage() {
     )
   }
 
-  const items = listings.map((listing) => ({
+  const items = listings.map((listing: any) => ({
     Item_ID: listing.Catalog_Item.Item_ID,
     Item_Name: listing.Catalog_Item.Item_Name,
     Item_Image_URL: listing.Catalog_Item.Item_Image_URL,
@@ -62,35 +68,30 @@ export default async function DriverCatalogPage() {
   }))
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-  <p>
-    <strong>Org ID:</strong> {driver.Org_ID}
-  </p>
+  <div className="min-h-screen bg-gray-100">
+    <Navbar />
 
-  <p>
-    <strong>Organization:</strong> {driver.Sponsor_Org?.Org_Name}
-  </p>
+    <main className="max-w-7xl mx-auto py-6 px-4">
+      <div className="bg-white shadow rounded-lg p-6">
+        <p>
+          <strong>Organization:</strong> {driverOrg?.Sponsor_Org?.Org_Name}
+        </p>
 
-  <hr className="my-4" />
+        <p>
+          <strong>Your Points:</strong> {driverOrg?.Point_Count ?? 0}
+        </p>
 
-  {catalog ? (
-    <p>
-      Catalog found! Catalog ID: <strong>{catalog.Catalog_ID}</strong>
-    </p>
-  ) : (
-    <p>No catalog exists for this organization.</p>
-  )}
+        <hr className="my-4" />
 
-<hr className="my-4" />
+        <p className="font-semibold mb-4">Catalog Items:</p>
 
-<p className="font-semibold mb-4">Catalog Items:</p>
-
-{listings.length === 0 ? (
-  <p>No items in catalog yet.</p>
-) : (
-  <CatalogSearch items={items} />
-)}
-
-</div>
-  )
+        {listings.length === 0 ? (
+          <p>No items in catalog yet.</p>
+        ) : (
+          <CatalogSearch items={items} />
+        )}
+      </div>
+    </main>
+  </div>
+)
 }

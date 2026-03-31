@@ -87,6 +87,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         Email: true,
         Phone: true,
         User_Type: true,
+        twoFactorEnabled: true,
         Sponsor: {
           select: {
             Sponsor_Org: {
@@ -125,6 +126,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       Email: user.Email,
       Phone: user.Phone,
       User_Type: user.User_Type,
+      twoFactorEnabled: user.twoFactorEnabled
     }
 
     if (user.User_Type === "S") {

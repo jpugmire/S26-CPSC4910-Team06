@@ -17,8 +17,7 @@ async function main() {
       Status: "A",
       User_Type: "D",
       Driver: {
-        create: {
-        },
+        create: {},
       },
     },
   })

@@ -23,7 +23,7 @@ export async function registerUser({
   }
 
   if (!["D", "S", "A"].includes(userType)) {
-    throw new Error("userType must be 'D', 'S', or 'A'");
+    throw new Error("userType must be 'D' (Driver), 'S' (Sponsor), or 'A' (Admin)");
   }
 
   if ((userType === "S" || userType === "D") && !sponsorOrgId) {
