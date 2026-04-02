@@ -76,7 +76,7 @@ export function LoginForm() {
 
 			<div className="text-right">
 				<Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-					Forgor password?
+					Forgor password? &#128128;
 				</Link>
 			</div>
 
