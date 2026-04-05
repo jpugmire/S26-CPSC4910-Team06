@@ -1,11 +1,7 @@
-// app/dashboard/page.tsx
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import Link from "next/link"
-import { LogoutButton } from "@/components/logout-button"
-import { LoginToast } from "@/components/login-toast"
-import { Suspense } from "react"
 import Navbar from "@/components/navbar"
+import DriverDashboard from "@/components/driver/dashboard"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -14,26 +10,26 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
+  if (session.user.role === "S") {
+    redirect("/sponsorConsole")
+  }
+
+  if (session.user.role === "A") {
+    redirect("/adminConsole")
+  }
+
+  if (session.user.role !== "D") {
+    redirect("/dashboard")
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
-      <Suspense fallback={null}>
-        <LoginToast />
-      </Suspense>
       <Navbar />
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">
-            Dashboard
-          </h2>
-          <div className="space-y-2">
-            <p>
-              <strong>Role:</strong> {session.user.role}
-            </p>
-            <p>
-              <strong>Email:</strong> {session.user.email || "Not provided"}
-            </p>
-          </div>
-        </div>
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">
+          Driver Dashboard
+        </h1>
+        <DriverDashboard />
       </main>
     </div>
   )

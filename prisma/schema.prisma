@@ -63,9 +63,8 @@ model Audit {
 model Catalog {
   Catalog_ID      Int               @id @default(autoincrement())
   Org_ID          Int
-  Catalog_Listing Int?
   Sponsor_Org     Sponsor_Org       @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "Catalog_ibfk_1")
-  Catalog_Items   Catalog_Listing[]
+  Catalog_Listing Catalog_Listing[]
 
   @@index([Org_ID], map: "Org_ID")
 }
@@ -92,6 +91,47 @@ model Catalog_Listing {
   @@index([Item_ID], map: "fk_cci_item")
 }
 
+model Driver {
+  User_ID            Int                  @id
+  User               User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
+  driverSponsorOrgs Driver_Sponsor_Org[]
+}
+
+model Driver_Application {
+  Application_ID   Int         @id @default(autoincrement())
+  User_ID          Int
+  Org_ID           Int
+  Status           String      @default("P") @db.VarChar(1)
+  Application_Date DateTime    @default(now()) @db.DateTime(0)
+  Review_Date      DateTime?   @db.DateTime(0)
+  Sponsor_Org      Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction)
+  User             User        @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([Org_ID])
+  @@index([User_ID])
+}
+
+model Driver_Sponsor_Org {
+  User_ID     Int
+  Org_ID      Int
+  Point_Count Int         @default(0)
+  Sponsor_Org Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: Cascade, onUpdate: NoAction)
+  Driver      Driver      @relation(fields: [User_ID], references: [User_ID], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([User_ID, Org_ID])
+  @@index([Org_ID])
+}
+
+model Password_Reset_Token {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+
+  @@index([userId], map: "Password_Reset_Token_userId_fkey")
+}
+
 model Point_Transaction {
   Transaction_ID   Int          @id @default(autoincrement())
   Price            Decimal      @db.Decimal(8, 2)
@@ -105,13 +145,22 @@ model Point_Transaction {
   @@index([User_ID], map: "User_ID")
 }
 
+model Sponsor {
+  User_ID     Int          @id
+  Org_ID      Int?
+  User        User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Sponsor_ibfk_1")
+  Sponsor_Org Sponsor_Org? @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "fk_Org_Id_Sponsor")
+
+  @@index([Org_ID], map: "fk_Org_Id_Sponsor")
+}
+
 model Sponsor_Org {
   Org_ID             Int                  @id @default(autoincrement())
   Org_Name           String               @db.VarChar(30)
   Point_Dollar_Value Decimal?             @default(1.00) @db.Decimal(10, 2)
   Catalog            Catalog[]
   Driver_Application Driver_Application[]
-  driverSponsorOrgs  Driver_Sponsor_Org[]
+  Driver_Sponsor_Org Driver_Sponsor_Org[]
   Sponsor            Sponsor[]
 }
 
