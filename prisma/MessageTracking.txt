@@ -4,3 +4,4 @@
 4: User signed in
 5: User points changed from <Old.Point_Count> to <New.Point_Count>
 6: Conversion rate changed from <Old.Point_Dollar_Value> to <New.Point_Dollar_Value>
+7: User purchased a <Point_Transaction.Price> point item: <Catalog_Item.Item_Name>

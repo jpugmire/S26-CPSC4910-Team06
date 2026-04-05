@@ -17,15 +17,15 @@ model User {
   User_Type            String                 @db.VarChar(1)
   Email                String?                @unique
   Phone                String?
+  twoFactorEnabled     Boolean                @default(false)
   Admin                Admin?
   Audit                Audit[]
   Driver               Driver?
   Driver_Application   Driver_Application[]
+  Otp_Token            Otp_Token[]
   Password_Reset_Token Password_Reset_Token[]
   Point_Transaction    Point_Transaction[]
   Sponsor              Sponsor?
-  twoFactorEnabled     Boolean                @default(false)
-  Otp_Token            Otp_Token[]
 }
 
 model Driver {
@@ -206,9 +206,11 @@ model Password_Reset_Token {
 }
 
 model Otp_Token {
-  id          Int         @id @default(autoincrement())
-  token       String      @unique
-  userId      Int
-  expiresAt   DateTime
-  User        User        @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+
+  @@index([userId], map: "Otp_Token_userId_fkey")
 }
