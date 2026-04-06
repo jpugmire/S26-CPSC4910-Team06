@@ -44,6 +44,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
     "@prisma/client": "^6.19.2",
+    "@react-email/render": "^2.0.5",
     "bcryptjs": "^3.0.3",
     "csv-parse": "^6.2.1",
     "dotenv": "^17.3.1",
