@@ -105,15 +105,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role
         token.username = user.username
         token.twoFactorPending = user.twoFactorPending ?? false
+        token.impersonationActive = false
+        token.impersonatedUserId = null
+        token.impersonatedRole = null
+        token.impersonatedUsername = null
       }
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.role = token.role as string
-        session.user.username = token.username as string
-        session.user.id = token.sub as string
-        session.user.twoFactorPending = token.twoFactorPending as boolean
+        const isImpersonating = !!token.impersonationActive
+
+        session.user.id = String(
+          isImpersonating ? token.impersonatedUserId : token.sub
+        )
+        session.user.role = String(
+          isImpersonating ? token.impersonatedRole : token.role
+        )
+        session.user.username = String(
+          isImpersonating ? token.impersonatedUsername : token.username
+        )
+
+        session.user.twoFactorPending = Boolean(token.twoFactorPending)
+
+        session.user.impersonating = isImpersonating
+        session.user.realUserId = String(token.sub)
+        session.user.realUserRole = String(token.role)
+        session.user.realUsername = String(token.username)
       }
       return session
     },
