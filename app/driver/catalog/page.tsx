@@ -29,11 +29,27 @@ export default async function DriverCatalogPage() {
     },
   })
 
-  const driverOrg = driver?.driverSponsorOrgs[0]
+  if (!driver || driver.driverSponsorOrgs.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+        <main className="max-w-7xl mx-auto py-6 px-4">
+          <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
+
+          <div className="bg-white shadow rounded-lg p-6">
+            <p>No organization assigned.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const firstOrg = driver.driverSponsorOrgs[0]
+  const orgId = firstOrg.Org_ID
 
   const catalog = await prisma.catalog.findFirst({
     where: {
-      Org_ID: driverOrg?.Org_ID,
+      Org_ID: orgId,
     },
   })
 
@@ -46,23 +62,7 @@ export default async function DriverCatalogPage() {
     },
   })
 
-  if (!driver || !driverOrg) {
-    return (
-      <div className="min-h-screen bg-gray-100">
-        <Navbar />
-        {session?.user?.impersonating && (<ImpersonationBanner />)}
-        <main className="max-w-7xl mx-auto py-6 px-4">
-          <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
-
-          <div className="bg-white shadow rounded-lg p-6">
-            <p>No organization assigned.</p>
-          </div>
-        </main>
-      </div>
-    )
-  }
-
-  const items = listings.map((listing: any) => ({
+  const items = listings.map((listing) => ({
     Item_ID: listing.Catalog_Item.Item_ID,
     Item_Name: listing.Catalog_Item.Item_Name,
     Item_Image_URL: listing.Catalog_Item.Item_Image_URL,
@@ -73,28 +73,44 @@ export default async function DriverCatalogPage() {
   <div className="min-h-screen bg-gray-100">
     <Navbar />
     {session?.user?.impersonating && (<ImpersonationBanner />)}
+  const pointBalance = firstOrg.Point_Count
 
-    <main className="max-w-7xl mx-auto py-6 px-4">
-      <div className="bg-white shadow rounded-lg p-6">
-        <p>
-          <strong>Organization:</strong> {driverOrg?.Sponsor_Org?.Org_Name}
-        </p>
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <main className="max-w-7xl mx-auto py-6 px-4">
+        <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
 
-        <p>
-          <strong>Your Points:</strong> {driverOrg?.Point_Count ?? 0}
-        </p>
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
+          <p>
+            <strong>Organization:</strong> {firstOrg.Sponsor_Org.Org_Name}
+          </p>
+          <p>
+            <strong>Point Balance:</strong> {pointBalance}
+          </p>
+          {driver.driverSponsorOrgs.length > 1 && (
+            <p className="text-sm text-gray-500 mt-2">
+              You belong to {driver.driverSponsorOrgs.length} organizations. Showing catalog for {firstOrg.Sponsor_Org.Org_Name}.
+            </p>
+          )}
+        </div>
 
-        <hr className="my-4" />
+        {catalog ? (
+          <div className="bg-white shadow rounded-lg p-6">
+            <p className="font-semibold mb-4">Catalog Items:</p>
 
-        <p className="font-semibold mb-4">Catalog Items:</p>
-
-        {listings.length === 0 ? (
-          <p>No items in catalog yet.</p>
+            {listings.length === 0 ? (
+              <p>No items in catalog yet.</p>
+            ) : (
+              <CatalogSearch items={items} />
+            )}
+          </div>
         ) : (
-          <CatalogSearch items={items} />
+          <div className="bg-white shadow rounded-lg p-6">
+            <p>No catalog exists for this organization.</p>
+          </div>
         )}
-      </div>
-    </main>
-  </div>
-)
+      </main>
+    </div>
+  )
 }

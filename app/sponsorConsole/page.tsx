@@ -11,6 +11,8 @@ import { prisma } from "@/lib/prisma";
 import BulkUpdatePoints from "@/components/sponsor-nulk-update-points";
 import ImpersonationBanner from "@/components/impersonation-banner"
 import { ImpersonateUserForm } from "@/components/impersonation-form";
+import { SponsorCreateUserForm } from "@/components/sponsor-create-user-form";
+import SponsorBulkUploadUsers from "@/components/sponsor-bulk-upload";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -35,6 +37,18 @@ export default async function SponsorPage() {
         <div className="w-full max-w-6xl flex gap-12">
           {/* LEFT SIDE — Forms */}
           <div className="w-1/2 flex flex-col gap-10">
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Create New User
+              </h1>
+              <SponsorCreateUserForm />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Bulk Upload Users (CSV)
+              </h1>
+              <SponsorBulkUploadUsers />
+            </div>
             <div className="bg-white shadow-md rounded-lg p-8">
               <h1 className="text-2xl font-bold text-center mb-6">
                 Update Driver Points
