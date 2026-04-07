@@ -142,20 +142,25 @@ export default async function AccountPage() {
       setError("Failed to update 2FA setting")
     }
   }
+
   if (loading) {
     return (
       <>
         <Navbar />
-        <p>Loading...</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-gray-500">Loading...</p>
+        </div>
       </>
     )
   }
 
-  if (error) {
+  if (error && !user) {
     return (
       <>
         <Navbar />
-        <p>{error}</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-red-500">{error}</p>
+        </div>
       </>
     )
   }
@@ -164,7 +169,9 @@ export default async function AccountPage() {
     return (
       <>
         <Navbar />
-        <p>User not found.</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-gray-500">User not found.</p>
+        </div>
       </>
     )
   }
@@ -173,73 +180,114 @@ export default async function AccountPage() {
     <>
       <Navbar />
       {session?.user?.impersonating && (<ImpersonationBanner />)}
-      <div>
-        <h1>Account Details</h1>
+      <div className="min-h-screen bg-gray-50 py-10 px-4">
+        <div className="max-w-lg mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Details</h1>
 
-        <p>
-          <strong>Username:</strong> {user.Username}
-        </p>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
 
-        {user.User_Type !== "D" && user.Org_Name && (
-          <p>
-            <strong>Organization:</strong> {user.Org_Name}
-          </p>
-        )}
+          <div className="bg-white rounded-lg shadow p-6 space-y-6">
 
-        <div>
-          <label>Email:</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
+            {/* Read-only info */}
+            <div className="space-y-3">
+              <div>
+                <span className="text-sm font-medium text-gray-500">Username</span>
+                <p className="mt-1 text-gray-900 font-medium">{user.Username}</p>
+              </div>
 
-        <div>
-          <label>Phone:</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </div>
+              {user.User_Type !== "D" && user.Org_Name && (
+                <div>
+                  <span className="text-sm font-medium text-gray-500">Organization</span>
+                  <p className="mt-1 text-gray-900 font-medium">{user.Org_Name}</p>
+                </div>
+              )}
+            </div>
 
-        <button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+            <hr className="border-gray-200" />
 
-        <div style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>
-          <h3>Two-Factor Authentication</h3>
-          <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-            When enabled, you will be emailed a verification code each time you log in.
-          </p>
-          <button
-            onClick={handleToggle2FA}
-            style={{
-              marginTop: "0.5rem",
-              backgroundColor: twoFactorEnabled ? "#dc2626" : "#2563eb",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "0.25rem",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
-          </button>
-        </div>
+            {/* Editable fields */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Email address"
+                />
+              </div>
 
-        {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (
-          <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>
-            <h3>Your Organizations</h3>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {user.joinedOrganizations.map((org) => (
-                <li key={org.Org_ID} style={{ marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <span><strong>{org.Org_Name}</strong></span>
-                  <button
-                    onClick={() => handleLeave(org.Org_ID, org.Org_Name)}
-                    disabled={leaving}
-                    style={{ backgroundColor: "#dc2626", color: "white", padding: "0.25rem 0.75rem", borderRadius: "0.25rem", border: "none", cursor: "pointer" }}
-                  >
-                    {leaving ? "Leaving..." : "Leave"}
-                  </button>
-                </li>
-              ))}
-            </ul>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Phone number"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+
+            <hr className="border-gray-200" />
+
+            {/* 2FA */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-1">Two-Factor Authentication</h3>
+              <p className="text-sm text-gray-500 mb-3">
+                When enabled, you will be emailed a verification code each time you log in.
+              </p>
+              <button
+                onClick={handleToggle2FA}
+                className={`text-sm font-medium py-2 px-4 rounded-md transition-colors text-white ${
+                  twoFactorEnabled
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
+              </button>
+            </div>
+
+            {/* Driver orgs */}
+            {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (
+              <>
+                <hr className="border-gray-200" />
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Your Organizations</h3>
+                  <ul className="space-y-2">
+                    {user.joinedOrganizations.map((org) => (
+                      <li
+                        key={org.Org_ID}
+                        className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md"
+                      >
+                        <span className="text-sm font-medium text-gray-900">{org.Org_Name}</span>
+                        <button
+                          onClick={() => handleLeave(org.Org_ID, org.Org_Name)}
+                          disabled={leaving}
+                          className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-medium py-1 px-3 rounded-md transition-colors"
+                        >
+                          {leaving ? "Leaving..." : "Leave"}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </>
   )

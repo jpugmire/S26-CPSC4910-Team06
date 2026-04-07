@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { sendPointValueChangedEmail } from "@/lib/email"
 
 export async function GET() {
   try {
@@ -111,6 +112,31 @@ export async function POST(req: NextRequest) {
         },
       });
     });
+
+    const org = await prisma.sponsor_Org.findUnique({
+      where: { Org_ID: orgId },
+      select: {
+        Org_Name: true,
+        Driver_Sponsor_Org: {
+          select: {
+            Driver: {
+              select: {
+                User: { select: { Email: true, Username: true } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (org) {
+      for (const dso of org.Driver_Sponsor_Org) {
+        const { Email, Username } = dso.Driver.User
+        if (Email) {
+          sendPointValueChangedEmail(Email, Username, org.Org_Name, conversion).catch(() => {})
+        }
+      }
+    }
 
     return NextResponse.json(
       {

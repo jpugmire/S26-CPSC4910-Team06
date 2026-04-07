@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { sendAccountInfoChangedEmail } from "@/lib/email"
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,11 +32,12 @@ export async function GET(req: NextRequest) {
         Driver: {
           select: {
             driverSponsorOrgs: {
-              take: 1,
               select: {
                 Sponsor_Org: {
-                  select: { Org_Name: true}
-                }
+                  select: {
+                    Org_Name: true,
+                  },
+                },
               },
             },
           },
@@ -48,10 +50,12 @@ export async function GET(req: NextRequest) {
     }
 
     let orgName = null
+    let joinedOrganizations: string[] = []
     if (user.User_Type === "S") {
       orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
     } else if (user.User_Type === "D") {
-      orgName = user.Driver?.driverSponsorOrgs?.[0]?.Sponsor_Org?.Org_Name ?? null
+      joinedOrganizations = user.Driver?.driverSponsorOrgs?.map((d: { Sponsor_Org: { Org_Name: string } }) => d.Sponsor_Org?.Org_Name).filter(Boolean) as string[] ?? []
+      orgName = joinedOrganizations[0] ?? null
     }
 
     return NextResponse.json({
@@ -79,6 +83,11 @@ export async function PUT(req: NextRequest) {
 
     const userId = Number(session.user.id)
     const { email, phone } = await req.json()
+
+    const currentUser = await prisma.user.findUnique({
+      where: { User_ID: userId },
+      select: { Email: true, Username: true },
+    })
 
     // Check if another ACTIVE user already has this email or phone
     const existingUser = await prisma.user.findFirst({
@@ -114,6 +123,10 @@ export async function PUT(req: NextRequest) {
         Phone: true,
       },
     })
+
+    if (currentUser?.Email) {
+      sendAccountInfoChangedEmail(currentUser.Email, currentUser.Username).catch(() => {})
+    }
 
     return NextResponse.json(updatedUser)
   } catch (error) {

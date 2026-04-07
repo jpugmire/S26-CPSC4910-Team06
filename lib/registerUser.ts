@@ -50,6 +50,7 @@ export async function registerUser({
         ? {
             Driver: {
               create: {
+                Point_Count: 0,
                 driverSponsorOrgs: {
                   create: {
                     Org_ID: sponsorOrgId!,
