@@ -28,24 +28,7 @@ export default async function DriverCatalogPage() {
     },
   })
 
-  const driverOrg = driver?.driverSponsorOrgs[0]
-
-  const catalog = await prisma.catalog.findFirst({
-    where: {
-      Org_ID: driverOrg?.Org_ID,
-    },
-  })
-
-  const listings = await prisma.catalog_Listing.findMany({
-    where: {
-      Catalog_ID: catalog?.Catalog_ID,
-    },
-    include: {
-      Catalog_Item: true,
-    },
-  })
-
-  if (!driver || !driverOrg) {
+  if (!driver || driver.driverSponsorOrgs.length === 0) {
     return (
       <div className="min-h-screen bg-gray-100">
         <Navbar />
@@ -60,62 +43,73 @@ export default async function DriverCatalogPage() {
     )
   }
 
-  const items = listings.map((listing: any) => ({
+  const firstOrg = driver.driverSponsorOrgs[0]
+  const orgId = firstOrg.Org_ID
+
+  const catalog = await prisma.catalog.findFirst({
+    where: {
+      Org_ID: orgId,
+    },
+  })
+
+  const listings = await prisma.catalog_Listing.findMany({
+    where: {
+      Catalog_ID: catalog?.Catalog_ID,
+    },
+    include: {
+      Catalog_Item: true,
+    },
+  })
+
+  const items = listings.map((listing) => ({
     Item_ID: listing.Catalog_Item.Item_ID,
     Item_Name: listing.Catalog_Item.Item_Name,
     Item_Image_URL: listing.Catalog_Item.Item_Image_URL,
     Point_Price: listing.Catalog_Item.Point_Price,
   }))
 
-return (
-  <div className="min-h-screen bg-gray-100">
-    <Navbar />
+  const pointBalance = firstOrg.Point_Count
 
-    <main className="max-w-7xl mx-auto py-8 px-4">
-      <div className="bg-white shadow-md rounded-lg p-8">
-        
-        {/* HEADER */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Catalog</h1>
-          <p className="text-gray-500">
-            Browse and redeem rewards from your organization
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <main className="max-w-7xl mx-auto py-6 px-4">
+        <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
+
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
+          <p>
+            <strong>Organization:</strong> {firstOrg.Sponsor_Org.Org_Name}
           </p>
-        </div>
-
-        {/* INFO BAR */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 border rounded-lg p-4 mb-6">
-          
-          <div>
-            <p className="text-sm text-gray-500">Organization</p>
-            <p className="font-semibold">
-              {driverOrg?.Sponsor_Org?.Org_Name}
+          <p>
+            <strong>Point Balance:</strong> {pointBalance}
+          </p>
+          {driver.driverSponsorOrgs.length > 1 && (
+            <p className="text-sm text-gray-500 mt-2">
+              You belong to {driver.driverSponsorOrgs.length} organizations. Showing catalog for {firstOrg.Sponsor_Org.Org_Name}.
             </p>
-          </div>
+          )}
+        </div>
 
-          <div className="mt-3 sm:mt-0 text-right">
-            <p className="text-sm text-gray-500">Your Points</p>
-            <p className="text-xl font-bold text-blue-600">
-              {driverOrg?.Point_Count ?? 0}
+        {catalog ? (
+          <div className="bg-white shadow rounded-lg p-6">
+            <p className="mb-4">
+              Catalog found! Catalog ID: <strong>{catalog.Catalog_ID}</strong>
             </p>
-          </div>
 
-        </div>
+            <p className="font-semibold mb-4">Catalog Items:</p>
 
-        {/* SECTION TITLE */}
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold">Available Rewards</h2>
-        </div>
-
-        {/* CONTENT */}
-        {listings.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">
-            No items in catalog yet.
+            {listings.length === 0 ? (
+              <p>No items in catalog yet.</p>
+            ) : (
+              <CatalogSearch items={items} />
+            )}
           </div>
         ) : (
-          <CatalogSearch items={items} />
+          <div className="bg-white shadow rounded-lg p-6">
+            <p>No catalog exists for this organization.</p>
+          </div>
         )}
-      </div>
-    </main>
-  </div>
-)
+      </main>
+    </div>
+  )
 }
