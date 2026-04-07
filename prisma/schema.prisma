@@ -96,6 +96,16 @@ model Password_Reset_Token {
   @@index([userId], map: "Password_Reset_Token_userId_fkey")
 }
 
+model Otp_Token {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+
+  @@index([userId], map: "Otp_Token_userId_fkey")
+}
+
 model Point_Transaction {
   Transaction_ID   Int          @id @default(autoincrement())
   Price            Decimal      @db.Decimal(8, 2)
@@ -136,6 +146,7 @@ model User {
   Date_Added           DateTime               @default(now()) @db.DateTime(0)
   Date_Inactive        DateTime?              @db.DateTime(0)
   User_Type            String                 @db.VarChar(1)
+  twoFactorEnabled     Boolean                @default(false)
   Email                String?                @unique
   Phone                String?
   Admin                Admin?
@@ -143,6 +154,7 @@ model User {
   Driver               Driver?
   Driver_Application   Driver_Application[]
   Password_Reset_Token Password_Reset_Token[]
+  Otp_Token            Otp_Token[]
   Point_Transaction    Point_Transaction[]
   Sponsor              Sponsor?
 }
