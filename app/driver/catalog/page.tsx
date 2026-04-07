@@ -50,6 +50,7 @@ export default async function DriverCatalogPage() {
     return (
       <div className="min-h-screen bg-gray-100">
         <Navbar />
+        {session?.user?.impersonating && (<ImpersonationBanner />)}
         <main className="max-w-7xl mx-auto py-6 px-4">
           <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
 
