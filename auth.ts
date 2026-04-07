@@ -101,19 +101,52 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (trigger === "update" && session?.twoFactorPending === false) {
         token.twoFactorPending = false
       }
+      if (trigger === "update" && session?.impersonationAction) {
+        if (session.impersonationAction.type === "start") {
+          token.impersonationActive = true
+          token.impersonatedUserId = session.impersonationAction.targetUserId
+          token.impersonatedRole = session.impersonationAction.targetRole
+          token.impersonatedUsername = session.impersonationAction.targetUsername
+        }
+
+        if (session.impersonationAction.type === "stop") {
+          token.impersonationActive = false
+          delete token.impersonatedUserId
+          delete token.impersonatedRole
+          delete token.impersonatedUsername
+        }
+      }
       if (user) {
         token.role = user.role
         token.username = user.username
         token.twoFactorPending = user.twoFactorPending ?? false
+        token.impersonationActive = false
+        token.impersonatedUserId = null
+        token.impersonatedRole = null
+        token.impersonatedUsername = null
       }
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.role = token.role as string
-        session.user.username = token.username as string
-        session.user.id = token.sub as string
-        session.user.twoFactorPending = token.twoFactorPending as boolean
+        const isImpersonating = !!token.impersonationActive
+
+        session.user.id = String(
+          isImpersonating ? token.impersonatedUserId : token.sub
+        )
+        session.user.role = String(
+          isImpersonating ? token.impersonatedRole : token.role
+        )
+        session.user.username = String(
+          isImpersonating ? token.impersonatedUsername : token.username
+        )
+
+        session.user.twoFactorPending = Boolean(token.twoFactorPending)
+
+        session.user.impersonating = isImpersonating
+        session.user.realUserId = String(token.sub)
+        session.user.realUserRole = String(token.role)
+        session.user.realUsername = String(token.username)
       }
       return session
     },

@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "@/components/navbar";
+import { auth } from "@/auth"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
-export default function AccountPage() {
+
+export default async function AccountPage() {
+  const session = await auth();
   const [user, setUser] = useState<any>(null);
-
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(true);
@@ -78,9 +81,9 @@ export default function AccountPage() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gray-50 py-10 px-4">
+        {session?.user?.impersonating && (<ImpersonationBanner />)}
         <div className="max-w-lg mx-auto">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Details</h1>
-
           <div className="bg-white rounded-lg shadow p-6 space-y-6">
 
             {/* Read-only info */}
