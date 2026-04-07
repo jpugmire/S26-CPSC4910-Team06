@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
+import { sendAccountInfoChangedEmail } from "@/lib/email"
 
 type RouteContext = {
   params: Promise<{ userId: string }>
@@ -181,6 +182,11 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
     const { email, phone } = await req.json()
 
+    const currentUser = await prisma.user.findUnique({
+      where: { User_ID: Number(userId) },
+      select: { Email: true, Username: true },
+    })
+
     const updatedUser = await prisma.user.update({
       where: { User_ID: Number(userId) },
       data: {
@@ -193,6 +199,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
         Phone: true,
       },
     })
+
+    if (currentUser?.Email) {
+      await sendAccountInfoChangedEmail(currentUser.Email, currentUser.Username)
+    }
 
     return NextResponse.json(updatedUser)
   } catch (error) {
