@@ -10,6 +10,7 @@ import { AuditReportPanel } from "@/components/audit-report-panel";
 import { prisma } from "@/lib/prisma";
 import BulkUpdatePoints from "@/components/sponsor-nulk-update-points";
 import ImpersonationBanner from "@/components/impersonation-banner"
+import { ImpersonateUserForm } from "@/components/impersonation-form";
 
 export default async function SponsorPage() {
   const session = await auth();
@@ -70,6 +71,10 @@ export default async function SponsorPage() {
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
               <SponsorPanel />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Driver Impersonation</h2>
+              <ImpersonateUserForm />
             </div>
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Audit Reports</h2>

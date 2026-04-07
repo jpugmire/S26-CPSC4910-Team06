@@ -40,7 +40,7 @@ export function ImpersonateUserForm() {
     setLoading(true)
 
     try {
-      const res = await fetch("/api/admin/impersonation", {
+      const res = await fetch("/api/sponsor/impersonation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: User_ID }),
