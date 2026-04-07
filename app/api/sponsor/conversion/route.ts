@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
       where: { Org_ID: orgId },
       select: {
         Org_Name: true,
-        driverSponsorOrgs: {
+        Driver_Sponsor_Org: {
           select: {
             Driver: {
               select: {
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
     })
 
     if (org) {
-      for (const dso of org.driverSponsorOrgs) {
+      for (const dso of org.Driver_Sponsor_Org) {
         const { Email, Username } = dso.Driver.User
         if (Email) {
           sendPointValueChangedEmail(Email, Username, org.Org_Name, conversion).catch(() => {})
