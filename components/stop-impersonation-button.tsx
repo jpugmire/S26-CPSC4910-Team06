@@ -7,9 +7,9 @@ export function StopImpersonationButton() {
   const { update } = useSession()
 
   async function handleStop() {
-    if (!session?.user?.role) return
+    if (!session?.user?.realUserRole) return
     const endpoint =
-          session.user.role === "A"
+          session.user.realUserRole === "A"
             ? "/api/admin/impersonation/stop"
             : "/api/sponsor/impersonation/stop"
     const res = await fetch(endpoint, {
