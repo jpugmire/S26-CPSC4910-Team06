@@ -67,26 +67,50 @@ export default async function DriverCatalogPage() {
     Point_Price: listing.Catalog_Item.Point_Price,
   }))
 
-  return (
+return (
   <div className="min-h-screen bg-gray-100">
     <Navbar />
 
-    <main className="max-w-7xl mx-auto py-6 px-4">
-      <div className="bg-white shadow rounded-lg p-6">
-        <p>
-          <strong>Organization:</strong> {driverOrg?.Sponsor_Org?.Org_Name}
-        </p>
+    <main className="max-w-7xl mx-auto py-8 px-4">
+      <div className="bg-white shadow-md rounded-lg p-8">
+        
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">Catalog</h1>
+          <p className="text-gray-500">
+            Browse and redeem rewards from your organization
+          </p>
+        </div>
 
-        <p>
-          <strong>Your Points:</strong> {driverOrg?.Point_Count ?? 0}
-        </p>
+        {/* INFO BAR */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-50 border rounded-lg p-4 mb-6">
+          
+          <div>
+            <p className="text-sm text-gray-500">Organization</p>
+            <p className="font-semibold">
+              {driverOrg?.Sponsor_Org?.Org_Name}
+            </p>
+          </div>
 
-        <hr className="my-4" />
+          <div className="mt-3 sm:mt-0 text-right">
+            <p className="text-sm text-gray-500">Your Points</p>
+            <p className="text-xl font-bold text-blue-600">
+              {driverOrg?.Point_Count ?? 0}
+            </p>
+          </div>
 
-        <p className="font-semibold mb-4">Catalog Items:</p>
+        </div>
 
+        {/* SECTION TITLE */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Available Rewards</h2>
+        </div>
+
+        {/* CONTENT */}
         {listings.length === 0 ? (
-          <p>No items in catalog yet.</p>
+          <div className="text-center text-gray-500 py-10">
+            No items in catalog yet.
+          </div>
         ) : (
           <CatalogSearch items={items} />
         )}

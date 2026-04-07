@@ -20,14 +20,16 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
 
   return (
     <div>
+      {/* Search */}
       <input
         type="text"
         placeholder="Search catalog..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full border rounded-lg p-2 mb-6"
+        className="w-full border rounded-lg p-2 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
+      {/* Messages */}
       {message && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
           {message}
@@ -40,6 +42,7 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
         </div>
       )}
 
+      {/* Grid */}
       {filteredItems.length === 0 ? (
         <p>No items match your search.</p>
       ) : (
@@ -47,8 +50,9 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
           {filteredItems.map((item) => (
             <div
               key={item.Item_ID}
-              className="bg-white border rounded-lg shadow p-4"
+              className="bg-white border rounded-lg shadow-md p-4 flex flex-col justify-between"
             >
+              {/* Image */}
               {item.Item_Image_URL && (
                 <img
                   src={item.Item_Image_URL}
@@ -57,41 +61,35 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
                 />
               )}
 
-              <p className="font-semibold text-lg">{item.Item_Name}</p>
+              {/* Info */}
+              <div>
+                <p className="font-semibold text-lg mb-1">
+                  {item.Item_Name}
+                </p>
 
-              <p className="text-gray-600">
-                {item.Point_Price === 1
-                  ? "1 point"
-                  : `${item.Point_Price ?? "No"} points`}
-              </p>
+                <p className="text-gray-600 mb-3">
+                  {item.Point_Price === 1
+                    ? "1 point"
+                    : `${item.Point_Price ?? "No"} points`}
+                </p>
+              </div>
+
+              {/* Button */}
               <button
-                onClick={async () => {
-                  setMessage(null)
-                  setError(null)
+                onClick={() => {
+                  const existing = JSON.parse(
+                    localStorage.getItem("cart") || "[]"
+                  )
 
-                  try {
-                    const res = await fetch("/api/driver/purchase", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({ itemId: item.Item_ID }),
-                    })
+                  const updated = [...existing, item]
 
-                    const data = await res.json()
+                  localStorage.setItem("cart", JSON.stringify(updated))
 
-                    if (!res.ok) {
-                      setError(data.error || "Purchase failed")
-                    } else {
-                      setMessage("Purchase successful!")
-                    }
-                  } catch {
-                    setError("Something went wrong")
-                  }
+                  setMessage("Added to cart!")
                 }}
-                className="mt-2 px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition"
+                className="w-full bg-blue-600 text-white py-2 px-3 rounded-md hover:bg-blue-700 transition"
               >
-                Redeem
+                Add to Cart
               </button>
             </div>
           ))}
