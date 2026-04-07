@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import Navbar from "@/components/navbar"
 import { prisma } from "@/lib/prisma"
 import CatalogSearch from "@/components/driver/catalog-search"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 export default async function DriverCatalogPage() {
   const session = await auth()
@@ -70,6 +71,7 @@ export default async function DriverCatalogPage() {
   return (
   <div className="min-h-screen bg-gray-100">
     <Navbar />
+    {session?.user?.impersonating && (<ImpersonationBanner />)}
 
     <main className="max-w-7xl mx-auto py-6 px-4">
       <div className="bg-white shadow rounded-lg p-6">
