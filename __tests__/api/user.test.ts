@@ -12,14 +12,14 @@ jest.mock("@/lib/prisma", () => ({
       update: jest.fn(),
     },
     sponsor: { findUnique: jest.fn() },
-    driver: { findUnique: jest.fn() },
+    driver_Sponsor_Org: { findFirst: jest.fn() },
   },
 }))
 import { prisma } from "@/lib/prisma"
 const mockUserFind = prisma.user.findUnique as jest.Mock
 const mockUserUpdate = prisma.user.update as jest.Mock
 const mockSponsorFind = prisma.sponsor.findUnique as jest.Mock
-const mockDriverFind = prisma.driver.findUnique as jest.Mock
+const mockDriverSponsorOrgFind = prisma.driver_Sponsor_Org.findFirst as jest.Mock
 
 function makeGetRequest(userId: string) {
   return new NextRequest(`http://localhost/api/user/${userId}`)
@@ -90,10 +90,13 @@ describe("GET /api/user/[userId]", () => {
 
   it("allows sponsor to view driver in their org", async () => {
     mockAuth.mockResolvedValue({ user: { id: "10", role: "S" } })
-    mockSponsorFind.mockResolvedValue({ Org_ID: 5 })
-    mockDriverFind.mockResolvedValue({
-      driverSponsorOrgs: [{ Org_ID: 5 }],
+    mockSponsorFind.mockImplementation(async (query: any) => {
+      // Session sponsor (id 10)
+      if (query.where.User_ID === 10) return { Org_ID: 5 }
+      // Target driver is not a sponsor
+      return null
     })
+    mockDriverSponsorOrgFind.mockResolvedValue({ Org_ID: 5, User_ID: 2 })
     mockUserFind.mockResolvedValue(mockDriverUser)
     const res = await GET(makeGetRequest("2"), { params: params("2") })
     expect(res.status).toBe(200)
@@ -101,10 +104,13 @@ describe("GET /api/user/[userId]", () => {
 
   it("rejects sponsor viewing driver from a different org", async () => {
     mockAuth.mockResolvedValue({ user: { id: "10", role: "S" } })
-    mockSponsorFind.mockResolvedValue({ Org_ID: 5 })
-    mockDriverFind.mockResolvedValue({
-      driverSponsorOrgs: [{ Org_ID: 99 }],
+    mockSponsorFind.mockImplementation(async (query: any) => {
+      // Session sponsor (id 10)
+      if (query.where.User_ID === 10) return { Org_ID: 5 }
+      // Target driver should not be a sponsor
+      return null
     })
+    mockDriverSponsorOrgFind.mockResolvedValue(null)
     const res = await GET(makeGetRequest("2"), { params: params("2") })
     expect(res.status).toBe(403)
   })
@@ -137,10 +143,13 @@ describe("PUT /api/user/[userId]", () => {
 
   it("allows sponsor to update driver in their org", async () => {
     mockAuth.mockResolvedValue({ user: { id: "10", role: "S" } })
-    mockSponsorFind.mockResolvedValue({ Org_ID: 5 })
-    mockDriverFind.mockResolvedValue({
-      driverSponsorOrgs: [{ Org_ID: 5 }],
+    mockSponsorFind.mockImplementation(async (query: any) => {
+      // Session sponsor (id 10)
+      if (query.where.User_ID === 10) return { Org_ID: 5 }
+      // Target driver is not a sponsor
+      return null
     })
+    mockDriverSponsorOrgFind.mockResolvedValue({ Org_ID: 5, User_ID: 2 })
     mockUserUpdate.mockResolvedValue({ Username: "testdriver", Email: "sponsor-updated@test.com", Phone: "555-1111" })
     const res = await PUT(makePutRequest("2", { email: "sponsor-updated@test.com", phone: "555-1111" }), { params: params("2") })
     expect(res.status).toBe(200)
@@ -148,10 +157,13 @@ describe("PUT /api/user/[userId]", () => {
 
   it("rejects sponsor updating driver from a different org", async () => {
     mockAuth.mockResolvedValue({ user: { id: "10", role: "S" } })
-    mockSponsorFind.mockResolvedValue({ Org_ID: 5 })
-    mockDriverFind.mockResolvedValue({
-      driverSponsorOrgs: [{ Org_ID: 99 }],
+    mockSponsorFind.mockImplementation(async (query: any) => {
+      // Session sponsor (id 10)
+      if (query.where.User_ID === 10) return { Org_ID: 5 }
+      // Target driver should not be a sponsor
+      return null
     })
+    mockDriverSponsorOrgFind.mockResolvedValue(null)
     const res = await PUT(makePutRequest("2", { email: "x@test.com", phone: "555-0000" }), { params: params("2") })
     expect(res.status).toBe(403)
   })

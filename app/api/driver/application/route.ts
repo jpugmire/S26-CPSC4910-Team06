@@ -55,8 +55,8 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    const joinedOrganizations = joinedOrgs.map((j) => {
-      const approvedApp = approvedApplications.find((a) => a.Org_ID === j.Org_ID)
+    const joinedOrganizations = joinedOrgs.map((j: typeof joinedOrgs[0]) => {
+      const approvedApp = approvedApplications.find((a: typeof approvedApplications[0]) => a.Org_ID === j.Org_ID)
       return {
         Org_ID: j.Org_ID,
         Org_Name: j.Sponsor_Org.Org_Name,
@@ -66,8 +66,8 @@ export async function GET(req: NextRequest) {
     })
 
     return NextResponse.json({
-      pendingApplications: applications.filter((a) => a.Status === "P"),
-      pastApplications: applications.filter((a) => a.Status !== "P"),
+      pendingApplications: applications.filter((a: typeof applications[0]) => a.Status === "P"),
+      pastApplications: applications.filter((a: typeof applications[0]) => a.Status !== "P"),
       joinedOrganizations,
     }, { status: 200 })
   } catch (error) {

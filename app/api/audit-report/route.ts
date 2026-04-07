@@ -55,8 +55,8 @@ export async function GET(req: NextRequest) {
       prisma.driver_Sponsor_Org.findMany({ where: { Org_ID: { in: filterOrgIds } }, select: { User_ID: true } }),
     ]);
     userIdsInOrg = [
-      ...sponsors.map((s) => s.User_ID),
-      ...driverSponsorOrgs.map((d) => d.User_ID),
+      ...sponsors.map((s: typeof sponsors[0]) => s.User_ID),
+      ...driverSponsorOrgs.map((d: typeof driverSponsorOrgs[0]) => d.User_ID),
     ];
     // Remove duplicates
     userIdsInOrg = [...new Set(userIdsInOrg)];
@@ -67,8 +67,8 @@ export async function GET(req: NextRequest) {
       prisma.driver_Sponsor_Org.findMany({ where: { Org_ID: orgId }, select: { User_ID: true } }),
     ]);
     userIdsInOrg = [
-      ...sponsors.map((s) => s.User_ID),
-      ...driverSponsorOrgs.map((d) => d.User_ID),
+      ...sponsors.map((s: typeof sponsors[0]) => s.User_ID),
+      ...driverSponsorOrgs.map((d: typeof driverSponsorOrgs[0]) => d.User_ID),
     ];
     // Remove duplicates
     userIdsInOrg = [...new Set(userIdsInOrg)];

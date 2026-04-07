@@ -27,6 +27,7 @@ model Audit {
 model Catalog {
   Catalog_ID      Int               @id @default(autoincrement())
   Org_ID          Int
+  Catalog_Listing Int?
   Sponsor_Org     Sponsor_Org       @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "Catalog_ibfk_1")
   Catalog_Listing Catalog_Listing[]
 
@@ -58,74 +59,7 @@ model Catalog_Listing {
 model Driver {
   User_ID            Int                  @id
   User               User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
-  driverSponsorOrgs Driver_Sponsor_Org[]
-}
-
-model Driver_Application {
-  Application_ID   Int         @id @default(autoincrement())
-  User_ID          Int
-  Org_ID           Int
-  Status           String      @default("P") @db.VarChar(1)
-  Application_Date DateTime    @default(now()) @db.DateTime(0)
-  Review_Date      DateTime?   @db.DateTime(0)
-  Sponsor_Org      Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction)
-  User             User        @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([Org_ID])
-  @@index([User_ID])
-}
-
-model Driver_Sponsor_Org {
-  User_ID     Int
-  Org_ID      Int
-  Point_Count Int         @default(0)
-  Sponsor_Org Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: Cascade, onUpdate: NoAction)
-  Driver      Driver      @relation(fields: [User_ID], references: [User_ID], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([User_ID, Org_ID])
-  @@index([Org_ID])
-}
-
-model Password_Reset_Token {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int
-  expiresAt DateTime
-  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
-
-  @@index([userId], map: "Password_Reset_Token_userId_fkey")
-}
-
-model Point_Transaction {
-  Transaction_ID   Int          @id @default(autoincrement())
-  Price            Decimal      @db.Decimal(8, 2)
-  Transaction_Date DateTime     @default(now()) @db.DateTime(0)
-  User_ID          Int
-  Item_ID          Int
-  User             User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Point_Transaction_ibfk_1")
-  Catalog_Item     Catalog_Item @relation(fields: [Item_ID], references: [Item_ID], onDelete: NoAction, onUpdate: NoAction, map: "Point_Transaction_ibfk_2")
-
-  @@index([Item_ID], map: "Item_ID")
-  @@index([User_ID], map: "User_ID")
-}
-
-model Sponsor {
-  User_ID     Int          @id
-  Org_ID      Int?
-  User        User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Sponsor_ibfk_1")
-  Sponsor_Org Sponsor_Org? @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "fk_Org_Id_Sponsor")
-
-  @@index([Org_ID], map: "fk_Org_Id_Sponsor")
-}
-
-model Sponsor_Org {
-  Org_ID             Int                  @id @default(autoincrement())
-  Org_Name           String               @db.VarChar(30)
-  Point_Dollar_Value Decimal?             @default(1.00) @db.Decimal(10, 2)
-  Catalog            Catalog[]
-  Driver_Application Driver_Application[]
   Driver_Sponsor_Org Driver_Sponsor_Org[]
-  Sponsor            Sponsor[]
 }
 
 model Driver_Application {
@@ -151,16 +85,6 @@ model Driver_Sponsor_Org {
 
   @@id([User_ID, Org_ID])
   @@index([Org_ID])
-}
-
-model Password_Reset_Token {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int
-  expiresAt DateTime
-  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
-
-  @@index([userId], map: "Password_Reset_Token_userId_fkey")
 }
 
 model Otp_Token {
@@ -171,6 +95,16 @@ model Otp_Token {
   User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
 
   @@index([userId], map: "Otp_Token_userId_fkey")
+}
+
+model Password_Reset_Token {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+
+  @@index([userId], map: "Password_Reset_Token_userId_fkey")
 }
 
 model Point_Transaction {
@@ -213,15 +147,15 @@ model User {
   Date_Added           DateTime               @default(now()) @db.DateTime(0)
   Date_Inactive        DateTime?              @db.DateTime(0)
   User_Type            String                 @db.VarChar(1)
-  twoFactorEnabled     Boolean                @default(false)
   Email                String?                @unique
   Phone                String?
+  twoFactorEnabled     Boolean                @default(false)
   Admin                Admin?
   Audit                Audit[]
   Driver               Driver?
   Driver_Application   Driver_Application[]
-  Password_Reset_Token Password_Reset_Token[]
   Otp_Token            Otp_Token[]
+  Password_Reset_Token Password_Reset_Token[]
   Point_Transaction    Point_Transaction[]
   Sponsor              Sponsor?
 }
