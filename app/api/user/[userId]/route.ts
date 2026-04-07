@@ -31,25 +31,26 @@ async function canAccessUser(
       return false
     }
 
+    const targetDriver = await prisma.driver.findUnique({
+      where: { User_ID: targetUserId },
+      select: {
+        driverSponsorOrgs: {
+          select: { Org_ID: true }
+        }
+      },
+    })
+
+    if (targetDriver) {
+      const driverOrgIds = targetDriver.driverSponsorOrgs.map(dso => dso.Org_ID)
+      return driverOrgIds.includes(sponsor.Org_ID)
+    }
+
     const targetSponsor = await prisma.sponsor.findUnique({
       where: { User_ID: targetUserId },
       select: { Org_ID: true },
     })
 
-    // Check if target is a sponsor in the same org
-    if (targetSponsor?.Org_ID === sponsor.Org_ID) {
-      return true
-    }
-
-    // Check if target is a driver in any of the same orgs
-    const driverOrgAssociation = await prisma.driver_Sponsor_Org.findFirst({
-      where: {
-        User_ID: targetUserId,
-        Org_ID: sponsor.Org_ID,
-      },
-    })
-
-    return !!driverOrgAssociation
+    return targetSponsor?.Org_ID === sponsor.Org_ID
   }
 
   return false
@@ -87,6 +88,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         Email: true,
         Phone: true,
         User_Type: true,
+        twoFactorEnabled: true,
         Sponsor: {
           select: {
             Sponsor_Org: {
@@ -125,6 +127,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       Email: user.Email,
       Phone: user.Phone,
       User_Type: user.User_Type,
+      twoFactorEnabled: user.twoFactorEnabled
     }
 
     if (user.User_Type === "S") {

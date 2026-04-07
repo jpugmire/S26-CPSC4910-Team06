@@ -22,6 +22,9 @@ export default function Navbar() {
           {session?.user?.role === "A" && (<Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin Console</Link>)}
           {session?.user?.role === "S" && (<Link href="/sponsor/catalog" className="text-sm text-green-600 font-semibold hover:underline">My Catalog</Link>)}
           {session?.user?.role === "S" && (<Link href="/sponsorConsole" className="text-sm text-red-600 font-semibold hover:underline">Sponsor Console</Link>)}
+          {session?.user?.role === "D" && (<Link href="/driver/catalog" className="text-sm text-blue-600 hover:underline">Catalog</Link>)}
+          {session?.user?.role === "D" && (<Link href="/driver/cart" className="text-sm text-blue-600 hover:underline">My Cart</Link>)}
+          {session?.user?.role === "D" && (<Link href="/driver/history" className="text-sm text-blue-600 hover:underline">History</Link>)}
           <LogoutButton />
         </div>
       </div>

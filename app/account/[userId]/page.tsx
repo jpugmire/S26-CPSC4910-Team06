@@ -18,6 +18,7 @@ type UserData = {
   Org_ID: number | null
   User_Type: string
   joinedOrganizations?: JoinedOrganization[]
+  twoFactorEnabled: boolean
 }
 
 export default function AccountPage() {
@@ -31,6 +32,7 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false)
   const [leaving, setLeaving] = useState(false)
   const [error, setError] = useState("")
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
   useEffect(() => {
     async function fetchUser() {
@@ -50,6 +52,7 @@ export default function AccountPage() {
         setUser(data)
         setEmail(data.Email || "")
         setPhone(data.Phone || "")
+        setTwoFactorEnabled(data.twoFactorEnabled ?? false)
       } catch {
         setError("Something went wrong while fetching user info")
       } finally {
@@ -123,6 +126,19 @@ export default function AccountPage() {
     }
   }
 
+  async function handleToggle2FA() {
+    const newValue = !twoFactorEnabled
+    const res = await fetch(`/api/user/${userId}/2fa`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: newValue })
+    })
+    if (res.ok) {
+      setTwoFactorEnabled(newValue)
+    } else {
+      setError("Failed to update 2FA setting")
+    }
+  }
   if (loading) {
     return (
       <>
@@ -179,6 +195,27 @@ export default function AccountPage() {
         <button onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Save Changes"}
         </button>
+
+        <div style={{ marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>
+          <h3>Two-Factor Authentication</h3>
+          <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+            When enabled, you will be emailed a verification code each time you log in.
+          </p>
+          <button
+            onClick={handleToggle2FA}
+            style={{
+              marginTop: "0.5rem",
+              backgroundColor: twoFactorEnabled ? "#dc2626" : "#2563eb",
+              color: "white",
+              padding: "0.5rem 1rem",
+              borderRadius: "0.25rem",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
+          </button>
+        </div>
 
         {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (
           <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #ccc" }}>

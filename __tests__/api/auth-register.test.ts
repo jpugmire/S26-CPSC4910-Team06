@@ -149,6 +149,23 @@ describe("POST /api/auth/register", () => {
         expect(data.message).toBe("User created successfully")
     })
 
+    it("creates sponsor user successfully", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
+        ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 125, Username: "newsponsor" })
+
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "newsponsor", password: "pass", email: "sponsor@test.com", userType: "S", sponsorOrgId: 1 }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(201)
+        expect(data.message).toBe("User created successfully")
+        expect(data.userId).toBe(125)
+    })
+
     it("handles database errors", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
         ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error("DB error"))
