@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react"
 
 export function ImpersonateUserForm() {
   const router = useRouter()
-  const { update } = useSession();
+  const { data: session, update } = useSession();
   const [success, setSuccess] = useState("");
   const [users, setUsers] = useState<any[]>([])
   const [User_ID, setUserID] = useState<number | null>(null)
@@ -15,15 +15,21 @@ export function ImpersonateUserForm() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!session?.user?.role) return
       setLoading(true)
       setError("")
 
       try {
-        const res = await fetch("/api/admin/users")
+        const res =
+          session.user.role === "A"
+            ? await fetch("/api/admin/users")
+            : await fetch("/api/sponsor/users")
+        
         const data = await res.json()
 
         if (!res.ok) setError(data.error || "Failed to fetch users")
-        else setUsers(data.users ?? [])
+        else setUsers(session.user.role === "A" ? data.users ?? [] : data.drivers ?? [])
+      console.log("Temp Printing: " + users);
       } catch {
         setError("Something went wrong")
       } finally {
@@ -31,7 +37,7 @@ export function ImpersonateUserForm() {
       }
     }
     fetchUsers();
-  }, [])
+  }, [session?.user?.role])
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +46,12 @@ export function ImpersonateUserForm() {
     setLoading(true)
 
     try {
-      const res = await fetch("/api/sponsor/impersonation", {
+      const endpoint =
+        session?.user?.role === "A"
+        ? "/api/admin/impersonation"
+        : "/api/sponsor/impersonation"
+      
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: User_ID }),

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!");
     const session = await auth()
 
     if (!session?.user) {
@@ -12,6 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const realRole = session.user.realUserRole ?? session.user.role
+    console.log("REAL ROLE: " + realRole);
 
     if (realRole !== "S") {
       return NextResponse.json({ error: "Not authorized." }, { status: 403 })

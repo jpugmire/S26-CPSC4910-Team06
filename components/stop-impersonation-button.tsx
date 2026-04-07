@@ -3,10 +3,16 @@
 import { useSession } from "next-auth/react"
 
 export function StopImpersonationButton() {
+  const { data: session } = useSession();
   const { update } = useSession()
 
   async function handleStop() {
-    const res = await fetch("/api/admin/impersonation/stop", {
+    if (!session?.user?.role) return
+    const endpoint =
+          session.user.role === "A"
+            ? "/api/admin/impersonation/stop"
+            : "/api/sponsor/impersonation/stop"
+    const res = await fetch(endpoint, {
       method: "POST",
     })
     console.log("click!!!");
