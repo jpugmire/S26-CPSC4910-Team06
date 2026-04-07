@@ -65,7 +65,7 @@ export async function GET() {
     const driversWithPoints = drivers.map(driver => ({
       ...driver,
       Driver: {
-        driverSponsorOrgs: driverOrgAssociations.filter(a => a.User_ID === driver.User_ID),
+        Driver_Sponsor_Org: driverOrgAssociations.filter(a => a.User_ID === driver.User_ID),
       },
     }));
 

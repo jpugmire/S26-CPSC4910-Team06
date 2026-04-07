@@ -21,7 +21,7 @@ export default async function DriverCatalogPage() {
       User_ID: parseInt(session.user.id || "0"),
     },
     include: {
-      driverSponsorOrgs: {
+      Driver_Sponsor_Org: {
         include: {
           Sponsor_Org: true,
         },
@@ -29,7 +29,7 @@ export default async function DriverCatalogPage() {
     },
   })
 
-  if (!driver || driver.driverSponsorOrgs.length === 0) {
+  if (!driver || driver.Driver_Sponsor_Org.length === 0) {
     return (
       <div className="min-h-screen bg-gray-100">
         <Navbar />
@@ -45,7 +45,7 @@ export default async function DriverCatalogPage() {
     )
   }
 
-  const firstOrg = driver.driverSponsorOrgs[0]
+  const firstOrg = driver.Driver_Sponsor_Org[0]
   const orgId = firstOrg.Org_ID
 
   const catalog = await prisma.catalog.findFirst({
@@ -86,9 +86,9 @@ export default async function DriverCatalogPage() {
           <p>
             <strong>Point Balance:</strong> {pointBalance}
           </p>
-          {driver.driverSponsorOrgs.length > 1 && (
+          {driver.Driver_Sponsor_Org.length > 1 && (
             <p className="text-sm text-gray-500 mt-2">
-              You belong to {driver.driverSponsorOrgs.length} organizations. Showing catalog for {firstOrg.Sponsor_Org.Org_Name}.
+              You belong to {driver.Driver_Sponsor_Org.length} organizations. Showing catalog for {firstOrg.Sponsor_Org.Org_Name}.
             </p>
           )}
         </div>
