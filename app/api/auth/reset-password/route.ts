@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     await prisma.password_Reset_Token.delete({ where: { token } })
 
     if (user?.Email) {
-        await sendPasswordChangedEmail(user.Email, user.Username)
+        sendPasswordChangedEmail(user.Email, user.Username).catch(() => {})
     }
 
     return NextResponse.json({ message: "Password reset successfully." })

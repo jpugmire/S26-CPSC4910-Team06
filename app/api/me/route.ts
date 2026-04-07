@@ -122,7 +122,7 @@ export async function PUT(req: NextRequest) {
     })
 
     if (currentUser?.Email) {
-      await sendAccountInfoChangedEmail(currentUser.Email, currentUser.Username)
+      sendAccountInfoChangedEmail(currentUser.Email, currentUser.Username).catch(() => {})
     }
 
     return NextResponse.json(updatedUser)

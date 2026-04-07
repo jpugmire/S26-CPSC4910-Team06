@@ -1,10 +1,13 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = "noreply@team06.cpsc4911.com"
 
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
+
 export async function sendAccountInfoChangedEmail(to: string, username: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to,
     subject: "Your account information was updated",
@@ -14,7 +17,7 @@ export async function sendAccountInfoChangedEmail(to: string, username: string) 
 }
 
 export async function sendPasswordChangedEmail(to: string, username: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to,
     subject: "Your password was changed",
@@ -24,7 +27,7 @@ export async function sendPasswordChangedEmail(to: string, username: string) {
 }
 
 export async function sendDroppedBySponsorEmail(to: string, username: string, orgName: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to,
     subject: "You have been removed from a sponsor organization",
