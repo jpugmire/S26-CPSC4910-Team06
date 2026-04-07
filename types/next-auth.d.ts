@@ -8,6 +8,10 @@ declare module "next-auth" {
       role: string
       username: string
       twoFactorPending: boolean
+      impersonating?: boolean
+      realUserId?: string
+      realUserRole?: string
+      realUsername?: string
     } & DefaultSession["user"]
   }
 
@@ -23,5 +27,9 @@ declare module "next-auth/jwt" {
     role: string
     username: string
     twoFactorPending?: boolean
+    impersonationActive?: boolean
+    impersonatedUserId?: string
+    impersonatedRole?: string
+    impersonatedUsername?: string
   }
 }

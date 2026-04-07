@@ -56,8 +56,8 @@ model Catalog_Listing {
 }
 
 model Driver {
-  User_ID            Int                  @id
-  User               User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
+  User_ID           Int                  @id
+  User              User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
   driverSponsorOrgs Driver_Sponsor_Org[]
 }
 
@@ -146,15 +146,15 @@ model User {
   Date_Added           DateTime               @default(now()) @db.DateTime(0)
   Date_Inactive        DateTime?              @db.DateTime(0)
   User_Type            String                 @db.VarChar(1)
-  twoFactorEnabled     Boolean                @default(false)
   Email                String?                @unique
   Phone                String?
+  twoFactorEnabled     Boolean                @default(false)
   Admin                Admin?
   Audit                Audit[]
   Driver               Driver?
   Driver_Application   Driver_Application[]
-  Password_Reset_Token Password_Reset_Token[]
   Otp_Token            Otp_Token[]
+  Password_Reset_Token Password_Reset_Token[]
   Point_Transaction    Point_Transaction[]
   Sponsor              Sponsor?
 }

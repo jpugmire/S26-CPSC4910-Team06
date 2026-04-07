@@ -9,6 +9,8 @@ import { DriverApplicationsList } from "@/components/sponsor/driver-applications
 import { AuditReportPanel } from "@/components/audit-report-panel";
 import { prisma } from "@/lib/prisma";
 import BulkUpdatePoints from "@/components/sponsor-nulk-update-points";
+import ImpersonationBanner from "@/components/impersonation-banner"
+import { ImpersonateUserForm } from "@/components/impersonation-form";
 import { SponsorCreateUserForm } from "@/components/sponsor-create-user-form";
 import SponsorBulkUploadUsers from "@/components/sponsor-bulk-upload";
 
@@ -30,7 +32,7 @@ export default async function SponsorPage() {
   return (
     <>
       <Navbar />
-
+      {session?.user?.impersonating && (<ImpersonationBanner />)}
       <div className="min-h-screen bg-gray-100 flex justify-center py-12 px-8">
         <div className="w-full max-w-6xl flex gap-12">
           {/* LEFT SIDE — Forms */}
@@ -83,6 +85,10 @@ export default async function SponsorPage() {
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Sponsor Data</h2>
               <SponsorPanel />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h2 className="text-xl font-bold mb-6">Driver Impersonation</h2>
+              <ImpersonateUserForm />
             </div>
             <div className="bg-white shadow-md rounded-lg p-8">
               <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
