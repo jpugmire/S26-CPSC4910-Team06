@@ -101,6 +101,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (trigger === "update" && session?.twoFactorPending === false) {
         token.twoFactorPending = false
       }
+      if (trigger === "update" && session?.impersonationAction) {
+        if (session.impersonationAction.type === "start") {
+          token.impersonationActive = true
+          token.impersonatedUserId = session.impersonationAction.targetUserId
+          token.impersonatedRole = session.impersonationAction.targetRole
+          token.impersonatedUsername = session.impersonationAction.targetUsername
+        }
+
+        if (session.impersonationAction.type === "stop") {
+          token.impersonationActive = false
+          delete token.impersonatedUserId
+          delete token.impersonatedRole
+          delete token.impersonatedUsername
+        }
+      }
       if (user) {
         token.role = user.role
         token.username = user.username

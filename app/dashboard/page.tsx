@@ -6,6 +6,7 @@ import { LogoutButton } from "@/components/logout-button"
 import { LoginToast } from "@/components/login-toast"
 import { Suspense } from "react"
 import Navbar from "@/components/navbar"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -20,6 +21,7 @@ export default async function DashboardPage() {
         <LoginToast />
       </Suspense>
       <Navbar />
+      {session?.user?.impersonating && (<ImpersonationBanner />)}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-2xl font-bold mb-4">

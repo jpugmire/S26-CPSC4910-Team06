@@ -9,6 +9,7 @@ import Navbar from "@/components/navbar";
 import BulkUploadDrivers from "@/components/admin-bulk-upload";
 import BulkUploadSponsorOrgs from "@/components/admin-bulk-upload-sponsorOrg";
 import { AuditReportPanel } from "@/components/audit-report-panel";
+import { ImpersonateUserForm } from "@/components/impersonation-form";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -75,6 +76,12 @@ export default async function AdminPage() {
                 Deactivate Users
               </h1>
               <DeactivateUserForm />
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                Impersonate User
+              </h1>
+              <ImpersonateUserForm />
             </div>
           </div>
             <div className="bg-white shadow-md rounded-lg p-8">

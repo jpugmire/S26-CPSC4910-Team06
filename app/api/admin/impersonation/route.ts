@@ -1,4 +1,4 @@
-// app/api/admin/impersonate/route.ts
+// app/api/admin/impersonation/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const targetUserId = Number(body.targetUserId)
+    console.log("API recieved: " + targetUserId);
 
     if (!Number.isInteger(targetUserId)) {
       return NextResponse.json({ error: "Invalid target user id." }, { status: 400 })
