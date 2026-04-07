@@ -27,6 +27,7 @@ model Audit {
 model Catalog {
   Catalog_ID      Int               @id @default(autoincrement())
   Org_ID          Int
+  Catalog_Listing Int?
   Sponsor_Org     Sponsor_Org       @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "Catalog_ibfk_1")
   Catalog_Listing Catalog_Listing[]
 
