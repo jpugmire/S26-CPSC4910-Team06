@@ -26,6 +26,16 @@ export async function sendPasswordChangedEmail(to: string, username: string) {
   })
 }
 
+export async function sendPointValueChangedEmail(to: string, username: string, orgName: string, newValue: number) {
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Point value updated for ${orgName}`,
+    html: `<p>Hi ${username},</p>
+<p>The point dollar value for <strong>${orgName}</strong> has been updated to <strong>$${newValue.toFixed(2)}</strong> per point.</p>`,
+  })
+}
+
 export async function sendDroppedBySponsorEmail(to: string, username: string, orgName: string) {
   await getResend().emails.send({
     from: FROM,
