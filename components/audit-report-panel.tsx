@@ -10,6 +10,7 @@ const AUDIT_TYPES: { value: number; label: string }[] = [
     { value: 4, label: "User Signed In" },
     { value: 5, label: "User Points Changed" },
     { value: 6, label: "Conversion Rate Updated" },
+    { value: 7, label: "Purchase Made" }
 ];
 
 type AuditRow = {

@@ -27,6 +27,7 @@ model Audit {
 model Catalog {
   Catalog_ID      Int               @id @default(autoincrement())
   Org_ID          Int
+  Catalog_Listing Int?
   Sponsor_Org     Sponsor_Org       @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "Catalog_ibfk_1")
   Catalog_Listing Catalog_Listing[]
 
@@ -56,9 +57,9 @@ model Catalog_Listing {
 }
 
 model Driver {
-  User_ID           Int                  @id
-  User              User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
-  driverSponsorOrgs Driver_Sponsor_Org[]
+  User_ID            Int                  @id
+  User               User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
+  Driver_Sponsor_Org Driver_Sponsor_Org[]
 }
 
 model Driver_Application {
@@ -86,16 +87,6 @@ model Driver_Sponsor_Org {
   @@index([Org_ID])
 }
 
-model Password_Reset_Token {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int
-  expiresAt DateTime
-  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
-
-  @@index([userId], map: "Password_Reset_Token_userId_fkey")
-}
-
 model Otp_Token {
   id        Int      @id @default(autoincrement())
   token     String   @unique
@@ -104,6 +95,16 @@ model Otp_Token {
   User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
 
   @@index([userId], map: "Otp_Token_userId_fkey")
+}
+
+model Password_Reset_Token {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
+
+  @@index([userId], map: "Password_Reset_Token_userId_fkey")
 }
 
 model Point_Transaction {

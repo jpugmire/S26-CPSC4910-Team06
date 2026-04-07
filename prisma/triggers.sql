@@ -79,3 +79,24 @@ BEGIN
         );
     END IF;
 END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_purchase_after_insert;
+-- Trigger: Purchase AFTER INSERT
+CREATE TRIGGER trg_purchase_after_insert
+AFTER INSERT ON Point_Transaction
+FOR EACH ROW
+BEGIN
+    INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+    VALUES (
+        NEW.User_ID,
+        NOW(),
+        7,
+        CONCAT(
+            'User purchased a ',
+            NEW.Price,
+            ' point item: ',
+            (SELECT Item_Name FROM Catalog_Item WHERE Item_ID = NEW.Item_ID)
+        )
+    );
+END;
