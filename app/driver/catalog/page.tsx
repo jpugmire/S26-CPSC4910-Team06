@@ -92,10 +92,6 @@ export default async function DriverCatalogPage() {
 
         {catalog ? (
           <div className="bg-white shadow rounded-lg p-6">
-            <p className="mb-4">
-              Catalog found! Catalog ID: <strong>{catalog.Catalog_ID}</strong>
-            </p>
-
             <p className="font-semibold mb-4">Catalog Items:</p>
 
             {listings.length === 0 ? (
