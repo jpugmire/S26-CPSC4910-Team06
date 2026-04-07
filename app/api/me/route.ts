@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { sendAccountInfoChangedEmail } from "@/lib/email"
 
 export async function GET(req: NextRequest) {
   try {
@@ -83,6 +84,11 @@ export async function PUT(req: NextRequest) {
     const userId = Number(session.user.id)
     const { email, phone } = await req.json()
 
+    const currentUser = await prisma.user.findUnique({
+      where: { User_ID: userId },
+      select: { Email: true, Username: true },
+    })
+
     // Check if another ACTIVE user already has this email or phone
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -117,6 +123,10 @@ export async function PUT(req: NextRequest) {
         Phone: true,
       },
     })
+
+    if (currentUser?.Email) {
+      sendAccountInfoChangedEmail(currentUser.Email, currentUser.Username).catch(() => {})
+    }
 
     return NextResponse.json(updatedUser)
   } catch (error) {
