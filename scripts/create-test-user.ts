@@ -10,16 +10,6 @@ async function main() {
   // Create a test driver
   let driver = await prisma.user.findUnique({
     where: { Username: "testdriver" },
-    update: {}, //already exists, do nothing
-    create: {
-      Username: "testdriver",
-      Password: hashedPassword,
-      Status: "A",
-      User_Type: "D",
-      Driver: {
-        create: {},
-      },
-    },
   })
 
   if (!driver) {

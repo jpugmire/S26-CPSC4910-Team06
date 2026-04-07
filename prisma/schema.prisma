@@ -7,42 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  User_ID              Int                    @id @default(autoincrement())
-  Username             String                 @unique @db.VarChar(30)
-  Password             String                 @db.VarChar(255)
-  Status               String                 @db.VarChar(1)
-  Date_Added           DateTime               @default(now()) @db.DateTime(0)
-  Date_Inactive        DateTime?              @db.DateTime(0)
-  User_Type            String                 @db.VarChar(1)
-  Email                String?                @unique
-  Phone                String?
-  twoFactorEnabled     Boolean                @default(false)
-  Admin                Admin?
-  Audit                Audit[]
-  Driver               Driver?
-  Driver_Application   Driver_Application[]
-  Otp_Token            Otp_Token[]
-  Password_Reset_Token Password_Reset_Token[]
-  Point_Transaction    Point_Transaction[]
-  Sponsor              Sponsor?
-}
-
-model Driver {
-  User_ID           Int                  @id
-  User              User                 @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Driver_ibfk_1")
-  driverSponsorOrgs Driver_Sponsor_Org[]
-}
-
-model Sponsor {
-  User_ID     Int          @id
-  Org_ID      Int?
-  User        User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Sponsor_ibfk_1")
-  Sponsor_Org Sponsor_Org? @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "fk_Org_Id_Sponsor")
-
-  @@index([Org_ID], map: "fk_Org_Id_Sponsor")
-}
-
 model Admin {
   User_ID Int  @id
   User    User @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Admin_ibfk_1")
@@ -174,14 +138,8 @@ model Driver_Application {
   Sponsor_Org      Sponsor_Org @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction)
   User             User        @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([User_ID])
   @@index([Org_ID])
-}
-
-model Version {
-  VersionID      Int      @id @default(autoincrement())
-  VersionCreated DateTime @default(now()) @db.DateTime(0)
-  VersionNum     Int
+  @@index([User_ID])
 }
 
 model Driver_Sponsor_Org {
@@ -213,4 +171,63 @@ model Otp_Token {
   User      User     @relation(fields: [userId], references: [User_ID], onDelete: Cascade)
 
   @@index([userId], map: "Otp_Token_userId_fkey")
+}
+
+model Point_Transaction {
+  Transaction_ID   Int          @id @default(autoincrement())
+  Price            Decimal      @db.Decimal(8, 2)
+  Transaction_Date DateTime     @default(now()) @db.DateTime(0)
+  User_ID          Int
+  Item_ID          Int
+  User             User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Point_Transaction_ibfk_1")
+  Catalog_Item     Catalog_Item @relation(fields: [Item_ID], references: [Item_ID], onDelete: NoAction, onUpdate: NoAction, map: "Point_Transaction_ibfk_2")
+
+  @@index([Item_ID], map: "Item_ID")
+  @@index([User_ID], map: "User_ID")
+}
+
+model Sponsor {
+  User_ID     Int          @id
+  Org_ID      Int?
+  User        User         @relation(fields: [User_ID], references: [User_ID], onDelete: NoAction, onUpdate: NoAction, map: "Sponsor_ibfk_1")
+  Sponsor_Org Sponsor_Org? @relation(fields: [Org_ID], references: [Org_ID], onDelete: NoAction, onUpdate: NoAction, map: "fk_Org_Id_Sponsor")
+
+  @@index([Org_ID], map: "fk_Org_Id_Sponsor")
+}
+
+model Sponsor_Org {
+  Org_ID             Int                  @id @default(autoincrement())
+  Org_Name           String               @db.VarChar(30)
+  Point_Dollar_Value Decimal?             @default(1.00) @db.Decimal(10, 2)
+  Catalog            Catalog[]
+  Driver_Application Driver_Application[]
+  Driver_Sponsor_Org Driver_Sponsor_Org[]
+  Sponsor            Sponsor[]
+}
+
+model User {
+  User_ID              Int                    @id @default(autoincrement())
+  Username             String                 @unique @db.VarChar(30)
+  Password             String                 @db.VarChar(255)
+  Status               String                 @db.VarChar(1)
+  Date_Added           DateTime               @default(now()) @db.DateTime(0)
+  Date_Inactive        DateTime?              @db.DateTime(0)
+  User_Type            String                 @db.VarChar(1)
+  twoFactorEnabled     Boolean                @default(false)
+  Email                String?                @unique
+  Phone                String?
+  Admin                Admin?
+  Audit                Audit[]
+  Driver               Driver?
+  Driver_Application   Driver_Application[]
+  Password_Reset_Token Password_Reset_Token[]
+  Otp_Token            Otp_Token[]
+  Point_Transaction    Point_Transaction[]
+  Sponsor              Sponsor?
+}
+
+model Version {
+  VersionID      Int      @id @default(autoincrement())
+  VersionCreated DateTime @default(now()) @db.DateTime(0)
+  VersionNum     Int
 }
