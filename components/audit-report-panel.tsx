@@ -61,17 +61,9 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
 	useEffect(() => {
 		const fetchSponsorOrgs = async () => {
 			try {
-				// Use different endpoint based on user type
-				const endpoint = isDriver ? "/api/driver/organizations" : "/api/admin/sponsors";
-				const res = await fetch(endpoint);
-				if (!res.ok) {
-					console.error("Failed to fetch organizations:", res.status);
-					return;
-				}
+				const res = await fetch("/api/admin/sponsors");
 				const data = await res.json();
-				// Driver endpoint returns 'organizations', Admin endpoint returns 'sponsorOrgs'
-				const orgs = data.organizations || data.sponsorOrgs || [];
-				setSponsorOrgs(orgs);
+				setSponsorOrgs(data.sponsorOrgs || []);
 			} catch (err) {
 				console.error("Failed to fetch sponsor organizations:", err);
 			}
@@ -392,7 +384,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
 
       {/* Filters */}
       <div className="flex flex-col gap-4">
-        {(isAdmin || isDriver) && (
+        {isAdmin && (
           <div className="flex flex-col gap-2">
             <label htmlFor="orgSelect" className="text-sm font-medium text-gray-700">
               Filter by Organization(s) (optional)
@@ -637,7 +629,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                         User <SortIndicator column="User_ID" />
                       </th>
                     )}
-                    {(isAdmin || isDriver) && (
+                    {isAdmin && (
                       <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Org_Name")}>
                         Organization <SortIndicator column="Org_Name" />
                       </th>
@@ -659,7 +651,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                       {!isDriver && (
                         <td className="px-4 py-3 text-gray-700">{row.User?.Username || `User ${row.User_ID}`}</td>
                       )}
-                      {(isAdmin || isDriver) && (
+                      {isAdmin && (
                         <td className="px-4 py-3 text-gray-700">{row.Org_Name ?? "-"}</td>
                       )}
                       <td className="px-4 py-3 text-gray-700">{row.Message}</td>
