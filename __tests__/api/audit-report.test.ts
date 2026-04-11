@@ -10,10 +10,12 @@ jest.mock("@/auth", () => ({
 jest.mock("@/lib/prisma", () => ({
     prisma: {
         sponsor: {
-            findMany: jest.fn()
+            findMany: jest.fn(),
+            findUnique: jest.fn()
         },
         driver_Sponsor_Org: {
-            findMany: jest.fn()
+            findMany: jest.fn(),
+            findFirst: jest.fn()
         },
         audit: {
             findMany: jest.fn()
@@ -57,14 +59,27 @@ describe("GET /api/audit-report", () => {
         expect(data.error).toBe("Unauthorized")
     })
 
-    it("rejects driver users", async () => {
+    it("rejects driver users when not requesting their own logs", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "D" } })
 
         const response = await GET(new NextRequest(baseUrl + "?type=1"))
         const data = await response.json()
 
         expect(response.status).toBe(403)
-        expect(data.error).toBe("Forbidden")
+        expect(data.error).toBe("Drivers can only view their own logs")
+    })
+
+    it("allows drivers to fetch their own audit logs", async () => {
+        mockAuth.mockResolvedValue({ user: { id: "24", role: "D" } })
+        ;(prisma.audit.findMany as jest.Mock).mockResolvedValue(mockAuditRows)
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
+
+        const response = await GET(new NextRequest(baseUrl + "?type=1&userId=24"))
+        const data = await response.json()
+
+        expect(response.status).toBe(200)
+        expect(data).toHaveLength(2)
     })
 
     it("returns error when no types provided", async () => {
@@ -80,6 +95,8 @@ describe("GET /api/audit-report", () => {
     it("allows admin to fetch audit report", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue(mockAuditRows)
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1&type=2"))
         const data = await response.json()
@@ -93,6 +110,8 @@ describe("GET /api/audit-report", () => {
         ;(prisma.sponsor.findMany as jest.Mock).mockResolvedValue([{ User_ID: 1 }])
         ;(prisma.driver_Sponsor_Org.findMany as jest.Mock).mockResolvedValue([])
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue([])
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1"))
         const data = await response.json()
@@ -105,6 +124,8 @@ describe("GET /api/audit-report", () => {
         ;(prisma.sponsor.findMany as jest.Mock).mockResolvedValue([{ User_ID: 1 }])
         ;(prisma.driver_Sponsor_Org.findMany as jest.Mock).mockResolvedValue([{ User_ID: 100 }])
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue([mockAuditRows[0]])
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1&orgId=10"))
         const data = await response.json()
@@ -116,6 +137,8 @@ describe("GET /api/audit-report", () => {
     it("filters by date range", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue([mockAuditRows[0]])
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1&minDate=2024-01-01&maxDate=2024-01-01"))
         const data = await response.json()
@@ -127,6 +150,8 @@ describe("GET /api/audit-report", () => {
     it("filters by userIds", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue([mockAuditRows[0]])
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1&userId=100"))
         const data = await response.json()
@@ -144,6 +169,8 @@ describe("GET /api/audit-report", () => {
     it("sorts by specified column", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "A" } })
         ;(prisma.audit.findMany as jest.Mock).mockResolvedValue([])
+        ;(prisma.sponsor.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.driver_Sponsor_Org.findFirst as jest.Mock).mockResolvedValue(null)
 
         const response = await GET(new NextRequest(baseUrl + "?type=1&sortColumn=Audit_ID&sortOrder=desc"))
 

@@ -11,11 +11,13 @@ jest.mock("@/lib/prisma", () => ({
   prisma: {
     sponsor: { findUnique: jest.fn() },
     driver_Sponsor_Org: { update: jest.fn() },
+    audit: { create: jest.fn() },
   },
 }))
 import { prisma } from "@/lib/prisma"
 const mockSponsor = prisma.sponsor.findUnique as jest.Mock
 const mockDriverSponsorOrg = prisma.driver_Sponsor_Org.update as jest.Mock
+const mockAuditCreate = prisma.audit.create as jest.Mock
 
 function makeRequest(body: object) {
   return new NextRequest("http://localhost/api/sponsor/points", {
@@ -68,6 +70,7 @@ describe("POST /api/sponsor/points", () => {
     mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
     mockSponsor.mockResolvedValue({ Org_ID: 5 })
     mockDriverSponsorOrg.mockResolvedValue({ User_ID: 2, Org_ID: 5, Point_Count: 110 })
+    mockAuditCreate.mockResolvedValue({})
     const res = await POST(makeRequest({ driverId: 2, pointValue: 10 }))
     expect(res.status).toBe(201)
     const data = await res.json()
@@ -82,6 +85,7 @@ describe("POST /api/sponsor/points", () => {
     mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
     mockSponsor.mockResolvedValue({ Org_ID: 5 })
     mockDriverSponsorOrg.mockResolvedValue({ User_ID: 2, Org_ID: 5, Point_Count: 90 })
+    mockAuditCreate.mockResolvedValue({})
     const res = await POST(makeRequest({ driverId: 2, pointValue: -10 }))
     expect(res.status).toBe(201)
     expect(mockDriverSponsorOrg).toHaveBeenCalledWith(expect.objectContaining({
