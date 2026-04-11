@@ -36,6 +36,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [userIdInput, setUserIdInput] = useState<string>("");
   const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
   const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [pageInput, setPageInput] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-	// Fetch sponsor organizations
+	// Fetch sponsor organizations and users
 	useEffect(() => {
 		const fetchSponsorOrgs = async () => {
 			try {
@@ -57,8 +58,26 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 				console.error("Failed to fetch sponsor organizations:", err);
 			}
 		};
+		const fetchUsers = async () => {
+			try {
+				// Use different endpoint based on user type
+				const endpoint = isAdmin ? "/api/admin/users" : "/api/sponsor/users";
+				const res = await fetch(endpoint);
+				if (!res.ok) {
+					console.error("Failed to fetch users:", res.status);
+					return;
+				}
+				const data = await res.json();
+				// Admin endpoint returns 'users', Sponsor endpoint returns 'drivers'
+				const userList = data.users || data.drivers || [];
+				setUsers(userList);
+			} catch (err) {
+				console.error("Failed to fetch users:", err);
+			}
+		};
 		fetchSponsorOrgs();
-	}, []);
+		fetchUsers();
+	}, [isAdmin]);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -123,8 +142,21 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     }
   }
 
+  function handleUserSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const userId = Number(e.target.value);
+    if (userId && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds((prev) => [...prev, userId]);
+      e.target.value = "";
+    }
+  }
+
   function removeUserId(userId: number) {
     setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
+  }
+
+  function getUsernameById(userId: number): string {
+    const user = users.find((u) => u.User_ID === userId);
+    return user?.Username || `User ${userId}`;
   }
 
   function removeOrgId(orgIdNum: number) {
@@ -373,28 +405,22 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <label htmlFor="userIdInput" className="text-sm font-medium text-gray-700">
-            Filter by User ID(s) (optional)
+          <label htmlFor="userSelect" className="text-sm font-medium text-gray-700">
+            Filter by User (optional)
           </label>
-          <div className="flex gap-2">
-            <input
-              id="userIdInput"
-              type="number"
-              placeholder="Enter User ID"
-              value={userIdInput}
-              onChange={(e) => setUserIdInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") addUserId();
-              }}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={addUserId}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              Add
-            </button>
-          </div>
+          <select
+            id="userSelect"
+            value=""
+            onChange={handleUserSelect}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select User</option>
+            {users.map((user) => (
+              <option key={user.User_ID} value={user.User_ID}>
+                {user.Username}
+              </option>
+            ))}
+          </select>
           {selectedUserIds.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {selectedUserIds.map((userId) => (
@@ -402,7 +428,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   key={userId}
                   className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
                 >
-                  <span>User {userId}</span>
+                  <span>{getUsernameById(userId)}</span>
                   <button
                     onClick={() => removeUserId(userId)}
                     className="text-blue-700 hover:text-blue-900 font-bold"
@@ -571,7 +597,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                       Audit ID <SortIndicator column="Audit_ID" />
                     </th>
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
-                      User ID <SortIndicator column="User_ID" />
+                      User <SortIndicator column="User_ID" />
                     </th>
                     <th className="px-4 py-3 border-b">Message</th>
                     <th className="px-4 py-3 border-b">Note</th>
@@ -587,7 +613,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   {paginatedResults.map((row) => (
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.User_ID}</td>
+                      <td className="px-4 py-3 text-gray-700">{getUsernameById(row.User_ID)}</td>
                       <td className="px-4 py-3 text-gray-700">{row.Message}</td>
                       <td className="px-4 py-3 text-gray-700">{row.Note ?? "-"}</td>
                       <td className="px-4 py-3">
