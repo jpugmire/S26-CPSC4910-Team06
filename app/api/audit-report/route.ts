@@ -26,6 +26,23 @@ export async function GET(req: NextRequest) {
     if (userIds.length === 0 || !userIds.includes(Number(session.user.id))) {
       return NextResponse.json({ error: "Drivers can only view their own logs" }, { status: 403 });
     }
+
+    // If driver is filtering by organizations, verify they belong to those orgs
+    const filterOrgIdParams = req.nextUrl.searchParams.getAll("filterOrgId");
+    const filterOrgIds = filterOrgIdParams.map(Number).filter((n) => !isNaN(n));
+    if (filterOrgIds.length > 0) {
+      const driverOrgs = await prisma.driver_Sponsor_Org.findMany({
+        where: { User_ID: Number(session.user.id) },
+        select: { Org_ID: true },
+      });
+      const driverOrgIds = driverOrgs.map((d) => d.Org_ID);
+      
+      // Check if all requested org IDs are in driver's allowed orgs
+      const hasUnauthorizedOrg = filterOrgIds.some((orgId) => !driverOrgIds.includes(orgId));
+      if (hasUnauthorizedOrg) {
+        return NextResponse.json({ error: "Driver cannot filter by organizations they don't belong to" }, { status: 403 });
+      }
+    }
   }
 
   const orgIdParam = req.nextUrl.searchParams.get("orgId");

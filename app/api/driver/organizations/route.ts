@@ -11,7 +11,26 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Not authorized" }, { status: 400 })
     }
 
+    const driverId = parseInt(session.user.id, 10)
+
+    // Find organizations this driver belongs to
+    const driverOrgs = await prisma.driver_Sponsor_Org.findMany({
+      where: {
+        User_ID: driverId,
+      },
+      select: {
+        Org_ID: true,
+      },
+    })
+
+    const orgIds = driverOrgs.map((d) => d.Org_ID)
+
     const organizations = await prisma.sponsor_Org.findMany({
+      where: {
+        Org_ID: {
+          in: orgIds,
+        },
+      },
       select: {
         Org_ID: true,
         Org_Name: true,
