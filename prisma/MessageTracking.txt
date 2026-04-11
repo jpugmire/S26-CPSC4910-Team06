@@ -5,3 +5,6 @@
 5: User points changed from <Old.Point_Count> to <New.Point_Count>
 6: Conversion rate changed from <Old.Point_Dollar_Value> to <New.Point_Dollar_Value>
 7: User purchased a <Point_Transaction.Price> point item: <Catalog_Item.Item_Name>
+8: Driver application created for <Sponsor_Org.Org_Name>
+9: Driver application approved for <Sponsor_Org.Org_Name>
+10: Driver application rejected for <Sponsor_Org.Org_Name>

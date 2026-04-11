@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
         },
         Driver: {
           select: {
-            driverSponsorOrgs: {
+            Driver_Sponsor_Org: {
               select: {
                 Sponsor_Org: {
                   select: {
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     if (user.User_Type === "S") {
       orgName = user.Sponsor?.Sponsor_Org?.Org_Name ?? null
     } else if (user.User_Type === "D") {
-      joinedOrganizations = user.Driver?.driverSponsorOrgs?.map((d: { Sponsor_Org: { Org_Name: string } }) => d.Sponsor_Org?.Org_Name).filter(Boolean) as string[] ?? []
+      joinedOrganizations = user.Driver?.Driver_Sponsor_Org?.map((d: { Sponsor_Org: { Org_Name: string } }) => d.Sponsor_Org?.Org_Name).filter(Boolean) as string[] ?? []
       orgName = joinedOrganizations[0] ?? null
     }
 

@@ -20,11 +20,11 @@ export async function POST(req: NextRequest) {
     const driver = await prisma.driver.findUnique({
       where: { User_ID: userId },
       include: {
-        driverSponsorOrgs: true,
+        Driver_Sponsor_Org: true,
       },
     })
 
-    const driverOrg = driver?.driverSponsorOrgs[0]
+    const driverOrg = driver?.Driver_Sponsor_Org[0]
 
     if (!driverOrg) {
       return NextResponse.json(

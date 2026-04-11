@@ -100,7 +100,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         },
         Driver: {
           select: {
-            driverSponsorOrgs: {
+            Driver_Sponsor_Org: {
               select: {
                 Org_ID: true,
                 Sponsor_Org: {
@@ -134,7 +134,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         response.Org_Name = user.Sponsor.Sponsor_Org.Org_Name
       }
     } else if (user.User_Type === "D") {
-      const joinedOrganizations = user.Driver?.driverSponsorOrgs?.map(
+      const joinedOrganizations = user.Driver?.Driver_Sponsor_Org?.map(
         (dso: { Org_ID: number; Sponsor_Org: { Org_ID: number; Org_Name: string } }) => ({
           Org_ID: dso.Sponsor_Org.Org_ID,
           Org_Name: dso.Sponsor_Org.Org_Name,

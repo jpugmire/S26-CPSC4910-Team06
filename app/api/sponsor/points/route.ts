@@ -6,7 +6,7 @@ import { auth } from "@/auth"
 
 export async function POST(req: NextRequest) {
   try {
-    const { driverId, pointValue } = await req.json()
+    const { driverId, pointValue, reason } = await req.json()
     const session  = await auth();
 
     // Validation
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!driverId || !pointValue ) {
+    if (!driverId || pointValue === undefined || pointValue === null ) {
       return NextResponse.json(
         { error: "Driver ID and Point Value required." },
         { status: 400 }
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Sponsor has no Org_ID" }, { status: 400 })
     }
 
-    // Update driver's points
+    // Update driver's points (trigger will create audit log)
     const driver = await prisma.driver_Sponsor_Org.update({
         where:
         {
@@ -54,6 +54,16 @@ export async function POST(req: NextRequest) {
         {
             Point_Count: {increment: pointValue},
         },
+    })
+
+    // Create audit log entry with the reason
+    await prisma.audit.create({
+      data: {
+        User_ID: driverId,
+        Message: `User points changed from ${driver.Point_Count - pointValue} to ${driver.Point_Count}`,
+        Message_Type_ID: 5, // User Points Changed
+        Note: reason || null,
+      },
     })
 
     return NextResponse.json(

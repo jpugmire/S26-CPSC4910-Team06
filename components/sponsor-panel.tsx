@@ -88,7 +88,7 @@ export default function SponsorPanel() {
                 </td>
                 <td className="px-4 py-2 border">{driver.Username}</td>
                 <td className="px-4 py-2 border">{driver.Status}</td>
-                <td className="px-4 py-2 border">{driver.Driver?.driverSponsorOrgs?.[0]?.Point_Count ?? 0}</td>
+                <td className="px-4 py-2 border">{driver.Driver?.Driver_Sponsor_Org?.[0]?.Point_Count ?? 0}</td>
                 </tr>
             ))}
             </tbody>
