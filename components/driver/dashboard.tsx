@@ -6,6 +6,7 @@ import { PointsOverview } from "./points-overview"
 import { OrganizationCard } from "./organization-card"
 import { RecentTransactions } from "./recent-transactions"
 import { MembershipStatus } from "./membership-status"
+import { AuditReportPanel } from "@/components/audit-report-panel"
 
 type PendingApplication = {
   Application_ID: number
@@ -39,7 +40,7 @@ type DriverDashboardData = {
   joinedOrganizations: JoinedOrganization[]
 }
 
-export default function DriverDashboard() {
+export default function DriverDashboard({ driverId }: { driverId: number }) {
   const [data, setData] = useState<DriverDashboardData | null>(null)
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
@@ -153,6 +154,15 @@ export default function DriverDashboard() {
         >
           View Catalog
         </Link>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-4">Your Activity Log</h2>
+        <AuditReportPanel
+          orgId={selectedOrgId}
+          isDriver={true}
+          driverId={driverId}
+        />
       </div>
     </div>
   )

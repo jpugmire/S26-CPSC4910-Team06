@@ -30,14 +30,16 @@ type AuditRow = {
 interface AuditReportPanelProps {
   orgId?: number | null; // null/undefined = admin (sees all)
   isAdmin?: boolean; // true if user is admin
+  isDriver?: boolean; // true if user is driver (only sees own logs)
+  driverId?: number; // driver's User_ID (only used if isDriver=true)
 }
 
-export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
+export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditReportPanelProps) {
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [minDate, setMinDate] = useState<string>("");
   const [maxDate, setMaxDate] = useState<string>("");
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>(isDriver && driverId ? [driverId] : []);
   const [userIdInput, setUserIdInput] = useState<string>("");
   const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
   const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([]);
@@ -65,6 +67,15 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 		};
 		const fetchUsers = async () => {
 			try {
+				// In driver mode, we don't need to fetch users (no filter shown)
+				// But we still need something to display the username in the table
+				// Create a placeholder for now
+				if (isDriver && driverId) {
+					// Driver will see their own logs, we'll fetch the name from the audit data
+					setUsers([]);
+					return;
+				}
+				
 				// Use different endpoint based on user type
 				const endpoint = isAdmin ? "/api/admin/users" : "/api/sponsor/users";
 				const res = await fetch(endpoint);
@@ -82,7 +93,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 		};
 		fetchSponsorOrgs();
 		fetchUsers();
-	}, [isAdmin]);
+	}, [isAdmin, isDriver, driverId]);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -237,19 +248,25 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   function downloadAsCSV() {
     if (!results || results.length === 0) return;
 
-    // Create CSV headers
-    const headers = ["Audit_ID", "User", "Organization", "Message", "Note", "Message_Type_ID", "Date_Created"];
+    // Create CSV headers based on user role
+    const headers: string[] = ["Audit_ID"];
+    if (!isDriver) headers.push("User");
+    if (isAdmin) headers.push("Organization");
+    headers.push("Message", "Note", "Message_Type_ID", "Date_Created");
     
     // Create CSV rows
-    const rows = results.map((row) => [
-      row.Audit_ID,
-      row.User?.Username || `User ${row.User_ID}`,
-      row.Org_Name || "-",
-      `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
-      `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
-      row.Message_Type_ID,
-      new Date(row.Date_Created).toLocaleString(),
-    ]);
+    const rows = results.map((row) => {
+      const rowData: string[] = [String(row.Audit_ID)];
+      if (!isDriver) rowData.push(row.User?.Username || `User ${row.User_ID}`);
+      if (isAdmin) rowData.push(row.Org_Name || "-");
+      rowData.push(
+        `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
+        `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
+        String(row.Message_Type_ID),
+        new Date(row.Date_Created).toLocaleString()
+      );
+      return rowData;
+    });
 
     // Combine headers and rows
     const csvContent = [
@@ -410,42 +427,44 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
             )}
           </div>
         )}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="userSelect" className="text-sm font-medium text-gray-700">
-            Filter by User (optional)
-          </label>
-          <select
-            id="userSelect"
-            value=""
-            onChange={handleUserSelect}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select User</option>
-            {users.map((user) => (
-              <option key={user.User_ID} value={user.User_ID}>
-                {user.Username}
-              </option>
-            ))}
-          </select>
-          {selectedUserIds.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {selectedUserIds.map((userId) => (
-                <div
-                  key={userId}
-                  className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
-                >
-                  <span>{getUsernameById(userId)}</span>
-                  <button
-                    onClick={() => removeUserId(userId)}
-                    className="text-blue-700 hover:text-blue-900 font-bold"
-                  >
-                    ×
-                  </button>
-                </div>
+        {!isDriver && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="userSelect" className="text-sm font-medium text-gray-700">
+              Filter by User (optional)
+            </label>
+            <select
+              id="userSelect"
+              value=""
+              onChange={handleUserSelect}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select User</option>
+              {users.map((user) => (
+                <option key={user.User_ID} value={user.User_ID}>
+                  {user.Username}
+                </option>
               ))}
-            </div>
-          )}
-        </div>
+            </select>
+            {selectedUserIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedUserIds.map((userId) => (
+                  <div
+                    key={userId}
+                    className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                  >
+                    <span>{getUsernameById(userId)}</span>
+                    <button
+                      onClick={() => removeUserId(userId)}
+                      className="text-blue-700 hover:text-blue-900 font-bold"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <label htmlFor="minDate" className="text-sm font-medium text-gray-700">
             Min Date (optional)
@@ -602,9 +621,11 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Audit_ID")}>
                       Audit ID <SortIndicator column="Audit_ID" />
                     </th>
-                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
-                      User <SortIndicator column="User_ID" />
-                    </th>
+                    {!isDriver && (
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
+                        User <SortIndicator column="User_ID" />
+                      </th>
+                    )}
                     {isAdmin && (
                       <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Org_Name")}>
                         Organization <SortIndicator column="Org_Name" />
@@ -624,7 +645,9 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   {paginatedResults.map((row) => (
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
-                      <td className="px-4 py-3 text-gray-700">{getUsernameById(row.User_ID)}</td>
+                      {!isDriver && (
+                        <td className="px-4 py-3 text-gray-700">{row.User?.Username || `User ${row.User_ID}`}</td>
+                      )}
                       {isAdmin && (
                         <td className="px-4 py-3 text-gray-700">{row.Org_Name ?? "-"}</td>
                       )}

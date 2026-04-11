@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const role = session.user?.role;
-  if (role !== "S" && role !== "A") {
+  if (role !== "S" && role !== "A" && role !== "D") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -15,6 +15,17 @@ export async function GET(req: NextRequest) {
   const typeIds = typeParams.map(Number).filter((n) => !isNaN(n));
   if (typeIds.length === 0) {
     return NextResponse.json({ error: "No types provided" }, { status: 400 });
+  }
+
+  // For drivers, restrict to their own logs only
+  if (role === "D") {
+    const userIdParams = req.nextUrl.searchParams.getAll("userId");
+    const userIds = userIdParams.map(Number).filter((n) => !isNaN(n));
+    
+    // Driver can only view their own logs
+    if (userIds.length === 0 || !userIds.includes(Number(session.user.id))) {
+      return NextResponse.json({ error: "Drivers can only view their own logs" }, { status: 403 });
+    }
   }
 
   const orgIdParam = req.nextUrl.searchParams.get("orgId");
