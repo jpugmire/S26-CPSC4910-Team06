@@ -63,7 +63,7 @@ export function PointForm() {
             className="w-full border px-3 py-2 rounded-md"
           >
             <option value="">Select Driver</option>
-            {drivers.map((driver) => (
+            {drivers.filter(user => user.Driver).map((driver) => (
               <option key={driver.User_ID} value={driver.User_ID}>
                 {driver.Username}
               </option>
