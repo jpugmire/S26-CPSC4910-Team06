@@ -44,12 +44,12 @@ export async function GET() {
     console.log("Driver-org associations:", driverOrgAssociations);
 
     // Get the User_IDs from those associations
-    const userIds = driverOrgAssociations.map(a => a.User_ID);
+    const driverUserIds = driverOrgAssociations.map(a => a.User_ID);
 
     // Now fetch the user details for those drivers
     const drivers = await prisma.user.findMany({
       where: {
-        User_ID: { in: userIds },
+        User_ID: { in: driverUserIds },
       },
       select: {
         User_ID: true,
@@ -69,12 +69,38 @@ export async function GET() {
       },
     }));
 
-    console.log("Drivers fetched successfully:", driversWithPoints);
+    // Find all sponsors in my org
+    const sponsorUsers = await prisma.sponsor.findMany({
+      where: { Org_ID: orgId },
+      select: { User_ID: true },
+    });
+
+    const sponsorUserIds = sponsorUsers.map(s => s.User_ID);
+
+    // Fetch sponsor user details
+    const sponsors = await prisma.user.findMany({
+      where: {
+        User_ID: { in: sponsorUserIds },
+      },
+      select: {
+        User_ID: true,
+        Username: true,
+        Status: true,
+      },
+      orderBy: {
+        Username: "asc",
+      },
+    });
+
+    // Combine drivers and sponsors into a single list
+    const allUsers = [...driversWithPoints, ...sponsors];
+
+    console.log("Users fetched successfully:", allUsers);
 
     return NextResponse.json(
       {
-        message: "Successfully fetched all drivers in this sponsor org.",
-        drivers: driversWithPoints,
+        message: "Successfully fetched all users in this sponsor org.",
+        drivers: allUsers,
       },
       { status: 201 }
     )

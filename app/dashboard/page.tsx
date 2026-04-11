@@ -31,7 +31,7 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
           Driver Dashboard
         </h1>
-        <DriverDashboard />
+        <DriverDashboard driverId={Number(session.user.id)} />
       </main>
     </div>
   )

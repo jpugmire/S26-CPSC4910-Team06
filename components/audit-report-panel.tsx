@@ -10,7 +10,10 @@ const AUDIT_TYPES: { value: number; label: string }[] = [
     { value: 4, label: "User Signed In" },
     { value: 5, label: "User Points Changed" },
     { value: 6, label: "Conversion Rate Updated" },
-    { value: 7, label: "Purchase Made" }
+    { value: 7, label: "Purchase Made" },
+    { value: 8, label: "Driver Application Created" },
+    { value: 9, label: "Driver Application Approved" },
+    { value: 10, label: "Driver Application Rejected" }
 ];
 
 type AuditRow = {
@@ -20,33 +23,41 @@ type AuditRow = {
   Message: string;
   Message_Type_ID: number;
   Note: string | null;
+  Org_Name: string | null;
+  User: {
+    User_ID: number;
+    Username: string;
+  };
 };
 
 interface AuditReportPanelProps {
   orgId?: number | null; // null/undefined = admin (sees all)
   isAdmin?: boolean; // true if user is admin
+  isDriver?: boolean; // true if user is driver (only sees own logs)
+  driverId?: number; // driver's User_ID (only used if isDriver=true)
 }
 
-export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
+export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditReportPanelProps) {
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [minDate, setMinDate] = useState<string>("");
   const [maxDate, setMaxDate] = useState<string>("");
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>(isDriver && driverId ? [driverId] : []);
   const [userIdInput, setUserIdInput] = useState<string>("");
   const [selectedOrgIds, setSelectedOrgIds] = useState<number[]>([]);
   const [sponsorOrgs, setSponsorOrgs] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
+  const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | "Org_Name" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageInput, setPageInput] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-	// Fetch sponsor organizations
+	// Fetch sponsor organizations and users
 	useEffect(() => {
 		const fetchSponsorOrgs = async () => {
 			try {
@@ -57,8 +68,35 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
 				console.error("Failed to fetch sponsor organizations:", err);
 			}
 		};
+		const fetchUsers = async () => {
+			try {
+				// In driver mode, we don't need to fetch users (no filter shown)
+				// But we still need something to display the username in the table
+				// Create a placeholder for now
+				if (isDriver && driverId) {
+					// Driver will see their own logs, we'll fetch the name from the audit data
+					setUsers([]);
+					return;
+				}
+				
+				// Use different endpoint based on user type
+				const endpoint = isAdmin ? "/api/admin/users" : "/api/sponsor/users";
+				const res = await fetch(endpoint);
+				if (!res.ok) {
+					console.error("Failed to fetch users:", res.status);
+					return;
+				}
+				const data = await res.json();
+				// Admin endpoint returns 'users', Sponsor endpoint returns 'drivers'
+				const userList = data.users || data.drivers || [];
+				setUsers(userList);
+			} catch (err) {
+				console.error("Failed to fetch users:", err);
+			}
+		};
 		fetchSponsorOrgs();
-	}, []);
+		fetchUsers();
+	}, [isAdmin, isDriver, driverId]);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -123,8 +161,21 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     }
   }
 
+  function handleUserSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const userId = Number(e.target.value);
+    if (userId && !selectedUserIds.includes(userId)) {
+      setSelectedUserIds((prev) => [...prev, userId]);
+      e.target.value = "";
+    }
+  }
+
   function removeUserId(userId: number) {
     setSelectedUserIds((prev) => prev.filter((id) => id !== userId));
+  }
+
+  function getUsernameById(userId: number): string {
+    const user = users.find((u) => u.User_ID === userId);
+    return user?.Username || `User ${userId}`;
   }
 
   function removeOrgId(orgIdNum: number) {
@@ -173,7 +224,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
       ? AUDIT_TYPES.find((t) => t.value === selectedTypes[0])?.label ?? "1 selected"
       : `${selectedTypes.length} types selected`;
 
-  type SortableColumn = "Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created";
+  type SortableColumn = "Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | "Org_Name";
 
   function handleSort(column: SortableColumn) {
     if (sortColumn === column) {
@@ -200,18 +251,25 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   function downloadAsCSV() {
     if (!results || results.length === 0) return;
 
-    // Create CSV headers
-    const headers = ["Audit_ID", "User_ID", "Message", "Note", "Message_Type_ID", "Date_Created"];
+    // Create CSV headers based on user role
+    const headers: string[] = ["Audit_ID"];
+    if (!isDriver) headers.push("User");
+    if (isAdmin) headers.push("Organization");
+    headers.push("Message", "Note", "Message_Type_ID", "Date_Created");
     
     // Create CSV rows
-    const rows = results.map((row) => [
-      row.Audit_ID,
-      row.User_ID,
-      `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
-      `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
-      row.Message_Type_ID,
-      new Date(row.Date_Created).toLocaleString(),
-    ]);
+    const rows = results.map((row) => {
+      const rowData: string[] = [String(row.Audit_ID)];
+      if (!isDriver) rowData.push(row.User?.Username || `User ${row.User_ID}`);
+      if (isAdmin) rowData.push(row.Org_Name || "-");
+      rowData.push(
+        `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
+        `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
+        String(row.Message_Type_ID),
+        new Date(row.Date_Created).toLocaleString()
+      );
+      return rowData;
+    });
 
     // Combine headers and rows
     const csvContent = [
@@ -372,48 +430,44 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
             )}
           </div>
         )}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="userIdInput" className="text-sm font-medium text-gray-700">
-            Filter by User ID(s) (optional)
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="userIdInput"
-              type="number"
-              placeholder="Enter User ID"
-              value={userIdInput}
-              onChange={(e) => setUserIdInput(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") addUserId();
-              }}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              onClick={addUserId}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+        {!isDriver && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="userSelect" className="text-sm font-medium text-gray-700">
+              Filter by User (optional)
+            </label>
+            <select
+              id="userSelect"
+              value=""
+              onChange={handleUserSelect}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              Add
-            </button>
-          </div>
-          {selectedUserIds.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {selectedUserIds.map((userId) => (
-                <div
-                  key={userId}
-                  className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
-                >
-                  <span>User {userId}</span>
-                  <button
-                    onClick={() => removeUserId(userId)}
-                    className="text-blue-700 hover:text-blue-900 font-bold"
-                  >
-                    ×
-                  </button>
-                </div>
+              <option value="">Select User</option>
+              {users.map((user) => (
+                <option key={user.User_ID} value={user.User_ID}>
+                  {user.Username}
+                </option>
               ))}
-            </div>
-          )}
-        </div>
+            </select>
+            {selectedUserIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedUserIds.map((userId) => (
+                  <div
+                    key={userId}
+                    className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                  >
+                    <span>{getUsernameById(userId)}</span>
+                    <button
+                      onClick={() => removeUserId(userId)}
+                      className="text-blue-700 hover:text-blue-900 font-bold"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <label htmlFor="minDate" className="text-sm font-medium text-gray-700">
             Min Date (optional)
@@ -570,9 +624,16 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Audit_ID")}>
                       Audit ID <SortIndicator column="Audit_ID" />
                     </th>
-                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
-                      User ID <SortIndicator column="User_ID" />
-                    </th>
+                    {!isDriver && (
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
+                        User <SortIndicator column="User_ID" />
+                      </th>
+                    )}
+                    {isAdmin && (
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Org_Name")}>
+                        Organization <SortIndicator column="Org_Name" />
+                      </th>
+                    )}
                     <th className="px-4 py-3 border-b">Message</th>
                     <th className="px-4 py-3 border-b">Note</th>
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Message_Type_ID")}>
@@ -587,7 +648,12 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                   {paginatedResults.map((row) => (
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.User_ID}</td>
+                      {!isDriver && (
+                        <td className="px-4 py-3 text-gray-700">{row.User?.Username || `User ${row.User_ID}`}</td>
+                      )}
+                      {isAdmin && (
+                        <td className="px-4 py-3 text-gray-700">{row.Org_Name ?? "-"}</td>
+                      )}
                       <td className="px-4 py-3 text-gray-700">{row.Message}</td>
                       <td className="px-4 py-3 text-gray-700">{row.Note ?? "-"}</td>
                       <td className="px-4 py-3">

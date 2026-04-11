@@ -35,27 +35,6 @@ END;
 
 -- Delete the old trigger
 DROP TRIGGER IF EXISTS trg_driver_sponsor_org_points_update;
--- Trigger: Driver_Sponsor_Org AFTER UPDATE (for driver org-specific points)
-CREATE TRIGGER trg_driver_sponsor_org_points_update
-AFTER UPDATE ON Driver_Sponsor_Org
-FOR EACH ROW
-BEGIN
-    -- Only log if Point_Count actually changed
-    IF OLD.Point_Count <> NEW.Point_Count THEN
-        INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
-        VALUES (
-            NEW.User_ID,
-            NOW(),
-            5,
-            CONCAT(
-                'User points changed from ',
-                OLD.Point_Count,
-                ' to ',
-                NEW.Point_Count
-            )
-        );
-    END IF;
-END;
 
 -- Delete the old trigger
 DROP TRIGGER IF EXISTS trg_sponsor_point_value_update;
@@ -99,4 +78,60 @@ BEGIN
             (SELECT Item_Name FROM Catalog_Item WHERE Item_ID = NEW.Item_ID)
         )
     );
+END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_driver_application_after_insert;
+-- Trigger: Driver_Application AFTER INSERT
+CREATE TRIGGER trg_driver_application_after_insert
+AFTER INSERT ON Driver_Application
+FOR EACH ROW
+BEGIN
+    INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+    VALUES (
+        NEW.User_ID,
+        NOW(),
+        8,
+        CONCAT(
+            'Driver application created for ',
+            (SELECT Org_Name FROM Sponsor_Org WHERE Org_ID = NEW.Org_ID)
+        )
+    );
+END;
+
+-- Delete the old trigger
+DROP TRIGGER IF EXISTS trg_driver_application_after_update;
+-- Trigger: Driver_Application AFTER UPDATE
+CREATE TRIGGER trg_driver_application_after_update
+AFTER UPDATE ON Driver_Application
+FOR EACH ROW
+BEGIN
+    -- Only log if Status changed
+    IF OLD.Status <> NEW.Status THEN
+        -- Approved (P → A)
+        IF OLD.Status = 'P' AND NEW.Status = 'A' THEN
+            INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+            VALUES (
+                NEW.User_ID,
+                NOW(),
+                9,
+                CONCAT(
+                    'Driver application approved for ',
+                    (SELECT Org_Name FROM Sponsor_Org WHERE Org_ID = NEW.Org_ID)
+                )
+            );
+        -- Rejected (P → R or A → R)
+        ELSEIF NEW.Status = 'R' THEN
+            INSERT INTO Audit (User_ID, Date_Created, Message_Type_ID, Message)
+            VALUES (
+                NEW.User_ID,
+                NOW(),
+                10,
+                CONCAT(
+                    'Driver application rejected for ',
+                    (SELECT Org_Name FROM Sponsor_Org WHERE Org_ID = NEW.Org_ID)
+                )
+            );
+        END IF;
+    END IF;
 END;
