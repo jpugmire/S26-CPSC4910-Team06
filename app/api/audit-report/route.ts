@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   const sortColumnParam = req.nextUrl.searchParams.get("sortColumn");
   const sortOrderParam = req.nextUrl.searchParams.get("sortOrder");
-  const sortColumn = ["Audit_ID", "User_ID", "Message_Type_ID", "Date_Created"].includes(sortColumnParam || "") ? sortColumnParam : null;
+  const sortColumn = ["Audit_ID", "User_ID", "Message_Type_ID", "Date_Created", "Org_Name"].includes(sortColumnParam || "") ? sortColumnParam : null;
   const sortOrder = sortOrderParam === "desc" ? "desc" : "asc";
 
   const minDateParam = req.nextUrl.searchParams.get("minDate");
@@ -89,8 +89,54 @@ export async function GET(req: NextRequest) {
         },
       } : {}),
     },
-    orderBy,
+    include: {
+      User: {
+        select: {
+          User_ID: true,
+          Username: true,
+        },
+      },
+    },
+    orderBy: sortColumn === "Org_Name" ? { User: { Sponsor: { Sponsor_Org: { Org_Name: sortOrder } } } } : orderBy,
   });
 
-  return NextResponse.json(rows);
+  // Enrich rows with org information
+  const enrichedRows = await Promise.all(
+    rows.map(async (row) => {
+      // Try to find org through Sponsor relationship
+      const sponsor = await prisma.sponsor.findUnique({
+        where: { User_ID: row.User_ID },
+        select: { Sponsor_Org: { select: { Org_Name: true } } },
+      });
+      
+      // If not a sponsor, try to find org through Driver_Sponsor_Org relationship
+      let orgName: string | null = sponsor?.Sponsor_Org?.Org_Name || null;
+      
+      if (!orgName) {
+        const driverOrg = await prisma.driver_Sponsor_Org.findFirst({
+          where: { User_ID: row.User_ID },
+          select: { Sponsor_Org: { select: { Org_Name: true } } },
+        });
+        orgName = driverOrg?.Sponsor_Org?.Org_Name || null;
+      }
+      
+      return {
+        ...row,
+        Org_Name: orgName,
+      };
+    })
+  );
+
+  // Sort by Org_Name if needed (since we can't do it at the database level easily)
+  if (sortColumn === "Org_Name") {
+    enrichedRows.sort((a, b) => {
+      const aOrgName = a.Org_Name || "";
+      const bOrgName = b.Org_Name || "";
+      return sortOrder === "asc" 
+        ? aOrgName.localeCompare(bOrgName)
+        : bOrgName.localeCompare(aOrgName);
+    });
+  }
+
+  return NextResponse.json(enrichedRows);
 }

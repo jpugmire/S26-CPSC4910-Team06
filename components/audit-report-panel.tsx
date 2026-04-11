@@ -20,6 +20,11 @@ type AuditRow = {
   Message: string;
   Message_Type_ID: number;
   Note: string | null;
+  Org_Name: string | null;
+  User: {
+    User_ID: number;
+    Username: string;
+  };
 };
 
 interface AuditReportPanelProps {
@@ -40,7 +45,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
   const [results, setResults] = useState<AuditRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | null>(null);
+  const [sortColumn, setSortColumn] = useState<"Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | "Org_Name" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -205,7 +210,7 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
       ? AUDIT_TYPES.find((t) => t.value === selectedTypes[0])?.label ?? "1 selected"
       : `${selectedTypes.length} types selected`;
 
-  type SortableColumn = "Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created";
+  type SortableColumn = "Audit_ID" | "User_ID" | "Message_Type_ID" | "Date_Created" | "Org_Name";
 
   function handleSort(column: SortableColumn) {
     if (sortColumn === column) {
@@ -233,12 +238,13 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
     if (!results || results.length === 0) return;
 
     // Create CSV headers
-    const headers = ["Audit_ID", "User_ID", "Message", "Note", "Message_Type_ID", "Date_Created"];
+    const headers = ["Audit_ID", "User", "Organization", "Message", "Note", "Message_Type_ID", "Date_Created"];
     
     // Create CSV rows
     const rows = results.map((row) => [
       row.Audit_ID,
-      row.User_ID,
+      row.User?.Username || `User ${row.User_ID}`,
+      row.Org_Name || "-",
       `"${(row.Message || "").replace(/"/g, '""')}"`, // Escape quotes in message
       `"${(row.Note || "").replace(/"/g, '""')}"`, // Escape quotes in note
       row.Message_Type_ID,
@@ -599,6 +605,11 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
                       User <SortIndicator column="User_ID" />
                     </th>
+                    {isAdmin && (
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Org_Name")}>
+                        Organization <SortIndicator column="Org_Name" />
+                      </th>
+                    )}
                     <th className="px-4 py-3 border-b">Message</th>
                     <th className="px-4 py-3 border-b">Note</th>
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Message_Type_ID")}>
@@ -614,6 +625,9 @@ export function AuditReportPanel({ orgId, isAdmin }: AuditReportPanelProps) {
                     <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
                       <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
                       <td className="px-4 py-3 text-gray-700">{getUsernameById(row.User_ID)}</td>
+                      {isAdmin && (
+                        <td className="px-4 py-3 text-gray-700">{row.Org_Name ?? "-"}</td>
+                      )}
                       <td className="px-4 py-3 text-gray-700">{row.Message}</td>
                       <td className="px-4 py-3 text-gray-700">{row.Note ?? "-"}</td>
                       <td className="px-4 py-3">
