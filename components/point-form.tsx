@@ -10,6 +10,7 @@ export function PointForm() {
   const [driverId, setDriverId] = useState<number | null>(null)
   const [drivers, setDrivers] = useState<any[]>([])
   const [pointValue, setPointValue] = useState<number>(0);
+  const [reason, setReason] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -32,7 +33,7 @@ export function PointForm() {
       const res = await fetch("/api/sponsor/points", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId, pointValue }),
+        body: JSON.stringify({ driverId, pointValue, reason: reason || null }),
       })
 
       const data = await res.json()
@@ -43,6 +44,7 @@ export function PointForm() {
         setSuccess("Driver points updated successfully!")
         setTimeout(() => setSuccess(""), 3000)
         setPointValue(0);
+        setReason("");
       }
     } catch {
       setError("Something went wrong")
@@ -77,6 +79,17 @@ export function PointForm() {
           onChange={(e) => setPointValue(Number(e.target.value))}
           required
           className="w-full border px-3 py-2 rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Reason (optional)</label>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Reason (optional)"
+          className="w-full border px-3 py-2 rounded-md"
+          rows={3}
         />
       </div>
 
