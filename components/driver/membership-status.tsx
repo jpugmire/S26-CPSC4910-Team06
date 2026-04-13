@@ -102,7 +102,7 @@ export function MembershipStatus({
     .slice(0, 5)
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Membership Status</h2>
 
       {pendingApplications.length > 0 && (

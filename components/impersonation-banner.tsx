@@ -9,7 +9,7 @@ export default function ImpersonationBanner() {
   const userId = session?.user?.id
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <h1 className="text-xl font-bold">Impersonating: {session?.user.username}</h1>

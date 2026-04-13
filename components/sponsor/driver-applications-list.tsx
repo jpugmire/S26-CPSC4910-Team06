@@ -172,7 +172,7 @@ export function DriverApplicationsList() {
   )
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
+    <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold">Driver Applications</h3>
         {pendingApplications.length > 0 && (

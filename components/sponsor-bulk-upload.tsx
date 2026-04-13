@@ -47,7 +47,7 @@ export default function SponsorBulkUploadUsers() {
           <p className="text-green-600">Created: {result.summary?.created || 0}</p>
           <p className="text-red-600">Failed: {result.summary?.failed || 0}</p>
           {result.results && result.results.length > 0 && (
-            <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+            <pre className="mt-2 p-2 bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 rounded text-xs overflow-auto max-h-40">
               {JSON.stringify(result.results, null, 2)}
             </pre>
           )}

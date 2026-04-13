@@ -334,7 +334,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
           {/* Trigger button */}
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-blue-400 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-2 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-blue-400 transition-colors"
           >
             <span>{dropdownLabel}</span>
             {/* Chevron icon */}
@@ -350,7 +350,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
 
           {/* Dropdown menu */}
           {dropdownOpen && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+            <div className="absolute z-10 mt-1 w-full bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-200 rounded-lg shadow-lg">
               {/* Select all */}
               <label className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
                 <input
@@ -621,25 +621,25 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-gray-50 text-left text-gray-600 uppercase text-xs tracking-wide">
-                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Audit_ID")}>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("Audit_ID")}>
                       Audit ID <SortIndicator column="Audit_ID" />
                     </th>
                     {!isDriver && (
-                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("User_ID")}>
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("User_ID")}>
                         User <SortIndicator column="User_ID" />
                       </th>
                     )}
                     {isAdmin && (
-                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Org_Name")}>
+                      <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("Org_Name")}>
                         Organization <SortIndicator column="Org_Name" />
                       </th>
                     )}
                     <th className="px-4 py-3 border-b">Message</th>
                     <th className="px-4 py-3 border-b">Note</th>
-                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Message_Type_ID")}>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("Message_Type_ID")}>
                       Type ID <SortIndicator column="Message_Type_ID" />
                     </th>
-                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100" onClick={() => handleSort("Date_Created")}>
+                    <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("Date_Created")}>
                       Date <SortIndicator column="Date_Created" />
                     </th>
                   </tr>

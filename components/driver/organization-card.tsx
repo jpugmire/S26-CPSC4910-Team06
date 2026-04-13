@@ -49,7 +49,7 @@ export function OrganizationCard({ org, isSelected, onSelect, onLeave }: Organiz
   return (
     <div
       onClick={() => onSelect(org.Org_ID)}
-      className={`bg-white rounded-lg shadow p-4 cursor-pointer transition-all ${
+      className={`bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow p-4 cursor-pointer transition-all ${
         isSelected
           ? "ring-2 ring-blue-500 shadow-md"
           : "hover:shadow-md hover:border-blue-200 border border-transparent"

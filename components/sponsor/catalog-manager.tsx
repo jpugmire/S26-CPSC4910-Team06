@@ -199,7 +199,7 @@ export function SponsorCatalogManager() {
           </div>
 
           {catalog?.items.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded shadow">
+            <div className="text-center py-12 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded shadow">
               <p className="text-gray-500 mb-4">Your catalog is empty.</p>
               <button
                 onClick={() => setShowSearch(true)}
@@ -214,7 +214,7 @@ export function SponsorCatalogManager() {
                 const imageUrl = item.Item_Image_URL
                 const hasValidImage = isValidImageUrl(imageUrl)
                 return (
-                <div key={item.Item_ID} className="bg-white p-4 rounded shadow">
+                <div key={item.Item_ID} className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-4 rounded shadow">
                   {hasValidImage ? (
                     <img
                       src={imageUrl!}
@@ -222,7 +222,7 @@ export function SponsorCatalogManager() {
                       className="w-full h-48 object-contain mb-3"
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center mb-3">
+                    <div className="w-full h-48 bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 flex items-center justify-center mb-3">
                       <span className="text-gray-400 text-sm">No image available</span>
                     </div>
                   )}
@@ -298,7 +298,7 @@ export function SponsorCatalogManager() {
           {searchResults.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {searchResults.map((item) => (
-                <div key={item.itemId} className="bg-white p-4 rounded shadow">
+                <div key={item.itemId} className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-4 rounded shadow">
                   {isValidImageUrl(item.image?.imageUrl) ? (
                     <img
                       src={item.image.imageUrl}
@@ -306,7 +306,7 @@ export function SponsorCatalogManager() {
                       className="w-full h-48 object-contain mb-3"
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center mb-3">
+                    <div className="w-full h-48 bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 flex items-center justify-center mb-3">
                       <span className="text-gray-400 text-sm">No image available</span>
                     </div>
                   )}
@@ -332,7 +332,7 @@ export function SponsorCatalogManager() {
 
       {selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Add Item to Catalog</h3>
             <p className="text-gray-600 mb-4 line-clamp-2">{selectedItem.title}</p>
             <p className="text-gray-600 mb-4">
@@ -374,7 +374,7 @@ export function SponsorCatalogManager() {
 
       {editingItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Edit Point Price</h3>
             <p className="text-gray-600 mb-4 line-clamp-2">{editingItem.Item_Name}</p>
             <div className="mb-4">

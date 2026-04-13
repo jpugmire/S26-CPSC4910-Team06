@@ -50,7 +50,7 @@ export default function CatalogSearch({ items }: { items: CatalogItem[] }) {
           {filteredItems.map((item) => (
             <div
               key={item.Item_ID}
-              className="bg-white border rounded-lg shadow-md p-4 flex flex-col justify-between"
+              className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border rounded-lg shadow-md p-4 flex flex-col justify-between"
             >
               {/* Image */}
               {item.Item_Image_URL && (
