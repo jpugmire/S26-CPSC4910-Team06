@@ -132,14 +132,14 @@ export default function DriverApplyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100flex items-center justify-center">
         <p className="text-gray-500">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 py-8 px-4">
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold">Manage Sponsorships</h1>
 
@@ -156,7 +156,7 @@ export default function DriverApplyPage() {
         )}
 
         {status?.joinedOrganizations && status.joinedOrganizations.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-6 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Joined Organizations</h2>
             <div className="space-y-3">
               {status.joinedOrganizations.map((org) => (
@@ -176,7 +176,7 @@ export default function DriverApplyPage() {
         )}
 
         {status?.pendingApplications && status.pendingApplications.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-6 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Pending Applications</h2>
             <div className="space-y-3">
               {status.pendingApplications.map((app) => (

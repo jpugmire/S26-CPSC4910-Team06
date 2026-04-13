@@ -16,7 +16,7 @@ export default async function SponsorCatalogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
       {session?.user?.impersonating && (<ImpersonationBanner />)}
 
