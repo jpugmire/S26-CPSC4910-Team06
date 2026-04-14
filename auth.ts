@@ -81,7 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             html: `<p> Your verification code is: <strong>${otpCode}</strong></p><p>This code expires in 10 minutes.</p>`
           })
 
-          return { id: String(user.User_ID), username: user.Username, email: user.Email, role: user.User_Type, twoFactorPending: true }
+          return { id: String(user.User_ID), username: user.Username, email: user.Email, role: user.User_Type, twoFactorPending: true, emailVerified: user.emailVerified }
         }
 
         return {
@@ -89,6 +89,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           username: user.Username,
           email: null,
           role: user.User_Type,
+          emailVerified: user.emailVerified,
         }
       },
     }),
@@ -120,6 +121,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role
         token.username = user.username
         token.twoFactorPending = user.twoFactorPending ?? false
+        token.emailVerified = user.emailVerified ?? true
         token.impersonationActive = false
         token.impersonatedUserId = null
         token.impersonatedRole = null
@@ -142,6 +144,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         )
 
         session.user.twoFactorPending = Boolean(token.twoFactorPending)
+        session.user.isEmailVerified = Boolean(token.emailVerified ?? true)
 
         session.user.impersonating = isImpersonating
         session.user.realUserId = String(token.sub)

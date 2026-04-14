@@ -8,6 +8,7 @@ declare module "next-auth" {
       role: string
       username: string
       twoFactorPending: boolean
+      isEmailVerified?: boolean
       impersonating?: boolean
       realUserId?: string
       realUserRole?: string
@@ -19,6 +20,7 @@ declare module "next-auth" {
     role: string
     username: string
     twoFactorPending?: boolean
+    emailVerified?: boolean
   }
 }
 
@@ -27,6 +29,7 @@ declare module "next-auth/jwt" {
     role: string
     username: string
     twoFactorPending?: boolean
+    emailVerified?: boolean
     impersonationActive?: boolean
     impersonatedUserId?: string
     impersonatedRole?: string

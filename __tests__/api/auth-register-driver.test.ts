@@ -18,8 +18,15 @@ jest.mock("@/lib/prisma", () => ({
         },
         driver_Application: {
             create: jest.fn()
+        },
+        email_Verification_Token: {
+            create: jest.fn()
         }
     }
+}))
+
+jest.mock("@/lib/email", () => ({
+    sendEmailVerificationEmail: jest.fn().mockResolvedValue(undefined)
 }))
 
 jest.mock("bcryptjs", () => ({
@@ -57,10 +64,22 @@ describe("POST /api/auth/register/driver", () => {
         expect(data.error).toBe("Username and password are required")
     })
 
+    it("rejects missing email", async () => {
+        const response = await POST(new NextRequest(registerUrl, {
+            method: "POST",
+            body: JSON.stringify({ username: "testuser", password: "password123" }),
+            headers: { "Content-Type": "application/json" }
+        }))
+        const data = await response.json()
+
+        expect(response.status).toBe(400)
+        expect(data.error).toBe("Email is required")
+    })
+
     it("rejects short password", async () => {
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "testuser", password: "12345" }),
+            body: JSON.stringify({ username: "testuser", password: "12345", email: "a@b.com" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -74,7 +93,7 @@ describe("POST /api/auth/register/driver", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "existinguser", password: "password123" }),
+            body: JSON.stringify({ username: "existinguser", password: "password123", email: "existing@example.com" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -102,10 +121,11 @@ describe("POST /api/auth/register/driver", () => {
     it("creates driver user successfully without application", async () => {
         ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
         ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 123, Username: "newdriver" })
+        ;(prisma.email_Verification_Token.create as jest.Mock).mockResolvedValue({})
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newdriver", password: "password123" }),
+            body: JSON.stringify({ username: "newdriver", password: "password123", email: "driver@example.com" }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -121,10 +141,11 @@ describe("POST /api/auth/register/driver", () => {
         ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 124, Username: "newdriver2" })
         ;(prisma.sponsor_Org.findUnique as jest.Mock).mockResolvedValue({ Org_ID: 1, Org_Name: "Test Org" })
         ;(prisma.driver_Application.create as jest.Mock).mockResolvedValue({ Application_ID: 1 })
+        ;(prisma.email_Verification_Token.create as jest.Mock).mockResolvedValue({})
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newdriver2", password: "password123", sponsorOrgId: 1 }),
+            body: JSON.stringify({ username: "newdriver2", password: "password123", email: "driver2@example.com", sponsorOrgId: 1 }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -146,10 +167,11 @@ describe("POST /api/auth/register/driver", () => {
         ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
         ;(prisma.user.create as jest.Mock).mockResolvedValue({ User_ID: 125, Username: "newdriver3" })
         ;(prisma.sponsor_Org.findUnique as jest.Mock).mockResolvedValue(null)
+        ;(prisma.email_Verification_Token.create as jest.Mock).mockResolvedValue({})
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "newdriver3", password: "password123", sponsorOrgId: 999 }),
+            body: JSON.stringify({ username: "newdriver3", password: "password123", email: "driver3@example.com", sponsorOrgId: 999 }),
             headers: { "Content-Type": "application/json" }
         }))
         const data = await response.json()
@@ -164,7 +186,7 @@ describe("POST /api/auth/register/driver", () => {
 
         const response = await POST(new NextRequest(registerUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "testuser", password: "password123" }),
+            body: JSON.stringify({ username: "testuser", password: "password123", email: "testuser@example.com" }),
             headers: { "Content-Type": "application/json" }
         }))
 

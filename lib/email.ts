@@ -26,6 +26,19 @@ export async function sendPasswordChangedEmail(to: string, username: string) {
   })
 }
 
+export async function sendEmailVerificationEmail(to: string, username: string, token: string) {
+  const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: "Verify your email address",
+    html: `<p>Hi ${username},</p>
+<p>Thanks for creating an account. Please verify your email address by clicking the link below:</p>
+<p><a href="${verifyUrl}">Verify my email</a></p>
+<p>This link expires in 24 hours. If you did not create an account, you can ignore this email.</p>`,
+  })
+}
+
 export async function sendPointValueChangedEmail(to: string, username: string, orgName: string, newValue: number) {
   await getResend().emails.send({
     from: FROM,
