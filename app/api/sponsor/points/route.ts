@@ -1,8 +1,8 @@
 // app/api/sponsor/points/route.ts
 import { NextRequest, NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { sendPointsChangedEmail } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -65,6 +65,21 @@ export async function POST(req: NextRequest) {
         Note: reason || null,
       },
     })
+
+    const driverUser = await prisma.user.findUnique({
+      where: { User_ID: driverId },
+      select: { Email: true, Username: true, notificationsEnabled: true },
+    })
+
+    if (driverUser?.notificationsEnabled && driverUser.Email) {
+      sendPointsChangedEmail(
+        driverUser.Email,
+        driverUser.Username,
+        pointValue,
+        driver.Point_Count,
+        reason
+      ).catch(() => {})
+    }
 
     return NextResponse.json(
       {

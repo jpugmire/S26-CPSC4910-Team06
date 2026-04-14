@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { sendOrderConfirmationEmail } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,6 +71,20 @@ export async function POST(req: NextRequest) {
         })
       }
     })
+
+    const userInfo = await prisma.user.findUnique({
+      where: { User_ID: userId },
+      select: { Email: true, Username: true, notificationsEnabled: true },
+    })
+
+    if (userInfo?.notificationsEnabled && userInfo.Email) {
+      sendOrderConfirmationEmail(
+        userInfo.Email,
+        userInfo.Username,
+        items.map((i: any) => ({ name: i.Item_Name ?? "Item", points: i.Point_Price ?? 0 })),
+        totalCost
+      ).catch(() => {})
+    }
 
     return NextResponse.json({
       message: "Purchase successful!",

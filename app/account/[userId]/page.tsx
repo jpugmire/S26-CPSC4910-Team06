@@ -34,6 +34,7 @@ export default function AccountPage() {
   const [leaving, setLeaving] = useState(false)
   const [error, setError] = useState("")
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
 
   useEffect(() => {
     async function fetchUser() {
@@ -54,6 +55,7 @@ export default function AccountPage() {
         setEmail(data.Email || "")
         setPhone(data.Phone || "")
         setTwoFactorEnabled(data.twoFactorEnabled ?? false)
+        setNotificationsEnabled(data.notificationsEnabled ?? true)
       } catch {
         setError("Something went wrong while fetching user info")
       } finally {
@@ -124,6 +126,20 @@ export default function AccountPage() {
       setError("Failed to leave organization")
     } finally {
       setLeaving(false)
+    }
+  }
+
+  async function handleToggleNotifications() {
+    const newValue = !notificationsEnabled
+    const res = await fetch(`/api/user/${userId}/notifications`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: newValue }),
+    })
+    if (res.ok) {
+      setNotificationsEnabled(newValue)
+    } else {
+      setError("Failed to update notification setting")
     }
   }
 
@@ -255,6 +271,26 @@ export default function AccountPage() {
                 }`}
               >
                 {twoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
+              </button>
+            </div>
+
+            <hr className="border-gray-200" />
+
+            {/* Notifications */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-1">Email Notifications</h3>
+              <p className="text-sm text-gray-500 mb-3">
+                Receive emails for order confirmations and point balance changes.
+              </p>
+              <button
+                onClick={handleToggleNotifications}
+                className={`text-sm font-medium py-2 px-4 rounded-md transition-colors text-white ${
+                  notificationsEnabled
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {notificationsEnabled ? "Disable Notifications" : "Enable Notifications"}
               </button>
             </div>
 

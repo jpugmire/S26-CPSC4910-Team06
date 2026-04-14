@@ -16,10 +16,12 @@ export async function GET(req: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { User_ID: userId },
       select: {
+        User_ID: true,
         Username: true,
         Email: true,
         Phone: true,
         User_Type: true,
+        notificationsEnabled: true,
         Sponsor: {
           select: {
             Sponsor_Org: {

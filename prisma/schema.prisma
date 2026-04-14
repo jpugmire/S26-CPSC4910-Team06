@@ -150,6 +150,7 @@ model User {
   Phone                String?
   twoFactorEnabled         Boolean                    @default(false)
   emailVerified            Boolean                    @default(true)
+  notificationsEnabled     Boolean                    @default(true)
   Admin                    Admin?
   Audit                    Audit[]
   Driver                   Driver?
