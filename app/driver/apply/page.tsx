@@ -221,7 +221,7 @@ export default function DriverApplyPage() {
           </div>
         )}
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Apply to New Organization</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
