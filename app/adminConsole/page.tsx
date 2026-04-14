@@ -24,82 +24,62 @@ export default async function AdminPage() {
   return (
   <>
     <Navbar />
-    <div className="min-h-screen bg-gray-100 text-zinc-900 flex justify-center py-12 px-8 dark:bg-zinc-900 dark:text-zinc-100">
-      <div className="w-full max-w-6xl flex gap-12">
-        
-        {/* LEFT SIDE — Forms */}
-        <div className="w-1/2 flex flex-col gap-10">
-          
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Create New User
-            </h1>
-            <CreateUserForm />
-          </div>
+    <div className="min-h-screen bg-gray-100 text-zinc-900 py-12 px-8 dark:bg-zinc-900 dark:text-zinc-100">
+      <div className="w-full max-w-7xl mx-auto flex flex-col gap-8">
 
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Create New Sponsor Organization
-            </h1>
-            <CreateSponsorForm />
-          </div>
+        {/* ROW 1 — Forms + Admin Tools */}
+        <div className="flex gap-8 items-start">
 
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Bulk Upload Users
-            </h1>
-            <BulkUploadDrivers />
-          </div>
+          {/* LEFT — Forms */}
+          <div className="w-1/2 flex flex-col gap-6">
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-2xl font-bold text-center mb-6">Create New User</h1>
+              <CreateUserForm />
+            </div>
 
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Bulk Upload Sponsor Orgs
-            </h1>
-            <BulkUploadSponsorOrgs />
-          </div>
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-2xl font-bold text-center mb-6">Create New Sponsor Organization</h1>
+              <CreateSponsorForm />
+            </div>
 
-          <Link
-            href="/dashboard"
-            className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-2xl font-bold text-center mb-6">Bulk Upload Users</h1>
+              <BulkUploadDrivers />
+            </div>
 
-        {/* RIGHT SIDE — Admin Tools */}
-        <div className="w-1/2 bg-white text-zinc-900 shadow-md rounded-lg p-8 h-fit dark:bg-zinc-800 dark:text-zinc-100">
-          
-          <h2 className="text-xl font-bold mb-6">Admin Data</h2>
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-2xl font-bold text-center mb-6">Bulk Upload Sponsor Orgs</h1>
+              <BulkUploadSponsorOrgs />
+            </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-700 dark:text-zinc-100">
-              <AdminPanel />
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-6 dark:bg-zinc-800 dark:text-zinc-100">
+              <h2 className="text-xl font-bold mb-4">Audit Reports</h2>
+              <AuditReportPanel orgId={null} isAdmin={true} />
             </div>
           </div>
 
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-700 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Deactivate Users
-            </h1>
-            <DeactivateUserForm />
+          {/* RIGHT — Admin Tools */}
+          <div className="w-1/2 flex flex-col gap-4">
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-6 dark:bg-zinc-800 dark:text-zinc-100">
+              <h2 className="text-xl font-bold mb-4">Admin Data</h2>
+              <AdminPanel />
+            </div>
+
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-6 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-xl font-bold text-center mb-4">Deactivate Users</h1>
+              <DeactivateUserForm />
+            </div>
+
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-6 dark:bg-zinc-800 dark:text-zinc-100">
+              <h1 className="text-xl font-bold text-center mb-4">Impersonate User</h1>
+              <ImpersonateUserForm />
+            </div>
+
+            <div className="bg-white text-zinc-900 shadow-md rounded-lg p-6 dark:bg-zinc-800 dark:text-zinc-100">
+              <h2 className="text-xl font-bold mb-4">Driver Affiliations</h2>
+              <DriverAffiliationsPanel />
+            </div>
           </div>
-
-          <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-700 dark:text-zinc-100">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Impersonate User
-            </h1>
-            <ImpersonateUserForm />
-          </div>
-        </div>
-
-        <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-          <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
-          <AuditReportPanel orgId={null} isAdmin={true} />
-        </div>
-
-        <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
-          <h2 className="text-xl font-bold mb-6">Driver Affiliations</h2>
-          <DriverAffiliationsPanel />
         </div>
 
       </div>

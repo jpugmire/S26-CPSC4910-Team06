@@ -18,7 +18,9 @@ export function PointForm() {
     const fetchDrivers = async () => {
       const res = await fetch("/api/sponsor/users")
       const data = await res.json()
-      setDrivers(data.drivers)
+      if (res.ok) {
+        setDrivers(data.drivers ?? [])
+      }
     }
     fetchDrivers()
   }, [])
