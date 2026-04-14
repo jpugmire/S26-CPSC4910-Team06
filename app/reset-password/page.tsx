@@ -1,7 +1,17 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import zxcvbn from "zxcvbn"
+
+const strengthLabels = ["Very Weak", "Weak", "Fair", "Strong", "Very Strong"]
+const strengthColors = [
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-yellow-500",
+  "bg-lime-500",
+  "bg-green-500",
+]
 
 function ResetPasswordForm() {
   const router = useRouter()
@@ -10,8 +20,17 @@ function ResetPasswordForm() {
 
   const [newPassword, setNewPassword] = useState("")
   const [confirm, setConfirm] = useState("")
+  const [strength, setStrength] = useState<zxcvbn.ZXCVBNResult | null>(null)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (newPassword) {
+      setStrength(zxcvbn(newPassword))
+    } else {
+      setStrength(null)
+    }
+  }, [newPassword])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,6 +38,11 @@ function ResetPasswordForm() {
 
     if (newPassword !== confirm) {
       setError("Passwords do not match")
+      return
+    }
+
+    if (strength && strength.score < 2) {
+      setError("Please choose a stronger password.")
       return
     }
 
@@ -56,6 +80,24 @@ function ResetPasswordForm() {
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {strength !== null && (
+          <div className="mt-2 space-y-1">
+            <div className="flex gap-1">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-full ${
+                    i <= strength.score ? strengthColors[strength.score] : "bg-gray-200"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">
+              {strengthLabels[strength.score]}
+              {strength.feedback.suggestions[0] ? ` — ${strength.feedback.suggestions[0]}` : ""}
+            </p>
+          </div>
+        )}
       </div>
       <div>
         <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 mb-1">
