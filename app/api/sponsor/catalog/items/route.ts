@@ -37,6 +37,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const sponsorOrg = await prisma.sponsor_Org.findUnique({
+      where: {
+        Org_ID: sponsor.Org_ID,
+      },
+      select: {
+        Point_Dollar_Value: true,
+      },
+    })
+
     let catalog = await prisma.catalog.findFirst({
       where: {
         Org_ID: sponsor.Org_ID,
@@ -89,13 +98,22 @@ export async function POST(req: NextRequest) {
     if (existingItem) {
       catalogItem = existingItem
     } else {
+      const itemDollarPrice = parseFloat(itemDetails.price?.value || "0")
+      const pointConversionRate = sponsorOrg?.Point_Dollar_Value 
+        ? parseFloat(String(sponsorOrg.Point_Dollar_Value)) 
+        : 1.0
+      
+      const calculatedPointPrice = pointPrice !== undefined && pointPrice !== null
+        ? pointPrice
+        : Math.round(itemDollarPrice * pointConversionRate)
+
       catalogItem = await prisma.catalog_Item.create({
         data: {
           Item_Name: itemDetails.title.substring(0, 255),
           Item_Description: itemDetails.description || itemDetails.shortDescription,
           Item_Image_URL: itemDetails.image?.imageUrl,
           Ebay_Item_ID: ebayItemId,
-          Point_Price: pointPrice || null,
+          Point_Price: calculatedPointPrice,
         },
       })
     }
