@@ -14,6 +14,9 @@ jest.mock("@/lib/prisma", () => ({
         sponsor: {
             findFirst: jest.fn()
         },
+        sponsor_Org: {
+            findUnique: jest.fn()
+        },
         catalog: {
             findFirst: jest.fn(),
             create: jest.fn()
@@ -177,11 +180,13 @@ describe("POST /api/sponsor/catalog/items", () => {
     it("adds item to catalog successfully", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
         ;(prisma.sponsor.findFirst as jest.Mock).mockResolvedValue(mockSponsor)
+        ;(prisma.sponsor_Org.findUnique as jest.Mock).mockResolvedValue({ Point_Dollar_Value: 100 })
         ;(prisma.catalog.findFirst as jest.Mock).mockResolvedValue(mockCatalog)
         ;(prisma.catalog_Item.findFirst as jest.Mock).mockResolvedValue(null)
         mockGetEbayItemDetails.mockResolvedValue({
             title: "Test Item",
             description: "Test description",
+            price: { value: "10.00" },
             image: { imageUrl: "http://example.com/image.jpg" }
         })
         ;(prisma.catalog_Item.create as jest.Mock).mockResolvedValue(mockItem)
@@ -201,6 +206,7 @@ describe("POST /api/sponsor/catalog/items", () => {
     it("handles duplicate item in catalog", async () => {
         mockAuth.mockResolvedValue({ user: { id: "1", role: "S" } })
         ;(prisma.sponsor.findFirst as jest.Mock).mockResolvedValue(mockSponsor)
+        ;(prisma.sponsor_Org.findUnique as jest.Mock).mockResolvedValue({ Point_Dollar_Value: 100 })
         ;(prisma.catalog.findFirst as jest.Mock).mockResolvedValue(mockCatalog)
         ;(prisma.catalog_Item.findFirst as jest.Mock).mockResolvedValue(mockItem)
         ;(prisma.catalog_Listing.findFirst as jest.Mock).mockResolvedValue({})

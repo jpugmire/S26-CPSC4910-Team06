@@ -10,6 +10,7 @@ import BulkUploadDrivers from "@/components/admin-bulk-upload";
 import BulkUploadSponsorOrgs from "@/components/admin-bulk-upload-sponsorOrg";
 import { AuditReportPanel } from "@/components/audit-report-panel";
 import { ImpersonateUserForm } from "@/components/impersonation-form";
+import { DriverAffiliationsPanel } from "@/components/admin-driver-affiliations";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -94,6 +95,11 @@ export default async function AdminPage() {
         <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
           <h2 className="text-xl font-bold mb-6">Audit Reports</h2>
           <AuditReportPanel orgId={null} isAdmin={true} />
+        </div>
+
+        <div className="bg-white text-zinc-900 shadow-md rounded-lg p-8 dark:bg-zinc-800 dark:text-zinc-100">
+          <h2 className="text-xl font-bold mb-6">Driver Affiliations</h2>
+          <DriverAffiliationsPanel />
         </div>
 
       </div>
