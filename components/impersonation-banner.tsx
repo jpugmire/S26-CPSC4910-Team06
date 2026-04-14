@@ -6,7 +6,7 @@ import { StopImpersonationButton } from "@/components/stop-impersonation-button"
 export default function ImpersonationBanner() {
   const { data: session, status } = useSession();
 
-  const userId = session?.user?.id
+  if (!session?.user?.impersonating) return null
 
   return (
     <nav className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-sm">

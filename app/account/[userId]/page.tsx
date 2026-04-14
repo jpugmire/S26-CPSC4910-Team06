@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Navbar from "@/components/navbar"
 import ImpersonationBanner from "@/components/impersonation-banner"
-import { auth } from "@/auth"
 
 type JoinedOrganization = {
   Org_ID: number
@@ -23,8 +22,7 @@ type UserData = {
   twoFactorEnabled: boolean
 }
 
-export default async function AccountPage() {
-  const session = await auth();
+export default function AccountPage() {
   const params = useParams()
   const userId = params.userId as string
 
@@ -179,7 +177,7 @@ export default async function AccountPage() {
   return (
     <>
       <Navbar />
-      {session?.user?.impersonating && (<ImpersonationBanner />)}
+      <ImpersonationBanner />
       <div className="min-h-screen bg-gray-50 py-10 px-4">
         <div className="max-w-lg mx-auto">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Details</h1>
