@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react"
 import { LogoutButton } from "@/components/logout-button"
+import { ThemeToggle } from "./theme-toggle";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -10,9 +11,10 @@ export default function Navbar() {
   const userId = session?.user?.id
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 text-black shadow-sm dark:bg-zinc-900 dark:text-zinc-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          <ThemeToggle/>
           <h1 className="text-xl font-bold">Driver Rewards Dashboard</h1>
           <h3 className="text-md">Welcome, {status === "loading" ? "..." : session?.user?.username}</h3>
           <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">Dashboard</Link>

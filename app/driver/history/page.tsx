@@ -32,11 +32,11 @@ export default async function HistoryPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
 
       <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-6">
           <h1 className="text-2xl font-bold mb-6 text-center">
             Purchase History
           </h1>

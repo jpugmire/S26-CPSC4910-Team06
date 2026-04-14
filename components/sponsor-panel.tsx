@@ -69,7 +69,7 @@ export default function SponsorPanel() {
           Point Dollar Value:{" "}
           {pointDollarValue !== null ? pointDollarValue : "N/A"}
         </h2>
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
           <tr>
             <th className="px-4 py-2 border">ID</th>
             <th className="px-4 py-2 border">Username</th>

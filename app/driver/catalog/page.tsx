@@ -31,13 +31,13 @@ export default async function DriverCatalogPage() {
 
   if (!driver || driver.Driver_Sponsor_Org.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
         <Navbar />
         {session?.user?.impersonating && (<ImpersonationBanner />)}
         <main className="max-w-7xl mx-auto py-6 px-4">
           <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
 
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-lg p-6">
             <p>No organization assigned.</p>
           </div>
         </main>
@@ -73,13 +73,13 @@ export default async function DriverCatalogPage() {
   const pointBalance = firstOrg.Point_Count
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
       {session?.user?.impersonating && (<ImpersonationBanner />)}
       <main className="max-w-7xl mx-auto py-6 px-4">
         <h1 className="text-3xl font-bold mb-6">Driver Catalog</h1>
 
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-lg p-6 mb-6">
           <p>
             <strong>Organization:</strong> {firstOrg.Sponsor_Org.Org_Name}
           </p>
@@ -94,7 +94,7 @@ export default async function DriverCatalogPage() {
         </div>
 
         {catalog ? (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-lg p-6">
             <p className="font-semibold mb-4">Catalog Items:</p>
 
             {listings.length === 0 ? (
@@ -104,7 +104,7 @@ export default async function DriverCatalogPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow rounded-lg p-6">
             <p>No catalog exists for this organization.</p>
           </div>
         )}

@@ -54,7 +54,7 @@ export default function AdminPanel() {
       {error && <p className="text-red-500">{error}</p>}
 
       <table className="min-w-full border border-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
           <tr>
             <th className="px-4 py-2 border">ID</th>
             <th className="px-4 py-2 border">Username</th>
@@ -79,7 +79,7 @@ export default function AdminPanel() {
       </table>
 
       <table className="min-w-full border border-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
           <tr>
             <th className="px-4 py-2 border">ID</th>
             <th className="px-4 py-2 border">Sponsor Name</th>

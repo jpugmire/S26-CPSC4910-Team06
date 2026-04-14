@@ -82,7 +82,7 @@ export function RecentTransactions({ selectedOrgId }: RecentTransactionsProps) {
 
   if (initialLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
@@ -94,7 +94,7 @@ export function RecentTransactions({ selectedOrgId }: RecentTransactionsProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
 
       {transactions.length === 0 ? (

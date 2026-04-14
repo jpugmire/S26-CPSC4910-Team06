@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
       {session?.user?.impersonating && (<ImpersonationBanner />)}
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

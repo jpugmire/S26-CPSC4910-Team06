@@ -22,7 +22,7 @@ export default function BulkUploadDrivers() {
   }
 
   return (
-    <div>
+    <div className = "bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
       <input
         type="file"
         accept=".csv"
