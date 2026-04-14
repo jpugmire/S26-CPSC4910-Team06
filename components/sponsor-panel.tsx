@@ -69,16 +69,16 @@ export default function SponsorPanel() {
           Point Dollar Value:{" "}
           {pointDollarValue !== null ? pointDollarValue : "N/A"}
         </h2>
-        <thead className="bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
-          <tr>
-            <th className="px-4 py-2 border">ID</th>
-            <th className="px-4 py-2 border">Username</th>
-            <th className="px-4 py-2 border">Status</th>
-            <th className="px-4 py-2 border">Points</th>
-          </tr>
-        </thead>
-        <table>
-            <tbody>
+        <table className="min-w-full border border-gray-200">
+          <thead className="bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
+            <tr>
+              <th className="px-4 py-2 border">ID</th>
+              <th className="px-4 py-2 border">Username</th>
+              <th className="px-4 py-2 border">Status</th>
+              <th className="px-4 py-2 border">Points</th>
+            </tr>
+          </thead>
+          <tbody>
             {drivers.map((driver) => (
                 <tr key={driver.User_ID} className="text-center">
                 <td className="px-4 py-2 border text-blue-600 hover:underline">
