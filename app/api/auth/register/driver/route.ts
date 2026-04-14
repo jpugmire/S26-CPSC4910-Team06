@@ -1,7 +1,9 @@
 // app/api/auth/register/driver/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
+import { sendEmailVerificationEmail } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +12,13 @@ export async function POST(req: NextRequest) {
     if (!username || !password) {
       return NextResponse.json(
         { error: "Username and password are required" },
+        { status: 400 }
+      )
+    }
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email is required" },
         { status: 400 }
       )
     }
@@ -32,16 +41,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (email) {
-      const existingEmail = await prisma.user.findUnique({
-        where: { Email: email },
-      })
-      if (existingEmail) {
-        return NextResponse.json(
-          { error: "Email already registered" },
-          { status: 400 }
-        )
-      }
+    const existingEmail = await prisma.user.findUnique({
+      where: { Email: email },
+    })
+
+    if (existingEmail) {
+      return NextResponse.json(
+        { error: "Email already registered" },
+        { status: 400 }
+      )
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -54,11 +62,24 @@ export async function POST(req: NextRequest) {
         User_Type: "D",
         Email: email,
         Phone: phone,
+        emailVerified: false,
         Driver: {
           create: {},
         },
       },
     })
+
+    // Generate verification token (24 hour expiry)
+    const token = crypto.randomBytes(32).toString("hex")
+    await prisma.email_Verification_Token.create({
+      data: {
+        token,
+        userId: user.User_ID,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      },
+    })
+
+    sendEmailVerificationEmail(email, username, token).catch(() => {})
 
     let applicationCreated = false
     if (sponsorOrgId) {

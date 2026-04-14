@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import Navbar from "@/components/navbar"
 import ImpersonationBanner from "@/components/impersonation-banner"
+import EmailVerificationBanner from "@/components/email-verification-banner"
 import DriverDashboard from "@/components/driver/dashboard"
 
 export default async function DashboardPage() {
@@ -27,6 +28,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
       {session?.user?.impersonating && (<ImpersonationBanner />)}
+      <EmailVerificationBanner />
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
           Driver Dashboard

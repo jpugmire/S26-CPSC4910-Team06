@@ -93,6 +93,13 @@ export function LoginForm() {
 			>
 				{loading ? "Signing in..." : "Sign In"}
 			</button>
+
+			<p className="text-center text-sm text-gray-600 mt-2">
+				Don&apos;t have an account?{" "}
+				<Link href="/register" className="text-blue-600 hover:underline font-medium">
+					Create one
+				</Link>
+			</p>
 		</form>
 	);
 }
