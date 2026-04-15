@@ -194,9 +194,9 @@ export default function AccountPage() {
     <>
       <Navbar />
       <ImpersonationBanner />
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-900 py-10 px-4">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Details</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-6">Account Details</h1>
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -208,37 +208,37 @@ export default function AccountPage() {
 
             <div className="space-y-3">
               <div>
-                <span className="text-sm font-medium text-gray-500">Username</span>
-                <p className="mt-1 text-gray-900 font-medium">{user.Username}</p>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</span>
+                <p className="mt-1 text-gray-900 dark:text-zinc-100 font-medium">{user.Username}</p>
               </div>
 
               {user.User_Type !== "D" && user.Org_Name && (
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Organization</span>
-                  <p className="mt-1 text-gray-900 font-medium">{user.Org_Name}</p>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Organization</span>
+                  <p className="mt-1 text-gray-900 dark:text-zinc-100 font-medium">{user.Org_Name}</p>
                 </div>
               )}
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-zinc-700" />
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Email address"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
                 <input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Phone number"
                 />
               </div>
@@ -252,11 +252,11 @@ export default function AccountPage() {
               {saving ? "Saving..." : "Save Changes"}
             </button>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-zinc-700" />
 
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-1">Two-Factor Authentication</h3>
-              <p className="text-sm text-gray-500 mb-3">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Two-Factor Authentication</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                 When enabled, you will be emailed a verification code each time you log in.
               </p>
               <button
@@ -271,11 +271,11 @@ export default function AccountPage() {
               </button>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-zinc-700" />
 
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-1">Email Notifications</h3>
-              <p className="text-sm text-gray-500 mb-3">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Notifications</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                 Receive emails for order confirmations and point balance changes.
               </p>
               <button
@@ -292,16 +292,16 @@ export default function AccountPage() {
 
             {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (
               <>
-                <hr className="border-gray-200" />
+                <hr className="border-gray-200 dark:border-zinc-700" />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Your Organizations</h3>
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Your Organizations</h3>
                   <ul className="space-y-2">
                     {user.joinedOrganizations.map((org) => (
                       <li
                         key={org.Org_ID}
-                        className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md"
+                        className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-zinc-700 rounded-md"
                       >
-                        <span className="text-sm font-medium text-gray-900">{org.Org_Name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">{org.Org_Name}</span>
                         <button
                           onClick={() => handleLeave(org.Org_ID, org.Org_Name)}
                           disabled={leaving}

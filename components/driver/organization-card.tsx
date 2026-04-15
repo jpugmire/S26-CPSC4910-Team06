@@ -56,7 +56,7 @@ export function OrganizationCard({ org, isSelected, onSelect, onLeave }: Organiz
       }`}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-gray-900 truncate">{org.Org_Name}</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-zinc-100 truncate">{org.Org_Name}</h3>
         {isSelected && (
           <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
             Selected
@@ -66,7 +66,7 @@ export function OrganizationCard({ org, isSelected, onSelect, onLeave }: Organiz
       <div className="text-2xl font-bold text-blue-600 mb-1">
         {org.Point_Count.toLocaleString()} pts
       </div>
-      <div className="text-sm text-gray-500">Member for {duration}</div>
+      <div className="text-sm text-gray-500 dark:text-gray-400">Member for {duration}</div>
       <button
         onClick={handleLeave}
         disabled={isLeaving}

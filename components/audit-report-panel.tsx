@@ -327,14 +327,14 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
     <div className="flex flex-col gap-6">
       {/* Dropdown type selector */}
       <div>
-        <p className="text-sm font-medium text-gray-700 mb-2">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Select Audit Type(s)
         </p>
         <div className="relative" ref={dropdownRef}>
           {/* Trigger button */}
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="w-full flex items-center justify-between px-4 py-2 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-blue-400 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-2 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-300 dark:border-zinc-600 rounded-lg text-sm hover:border-blue-400 transition-colors"
           >
             <span>{dropdownLabel}</span>
             {/* Chevron icon */}
@@ -350,7 +350,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
 
           {/* Dropdown menu */}
           {dropdownOpen && (
-            <div className="absolute z-10 mt-1 w-full bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-200 rounded-lg shadow-lg">
+            <div className="absolute z-10 mt-1 w-full bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-200 dark:border-zinc-600 rounded-lg shadow-lg">
               {/* Select all */}
               <label className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-zinc-700 cursor-pointer border-b border-gray-100 dark:border-zinc-600">
                 <input

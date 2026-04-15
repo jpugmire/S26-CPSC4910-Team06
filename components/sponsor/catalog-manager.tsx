@@ -187,7 +187,7 @@ export function SponsorCatalogManager() {
       {!showSearch ? (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               {catalog?.items.length || 0} items in catalog
             </p>
             <button
@@ -200,7 +200,7 @@ export function SponsorCatalogManager() {
 
           {catalog?.items.length === 0 ? (
             <div className="text-center py-12 bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded shadow">
-              <p className="text-gray-500 mb-4">Your catalog is empty.</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">Your catalog is empty.</p>
               <button
                 onClick={() => setShowSearch(true)}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
@@ -236,7 +236,7 @@ export function SponsorCatalogManager() {
                           {item.Point_Price} points
                         </span>
                       ) : (
-                        <span className="text-gray-500">No price set</span>
+                        <span className="text-gray-500 dark:text-gray-400">No price set</span>
                       )}
                     </div>
                     <div className="flex gap-2">
@@ -270,7 +270,7 @@ export function SponsorCatalogManager() {
                 setSearchQuery("")
                 setSearchResults([])
               }}
-              className="text-gray-600 hover:underline"
+              className="text-gray-600 dark:text-gray-300 hover:underline"
             >
               &larr; Back to Catalog
             </button>
@@ -283,7 +283,7 @@ export function SponsorCatalogManager() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search eBay for items..."
-                className="flex-1 px-4 py-2 border rounded"
+                className="flex-1 px-4 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600 dark:text-white dark:placeholder-zinc-400"
               />
               <button
                 type="submit"
@@ -313,10 +313,10 @@ export function SponsorCatalogManager() {
                   <h3 className="font-semibold text-sm mb-2 line-clamp-2">
                     {item.title}
                   </h3>
-                  <p className="text-gray-600 mb-2">
+                  <p className="text-gray-600 dark:text-gray-300 mb-2">
                     ${item.price.value} {item.price.currency}
                   </p>
-                  <p className="text-gray-500 text-xs mb-3">{item.condition}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">{item.condition}</p>
                   <button
                     onClick={() => handleAddItem(item)}
                     className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
@@ -334,7 +334,7 @@ export function SponsorCatalogManager() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Add Item to Catalog</h3>
-            <p className="text-gray-600 mb-4 line-clamp-2">{selectedItem.title}</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{selectedItem.title}</p>
             <p className="text-gray-600 mb-4">
               ${selectedItem.price.value} {selectedItem.price.currency}
             </p>
@@ -347,16 +347,16 @@ export function SponsorCatalogManager() {
                 value={pointPrice}
                 onChange={(e) => setPointPrice(e.target.value)}
                 placeholder="e.g., 100"
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Set the point value drivers need to redeem this item
               </p>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedItem(null)}
-                className="flex-1 px-4 py-2 border rounded hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border rounded hover:bg-gray-50 dark:border-zinc-600 dark:hover:bg-zinc-700 dark:text-zinc-100"
               >
                 Cancel
               </button>
@@ -376,7 +376,7 @@ export function SponsorCatalogManager() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg p-6 max-w-md w-full">
             <h3 className="text-xl font-bold mb-4">Edit Point Price</h3>
-            <p className="text-gray-600 mb-4 line-clamp-2">{editingItem.Item_Name}</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{editingItem.Item_Name}</p>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Point Price</label>
               <input
@@ -384,13 +384,13 @@ export function SponsorCatalogManager() {
                 value={editPrice}
                 onChange={(e) => setEditPrice(e.target.value)}
                 placeholder="e.g., 100"
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setEditingItem(null)}
-                className="flex-1 px-4 py-2 border rounded hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border rounded hover:bg-gray-50 dark:border-zinc-600 dark:hover:bg-zinc-700 dark:text-zinc-100"
               >
                 Cancel
               </button>
