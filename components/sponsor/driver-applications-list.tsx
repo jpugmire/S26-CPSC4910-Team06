@@ -119,20 +119,20 @@ export function DriverApplicationsList() {
   const renderApplication = (app: DriverApplication) => (
     <div
       key={app.Application_ID}
-      className="border rounded-lg p-4 border-l-4 border-blue-500"
+      className="border border-gray-200 dark:border-zinc-700 rounded-lg p-4 border-l-4 border-l-blue-500"
     >
       <div className="flex justify-between items-start">
         <div>
           <p className="font-semibold">{app.User.Username}</p>
-          <p className="text-sm text-gray-600">{app.User.Email}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{app.User.Email}</p>
           {app.User.Phone && (
-            <p className="text-sm text-gray-600">{app.User.Phone}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{app.User.Phone}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Applied: {new Date(app.Application_Date).toLocaleDateString()}
           </p>
           {app.Review_Date && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Reviewed: {new Date(app.Review_Date).toLocaleDateString()}
             </p>
           )}
@@ -172,7 +172,7 @@ export function DriverApplicationsList() {
   )
 
   return (
-    <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-6">
+    <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold">Driver Applications</h3>
         {pendingApplications.length > 0 && (
@@ -200,7 +200,7 @@ export function DriverApplicationsList() {
               <div className="flex items-center justify-between mb-2">
                 <button
                   onClick={() => setPendingCollapsed(!pendingCollapsed)}
-                  className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900"
+                  className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                 >
                   <span>{pendingCollapsed ? "▶" : "▼"}</span>
                   <span>Pending ({pendingApplications.length})</span>
@@ -235,7 +235,7 @@ export function DriverApplicationsList() {
             <div>
               <button
                 onClick={() => setPastCollapsed(!pastCollapsed)}
-                className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900"
+                className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 <span>{pastCollapsed ? "▶" : "▼"}</span>
                 <span>Past ({pastApplications.length})</span>

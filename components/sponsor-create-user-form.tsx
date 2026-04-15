@@ -50,6 +50,8 @@ export function SponsorCreateUserForm() {
     }
   }
 
+  const inputClass = "w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 px-3 py-2 rounded-md"
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -59,7 +61,7 @@ export function SponsorCreateUserForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className={inputClass}
         />
       </div>
 
@@ -70,7 +72,7 @@ export function SponsorCreateUserForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className={inputClass}
         />
       </div>
 
@@ -81,7 +83,7 @@ export function SponsorCreateUserForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className={inputClass}
         />
       </div>
 
@@ -92,7 +94,7 @@ export function SponsorCreateUserForm() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className={inputClass}
         />
       </div>
 
@@ -101,18 +103,18 @@ export function SponsorCreateUserForm() {
         <select
           value={userType}
           onChange={(e) => setRole(e.target.value)}
-          className="w-full border px-3 py-2 rounded-md"
+          className={inputClass}
         >
           <option value="D">Driver</option>
           <option value="S">Sponsor</option>
         </select>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           User will be created under your organization.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           {error}
         </div>
       )}
@@ -120,12 +122,13 @@ export function SponsorCreateUserForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md"
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
       >
         {loading ? "Creating..." : "Create User"}
       </button>
+
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded">
           {success}
         </div>
       )}

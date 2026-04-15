@@ -3,20 +3,17 @@
 import { useSession } from "next-auth/react"
 
 export function StopImpersonationButton() {
-  const { data: session } = useSession();
-  const { update } = useSession()
+  const { data: session, update } = useSession()
 
   async function handleStop() {
     if (!session?.user?.realUserRole) return
-    const endpoint =
-          session.user.realUserRole === "A"
-            ? "/api/admin/impersonation/stop"
-            : "/api/sponsor/impersonation/stop"
-    const res = await fetch(endpoint, {
-      method: "POST",
-    })
-    console.log("click!!!");
 
+    const endpoint =
+      session.user.realUserRole === "A"
+        ? "/api/admin/impersonation/stop"
+        : "/api/sponsor/impersonation/stop"
+
+    const res = await fetch(endpoint, { method: "POST" })
     const data = await res.json()
 
     if (!res.ok) {
@@ -24,21 +21,16 @@ export function StopImpersonationButton() {
       return
     }
 
-    await update({
-      impersonationAction: {
-        type: "stop",
-      },
-    })
-
+    await update({ impersonationAction: { type: "stop" } })
     window.location.href = "/dashboard"
   }
 
   return (
-  <button
-    onClick={handleStop}
-    style={{ background: "red", color: "white", padding: "10px", cursor: "pointer" }}
-  >
-    Stop impersonating
-  </button>
-)
+    <button
+      onClick={handleStop}
+      className="text-sm font-medium px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+    >
+      Stop Impersonating
+    </button>
+  )
 }

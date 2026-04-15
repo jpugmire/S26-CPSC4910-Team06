@@ -87,7 +87,7 @@ export default async function DriverCatalogPage() {
             <strong>Point Balance:</strong> {pointBalance}
           </p>
           {driver.Driver_Sponsor_Org.length > 1 && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               You belong to {driver.Driver_Sponsor_Org.length} organizations. Showing catalog for {firstOrg.Sponsor_Org.Org_Name}.
             </p>
           )}

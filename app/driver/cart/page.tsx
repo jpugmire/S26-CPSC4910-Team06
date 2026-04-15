@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 export default function CartPage() {
   const [cart, setCart] = useState<any[]>([])
@@ -14,6 +15,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
+      <ImpersonationBanner />
 
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-6">

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import Navbar from "@/components/navbar"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 export default async function AboutPage() {
   const version = await prisma.version.findFirst({
@@ -10,6 +11,7 @@ export default async function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
       <Navbar />
+      <ImpersonationBanner />
 
       <main className="max-w-4xl mx-auto py-8 px-4">
         <div className="bg-white dark:bg-zinc-800 shadow-md rounded-lg p-8">
@@ -23,7 +25,7 @@ export default async function AboutPage() {
           </div>
 
           {/* VERSION INFO */}
-          <div className="bg-gray-50 dark:bg-zinc-700 border dark:border-zinc-600 rounded-lg p-4 mb-6">
+          <div className="bg-gray-50 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg p-4 mb-6">
             <p className="text-sm text-gray-500 dark:text-gray-400">Current Version</p>
             <p className="font-semibold text-lg">
               {version?.VersionNum ?? "N/A"}

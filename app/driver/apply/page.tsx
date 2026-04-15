@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 interface Organization {
   Org_ID: number
@@ -134,6 +135,7 @@ export default function DriverApplyPage() {
   return (
     <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
+      <ImpersonationBanner />
       <div className="max-w-2xl mx-auto space-y-6 py-8 px-4">
         {loading && (
           <p className="text-gray-500 dark:text-gray-400 text-center py-12">Loading...</p>
@@ -229,7 +231,7 @@ export default function DriverApplyPage() {
               <select
                 value={selectedOrg || ""}
                 onChange={(e) => setSelectedOrg(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">-- Select an organization --</option>
                 {organizations.map((org) => (
@@ -239,7 +241,7 @@ export default function DriverApplyPage() {
                 ))}
               </select>
               {organizations.length === 0 && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   No organizations available to apply to.
                 </p>
               )}

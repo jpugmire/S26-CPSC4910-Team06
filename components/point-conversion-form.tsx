@@ -1,11 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Session } from "node:inspector";
+import { useState } from "react"
 
 export function PointConversionForm() {
-  const router = useRouter()
   const [success, setSuccess] = useState("");
   const [conversion, setConversion] = useState<number>(1.00);
   const [error, setError] = useState("")
@@ -48,12 +45,12 @@ export function PointConversionForm() {
           value={conversion}
           onChange={(e) => setConversion(Number(e.target.value))}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className="w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 px-3 py-2 rounded-md"
         />
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           {error}
         </div>
       )}
@@ -65,7 +62,7 @@ export function PointConversionForm() {
       >
         {loading ? "Updating..." : "Update Organization Conversion Rate"}
       </button>
-      {success && (<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>)}
+      {success && (<div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded">{success}</div>)}
     </form>
   )
 }

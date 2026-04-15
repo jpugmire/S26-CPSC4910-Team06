@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Navbar from "@/components/navbar"
 import ImpersonationBanner from "@/components/impersonation-banner"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 type JoinedOrganization = {
   Org_ID: number
@@ -288,6 +289,16 @@ export default function AccountPage() {
               >
                 {notificationsEnabled ? "Disable Notifications" : "Enable Notifications"}
               </button>
+            </div>
+
+            <hr className="border-gray-200 dark:border-zinc-700" />
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appearance</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                Toggle between light and dark mode.
+              </p>
+              <ThemeToggle />
             </div>
 
             {user.User_Type === "D" && user.joinedOrganizations && user.joinedOrganizations.length > 0 && (

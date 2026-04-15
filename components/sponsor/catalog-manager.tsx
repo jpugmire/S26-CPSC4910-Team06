@@ -214,45 +214,37 @@ export function SponsorCatalogManager() {
                 const imageUrl = item.Item_Image_URL
                 const hasValidImage = isValidImageUrl(imageUrl)
                 return (
-                <div key={item.Item_ID} className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-4 rounded shadow">
+                <div key={item.Item_ID} className="bg-gray-50 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100 border border-gray-200 dark:border-zinc-600 rounded-lg shadow-sm p-4 flex flex-col justify-between">
                   {hasValidImage ? (
                     <img
                       src={imageUrl!}
                       alt={item.Item_Name}
-                      className="w-full h-48 object-contain mb-3"
+                      className="w-full h-40 object-contain mb-3"
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 flex items-center justify-center mb-3">
-                      <span className="text-gray-400 text-sm">No image available</span>
+                    <div className="w-full h-40 bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-3 rounded-md">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm">No image available</span>
                     </div>
                   )}
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                    {item.Item_Name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      {item.Point_Price !== null ? (
-                        <span className="text-lg font-bold text-green-600">
-                          {item.Point_Price} points
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 dark:text-gray-400">No price set</span>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleUpdatePrice(item)}
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteItem(item)}
-                        className="text-red-600 hover:underline text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm mb-1 line-clamp-2">{item.Item_Name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      {item.Point_Price !== null ? `${item.Point_Price} points` : "No price set"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdatePrice(item)}
+                      className="flex-1 py-1.5 text-sm font-medium rounded-md border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem(item)}
+                      className="flex-1 py-1.5 text-sm font-medium rounded-md border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
               )
@@ -303,23 +295,21 @@ export function SponsorCatalogManager() {
                     <img
                       src={item.image.imageUrl}
                       alt={item.title}
-                      className="w-full h-48 object-contain mb-3"
+                      className="w-full h-40 object-contain mb-3"
                     />
                   ) : (
-                    <div className="w-full h-48 bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 flex items-center justify-center mb-3">
-                      <span className="text-gray-400 text-sm">No image available</span>
+                    <div className="w-full h-40 bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-3 rounded-md">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm">No image available</span>
                     </div>
                   )}
-                  <h3 className="font-semibold text-sm mb-2 line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-2">
-                    ${item.price.value} {item.price.currency}
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs mb-3">{item.condition}</p>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm mb-1 line-clamp-2">{item.title}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">${item.price.value} {item.price.currency}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{item.condition}</p>
+                  </div>
                   <button
                     onClick={() => handleAddItem(item)}
-                    className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    className="w-full py-2 px-3 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
                   >
                     Add to Catalog
                   </button>
@@ -373,10 +363,10 @@ export function SponsorCatalogManager() {
       )}
 
       {editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Edit Point Price</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{editingItem.Item_Name}</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow-xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-1">Edit Point Price</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">{editingItem.Item_Name}</p>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Point Price</label>
               <input
@@ -384,20 +374,20 @@ export function SponsorCatalogManager() {
                 value={editPrice}
                 onChange={(e) => setEditPrice(e.target.value)}
                 placeholder="e.g., 100"
-                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setEditingItem(null)}
-                className="flex-1 px-4 py-2 border rounded hover:bg-gray-50 dark:border-zinc-600 dark:hover:bg-zinc-700 dark:text-zinc-100"
+                className="flex-1 px-4 py-2 border border-gray-200 dark:border-zinc-600 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 dark:text-zinc-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmUpdatePrice}
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? "Saving..." : "Save"}
               </button>
