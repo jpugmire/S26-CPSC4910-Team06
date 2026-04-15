@@ -91,7 +91,7 @@ export function ImpersonateUserForm() {
           <select
             value={User_ID ?? ""}
             onChange={(e) => setUserID(e.target.value === "" ? null : Number(e.target.value))}
-            className="w-full border px-3 py-2 rounded-md"
+            className="w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 px-3 py-2 rounded-md"
           >
             <option value="">Select User</option>
             {users
@@ -105,7 +105,7 @@ export function ImpersonateUserForm() {
         </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           {error}
         </div>
       )}
@@ -117,7 +117,7 @@ export function ImpersonateUserForm() {
       >
         {loading ? "Impersonating..." : "Impersonate User"}
       </button>
-      {success && (<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>)}
+      {success && (<div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded">{success}</div>)}
     </form>
   )
 }

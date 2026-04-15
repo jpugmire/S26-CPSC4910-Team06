@@ -11,13 +11,12 @@ export function ThemeToggle() {
   useEffect(() => setMounted(true), [])
 
   if (!mounted) return null
-  console.log(theme);
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="rounded border px-3 py-2 dark:border-zinc-700"
+      className="text-sm font-medium py-2 px-4 rounded-md transition-colors bg-blue-600 hover:bg-blue-700 text-white"
     >
-      Switch theme
+      {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
     </button>
   )
 }

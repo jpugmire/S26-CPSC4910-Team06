@@ -4,8 +4,6 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { signOut } from "next-auth/react"
-import { ThemeToggle } from "./theme-toggle"
-
 export default function Navbar() {
   const { data: session, status } = useSession()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -26,25 +24,26 @@ export default function Navbar() {
     <nav className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <ThemeToggle />
           <h1 className="text-xl font-bold">Driver Rewards</h1>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">Dashboard</Link>
+          <div className="flex items-center gap-1">
             {session?.user?.role === "D" && (
-              <Link href="/driver/apply" className="text-sm text-blue-600 hover:underline">Apply</Link>
+              <Link href="/dashboard" className="text-sm font-medium px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">Dashboard</Link>
             )}
-            <Link href="/about" className="text-sm text-blue-600 hover:underline">About</Link>
+            {session?.user?.role === "D" && (
+              <Link href="/driver/apply" className="text-sm font-medium px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">Apply</Link>
+            )}
+            <Link href="/about" className="text-sm font-medium px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">About</Link>
             {session?.user?.role === "A" && (
-              <Link href="/adminConsole" className="text-sm text-red-600 font-semibold hover:underline">Admin</Link>
+              <Link href="/adminConsole" className="text-sm font-medium px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Admin</Link>
             )}
             {session?.user?.role === "S" && (
-              <Link href="/sponsor/catalog" className="text-sm text-green-600 hover:underline">Catalog</Link>
+              <Link href="/sponsor/catalog" className="text-sm font-medium px-3 py-1.5 rounded-md text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">Catalog</Link>
             )}
             {session?.user?.role === "S" && (
-              <Link href="/sponsorConsole" className="text-sm text-red-600 font-semibold hover:underline">Console</Link>
+              <Link href="/sponsorConsole" className="text-sm font-medium px-3 py-1.5 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Console</Link>
             )}
             {session?.user?.role === "D" && (
-              <Link href="/driver/catalog" className="text-sm text-blue-600 hover:underline">Catalog</Link>
+              <Link href="/driver/catalog" className="text-sm font-medium px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">Catalog</Link>
             )}
 
             <div className="relative" ref={menuRef}>
@@ -59,8 +58,8 @@ export default function Navbar() {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 border rounded-md shadow-lg py-1 z-50">
-                  <div className="px-4 py-2 border-b dark:border-zinc-700">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md shadow-lg py-1 z-50">
+                  <div className="px-4 py-2 border-b border-gray-200 dark:border-zinc-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
                     <p className="text-sm font-medium truncate">{session?.user?.username}</p>
                   </div>
@@ -89,7 +88,7 @@ export default function Navbar() {
                       </Link>
                     </>
                   )}
-                  <div className="border-t dark:border-zinc-700 mt-1 pt-1">
+                  <div className="border-t border-gray-200 dark:border-zinc-700 mt-1 pt-1">
                     <button
                       onClick={() => signOut({ callbackUrl: "/login" })}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-zinc-700"

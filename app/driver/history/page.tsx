@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import HistoryList from "@/components/driver/history-list"
 import Navbar from "@/components/navbar"
+import ImpersonationBanner from "@/components/impersonation-banner"
 
 export default async function HistoryPage() {
   const session = await auth()
@@ -34,6 +35,7 @@ export default async function HistoryPage() {
   return (
     <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <Navbar />
+      <ImpersonationBanner />
 
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-6">

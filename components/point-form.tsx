@@ -62,7 +62,7 @@ export function PointForm() {
           <select
             value={driverId ?? ""}
             onChange={(e) => setDriverId(e.target.value === "" ? null : Number(e.target.value))}
-            className="w-full border px-3 py-2 rounded-md"
+            className="w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 px-3 py-2 rounded-md"
           >
             <option value="">Select Driver</option>
             {drivers.filter(user => user.Driver).map((driver) => (
@@ -80,7 +80,7 @@ export function PointForm() {
           value={pointValue}
           onChange={(e) => setPointValue(Number(e.target.value))}
           required
-          className="w-full border px-3 py-2 rounded-md"
+          className="w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 px-3 py-2 rounded-md"
         />
       </div>
 
@@ -90,13 +90,13 @@ export function PointForm() {
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Reason (optional)"
-          className="w-full border px-3 py-2 rounded-md"
+          className="w-full border border-gray-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-400 px-3 py-2 rounded-md"
           rows={3}
         />
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           {error}
         </div>
       )}
@@ -108,7 +108,7 @@ export function PointForm() {
       >
         {loading ? "Creating..." : "Update Driver Points"}
       </button>
-      {success && (<div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">{success}</div>)}
+      {success && (<div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded">{success}</div>)}
     </form>
   )
 }

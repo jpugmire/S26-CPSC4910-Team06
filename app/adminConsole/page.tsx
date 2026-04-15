@@ -6,6 +6,7 @@ import { DeactivateUserForm } from "@/components/deactivate-form"
 import Link from "next/link";
 import AdminPanel from "@/components/admin-panel";
 import Navbar from "@/components/navbar";
+import ImpersonationBanner from "@/components/impersonation-banner";
 import BulkUploadDrivers from "@/components/admin-bulk-upload";
 import BulkUploadSponsorOrgs from "@/components/admin-bulk-upload-sponsorOrg";
 import { AuditReportPanel } from "@/components/audit-report-panel";
@@ -24,6 +25,7 @@ export default async function AdminPage() {
   return (
   <>
     <Navbar />
+    <ImpersonationBanner />
     <div className="min-h-screen bg-gray-100 text-zinc-900 py-12 px-8 dark:bg-zinc-900 dark:text-zinc-100">
       <div className="w-full max-w-7xl mx-auto flex flex-col gap-8">
 
