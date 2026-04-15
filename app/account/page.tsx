@@ -92,47 +92,47 @@ export default function AccountPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-900 py-10 px-4">
         <ImpersonationBanner />
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Details</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-6">Account Details</h1>
           <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 rounded-lg shadow p-6 space-y-6">
 
             {/* Read-only info */}
             <div className="space-y-3">
               <div>
-                <span className="text-sm font-medium text-gray-500">Username</span>
-                <p className="mt-1 text-gray-900 font-medium">{user.Username}</p>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</span>
+                <p className="mt-1 text-gray-900 dark:text-zinc-100 font-medium">{user.Username}</p>
               </div>
 
               {user.Org_Name && (
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Organization</span>
-                  <p className="mt-1 text-gray-900 font-medium">{user.Org_Name}</p>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Organization</span>
+                  <p className="mt-1 text-gray-900 dark:text-zinc-100 font-medium">{user.Org_Name}</p>
                 </div>
               )}
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-zinc-700" />
 
             {/* Editable fields */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
                   placeholder="Email address"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Phone</label>
                 <input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
                   placeholder="Phone number"
                 />
               </div>
@@ -145,12 +145,12 @@ export default function AccountPage() {
               Save Changes
             </button>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-zinc-700" />
 
             {/* Notifications */}
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-1">Email Notifications</h3>
-              <p className="text-sm text-gray-500 mb-3">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email Notifications</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                 Receive emails for order confirmations and point balance changes.
               </p>
               <button
@@ -168,10 +168,10 @@ export default function AccountPage() {
             {/* Leave org */}
             {user.Org_Name && (
               <>
-                <hr className="border-gray-200" />
+                <hr className="border-gray-200 dark:border-zinc-700" />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Leave Organization</h3>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Leave Organization</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     You will need to apply again to rejoin.
                   </p>
                   <button

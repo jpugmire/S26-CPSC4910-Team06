@@ -352,21 +352,21 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
           {dropdownOpen && (
             <div className="absolute z-10 mt-1 w-full bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-gray-200 rounded-lg shadow-lg">
               {/* Select all */}
-              <label className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+              <label className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-zinc-700 cursor-pointer border-b border-gray-100 dark:border-zinc-600">
                 <input
                   type="checkbox"
                   checked={selectedTypes.length === AUDIT_TYPES.length}
                   onChange={toggleAll}
                   className="accent-blue-600"
                 />
-                <span className="text-sm font-medium text-gray-700">Select All</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Select All</span>
               </label>
 
               {/* Individual type options */}
               {AUDIT_TYPES.map((type) => (
                 <label
                   key={type.value}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-zinc-700 cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -374,7 +374,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                     onChange={() => toggleType(type.value)}
                     className="accent-blue-600"
                   />
-                  <span className="text-sm text-gray-700">{type.label}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{type.label}</span>
                 </label>
               ))}
             </div>
@@ -386,7 +386,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
       <div className="flex flex-col gap-4">
         {isAdmin && (
           <div className="flex flex-col gap-2">
-            <label htmlFor="orgSelect" className="text-sm font-medium text-gray-700">
+            <label htmlFor="orgSelect" className="text-sm font-medium text-gray-700 dark:text-gray-200">
               Filter by Organization(s) (optional)
             </label>
             <select
@@ -398,7 +398,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                   setSelectedOrgIds((prev) => [...prev, orgIdNum]);
                 }
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
             >
               <option value="">Select Sponsor Organization</option>
               {sponsorOrgs.map((org) => (
@@ -414,7 +414,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                   return (
                     <div
                       key={orgIdNum}
-                      className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
+                      className="flex items-center gap-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-3 py-1 rounded-full text-sm"
                     >
                       <span>{org?.Org_Name || `Org ${orgIdNum}`}</span>
                       <button
@@ -432,14 +432,14 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
         )}
         {!isDriver && (
           <div className="flex flex-col gap-2">
-            <label htmlFor="userSelect" className="text-sm font-medium text-gray-700">
+            <label htmlFor="userSelect" className="text-sm font-medium text-gray-700 dark:text-gray-200">
               Filter by User (optional)
             </label>
             <select
               id="userSelect"
               value=""
               onChange={handleUserSelect}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
             >
               <option value="">Select User</option>
               {users.map((user) => (
@@ -453,7 +453,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                 {selectedUserIds.map((userId) => (
                   <div
                     key={userId}
-                    className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                    className="flex items-center gap-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full text-sm"
                   >
                     <span>{getUsernameById(userId)}</span>
                     <button
@@ -469,7 +469,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
           </div>
         )}
         <div className="flex flex-col gap-2">
-          <label htmlFor="minDate" className="text-sm font-medium text-gray-700">
+          <label htmlFor="minDate" className="text-sm font-medium text-gray-700 dark:text-gray-200">
             Min Date (optional)
           </label>
           <input
@@ -477,11 +477,11 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
             type="date"
             value={minDate}
             onChange={(e) => setMinDate(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="maxDate" className="text-sm font-medium text-gray-700">
+          <label htmlFor="maxDate" className="text-sm font-medium text-gray-700 dark:text-gray-200">
             Max Date (optional)
           </label>
           <input
@@ -489,7 +489,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
             type="date"
             value={maxDate}
             onChange={(e) => setMaxDate(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
           />
         </div>
       </div>
@@ -519,7 +519,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
               <div className="mb-4 flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <label htmlFor="itemsPerPage" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="itemsPerPage" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                       Items per page:
                     </label>
                     <input
@@ -531,7 +531,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                       className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Showing <span className="font-semibold">{(validPage - 1) * itemsPerPage + 1}</span> to{" "}
                     <span className="font-semibold">
                       {Math.min(validPage * itemsPerPage, results.length)}
@@ -572,7 +572,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <label htmlFor="pageInput" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="pageInput" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                       Go to page:
                     </label>
                     <input
@@ -595,7 +595,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                     </button>
                   </div>
 
-                  <p className="text-sm text-gray-600 font-medium">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                     Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
                   </p>
                 </div>
@@ -620,7 +620,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
               <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-gray-600 uppercase text-xs tracking-wide">
+                  <tr className="bg-gray-50 dark:bg-zinc-800 text-left text-gray-600 dark:text-gray-400 uppercase text-xs tracking-wide">
                     <th className="px-4 py-3 border-b cursor-pointer hover:bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100" onClick={() => handleSort("Audit_ID")}>
                       Audit ID <SortIndicator column="Audit_ID" />
                     </th>
@@ -646,22 +646,22 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                 </thead>
                 <tbody>
                   {paginatedResults.map((row) => (
-                    <tr key={row.Audit_ID} className="hover:bg-gray-50 border-b last:border-0">
-                      <td className="px-4 py-3 text-gray-500">{row.Audit_ID}</td>
+                    <tr key={row.Audit_ID} className="hover:bg-gray-50 dark:hover:bg-zinc-700 border-b dark:border-zinc-700 last:border-0">
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{row.Audit_ID}</td>
                       {!isDriver && (
-                        <td className="px-4 py-3 text-gray-700">{row.User?.Username || `User ${row.User_ID}`}</td>
+                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{row.User?.Username || `User ${row.User_ID}`}</td>
                       )}
                       {isAdmin && (
-                        <td className="px-4 py-3 text-gray-700">{row.Org_Name ?? "-"}</td>
+                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{row.Org_Name ?? "-"}</td>
                       )}
-                      <td className="px-4 py-3 text-gray-700">{row.Message}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.Note ?? "-"}</td>
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{row.Message}</td>
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{row.Note ?? "-"}</td>
                       <td className="px-4 py-3">
                         <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
                           {row.Message_Type_ID}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
                         {new Date(row.Date_Created).toLocaleString()}
                       </td>
                     </tr>
@@ -703,7 +703,7 @@ export function AuditReportPanel({ orgId, isAdmin, isDriver, driverId }: AuditRe
                 </button>
               </div>
 
-              <p className="text-sm text-gray-600 font-medium">
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 Page <span className="text-blue-600">{validPage}</span> of <span className="text-blue-600">{totalPages}</span>
               </p>
             </div>

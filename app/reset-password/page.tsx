@@ -69,7 +69,7 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
           New password
         </label>
         <input
@@ -78,7 +78,7 @@ function ResetPasswordForm() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-600 dark:border-zinc-500 dark:text-white"
         />
         {strength !== null && (
           <div className="mt-2 space-y-1">
@@ -87,12 +87,12 @@ function ResetPasswordForm() {
                 <div
                   key={i}
                   className={`h-1.5 flex-1 rounded-full ${
-                    i <= strength.score ? strengthColors[strength.score] : "bg-gray-200"
+                    i <= strength.score ? strengthColors[strength.score] : "bg-gray-200 dark:bg-zinc-600"
                   }`}
                 />
               ))}
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {strengthLabels[strength.score]}
               {strength.feedback.suggestions[0] ? ` — ${strength.feedback.suggestions[0]}` : ""}
             </p>
@@ -100,7 +100,7 @@ function ResetPasswordForm() {
         )}
       </div>
       <div>
-        <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
           Confirm password
         </label>
         <input
@@ -109,7 +109,7 @@ function ResetPasswordForm() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-600 dark:border-zinc-500 dark:text-white"
         />
       </div>
       {error && (

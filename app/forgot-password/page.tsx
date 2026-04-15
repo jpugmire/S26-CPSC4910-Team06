@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
           <h1 className="text-2xl font-bold text-center mb-6">Reset Password</h1>
           {submitted ? (
             <div className="text-center space-y-4">
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 If an account with that email exists, a reset link has been sent.
               </p>
               <Link href="/login" className="text-blue-600 hover:underline text-sm">
@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Email address
                 </label>
                 <input
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-600 dark:border-zinc-500 dark:text-white"
                 />
               </div>
               <button
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
               >
                 {loading ? "Sending..." : "Send Reset Link"}
               </button>
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
                 <Link href="/login" className="text-blue-600 hover:underline">
                   Back to login
                 </Link>
