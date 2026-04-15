@@ -56,7 +56,7 @@ async function canAccessUser(
   return false
 }
 
-export async function GET(req: NextRequest, { params }: RouteContext) {
+export async function GET(_req: NextRequest, { params }: RouteContext) {
   try {
     const session = await auth()
 
@@ -88,6 +88,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
         Email: true,
         Phone: true,
         User_Type: true,
+        twoFactorEnabled: true,
+        notificationsEnabled: true,
         Sponsor: {
           select: {
             Sponsor_Org: {
@@ -126,6 +128,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       Email: user.Email,
       Phone: user.Phone,
       User_Type: user.User_Type,
+      twoFactorEnabled: user.twoFactorEnabled,
+      notificationsEnabled: user.notificationsEnabled,
     }
 
     if (user.User_Type === "S") {
