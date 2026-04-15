@@ -43,7 +43,7 @@ export default async function SponsorPage() {
               </h1>
               <SponsorCreateUserForm />
             </div>
-            <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100shadow-md rounded-lg p-8">
+            <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 shadow-md rounded-lg p-8">
               <h1 className="text-2xl font-bold text-center mb-6">
                 Bulk Upload Users (CSV)
               </h1>
