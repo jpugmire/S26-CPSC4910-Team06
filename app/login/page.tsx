@@ -20,7 +20,7 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
       <div className="w-full max-w-md">
         {verified === "true" && (
-          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-700 dark:text-green-300 px-4 py-3 rounded-lg text-sm">
             Email verified! You can now sign in.
           </div>
         )}

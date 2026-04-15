@@ -61,7 +61,7 @@ export default function Navbar() {
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 border rounded-md shadow-lg py-1 z-50">
                   <div className="px-4 py-2 border-b dark:border-zinc-700">
-                    <p className="text-xs text-gray-500">Signed in as</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
                     <p className="text-sm font-medium truncate">{session?.user?.username}</p>
                   </div>
                   <Link

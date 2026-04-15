@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Navbar from "@/components/navbar"
 
 interface Organization {
   Org_ID: number
@@ -130,17 +131,14 @@ export default function DriverApplyPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 py-8 px-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
+      <Navbar />
+      <div className="max-w-2xl mx-auto space-y-6 py-8 px-4">
+        {loading && (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-12">Loading...</p>
+        )}
+        {!loading && (<>
         <h1 className="text-2xl font-bold">Manage Sponsorships</h1>
 
         {error && (
@@ -160,8 +158,8 @@ export default function DriverApplyPage() {
             <h2 className="text-lg font-semibold mb-4">Joined Organizations</h2>
             <div className="space-y-3">
               {status.joinedOrganizations.map((org) => (
-                <div key={org.Org_ID} className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
-                  <span className="font-medium">{org.Org_Name}</span>
+                <div key={org.Org_ID} className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                  <span className="font-medium dark:text-zinc-100">{org.Org_Name}</span>
                   <button
                     onClick={() => handleLeave(org.Org_ID)}
                     disabled={leaving === org.Org_ID}
@@ -180,10 +178,10 @@ export default function DriverApplyPage() {
             <h2 className="text-lg font-semibold mb-4">Pending Applications</h2>
             <div className="space-y-3">
               {status.pendingApplications.map((app) => (
-                <div key={app.Application_ID} className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                <div key={app.Application_ID} className="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
                   <div>
-                    <span className="font-medium">{app.Sponsor_Org.Org_Name}</span>
-                    <p className="text-sm text-gray-500">
+                    <span className="font-medium dark:text-zinc-100">{app.Sponsor_Org.Org_Name}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Applied: {new Date(app.Application_Date).toLocaleDateString()}
                     </p>
                   </div>
@@ -197,14 +195,14 @@ export default function DriverApplyPage() {
         )}
 
         {status?.pastApplications && status.pastApplications.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 p-6 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Past Applications</h2>
             <div className="space-y-3">
               {status.pastApplications.map((app) => (
-                <div key={app.Application_ID} className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-200">
+                <div key={app.Application_ID} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-zinc-700 rounded border border-gray-200 dark:border-zinc-600">
                   <div>
-                    <span className="font-medium">{app.Sponsor_Org.Org_Name}</span>
-                    <p className="text-sm text-gray-500">
+                    <span className="font-medium dark:text-zinc-100">{app.Sponsor_Org.Org_Name}</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Applied: {new Date(app.Application_Date).toLocaleDateString()}
                     </p>
                   </div>
@@ -259,10 +257,11 @@ export default function DriverApplyPage() {
 
         <button
           onClick={() => router.push("/dashboard")}
-          className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700"
         >
           Back to Dashboard
         </button>
+        </>)}
       </div>
     </div>
   )

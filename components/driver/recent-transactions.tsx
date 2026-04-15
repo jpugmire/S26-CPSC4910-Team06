@@ -104,11 +104,11 @@ export function RecentTransactions({ selectedOrgId }: RecentTransactionsProps) {
           {transactions.map((tx) => (
             <div
               key={tx.Transaction_ID}
-              className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+              className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-zinc-700 last:border-0"
             >
               <div className="flex-1">
-                <p className="font-medium text-gray-900">{tx.Item_Name}</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-gray-900 dark:text-zinc-100">{tx.Item_Name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {tx.Org_Name} • {formatRelativeTime(tx.Transaction_Date)}
                 </p>
               </div>
@@ -124,7 +124,7 @@ export function RecentTransactions({ selectedOrgId }: RecentTransactionsProps) {
             <button
               onClick={handleLoadMore}
               disabled={loading}
-              className="w-full mt-4 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors disabled:opacity-50"
+              className="w-full mt-4 py-2 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-gray-200 rounded-lg text-gray-700 font-medium transition-colors disabled:opacity-50"
             >
               {loading ? "Loading..." : "Load More"}
             </button>
